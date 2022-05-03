@@ -30,6 +30,7 @@ namespace honeybee {
         void set_delimiter(const std::string& delimiters);
         std::shared_ptr<sensor_table> get_sensor_table();
         std::shared_ptr<data_source> get_data_source();
+        std::vector<std::string> find_like(const std::string a_name);
         series_bundle read(const vector<std::string>& a_sensor_list, double a_start, double a_stop);
       protected:
         void construct();

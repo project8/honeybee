@@ -114,6 +114,25 @@ void honeybee_app::construct()
     f_data_source->bind(*f_sensor_table);
 }
 
+std::vector<std::string> honeybee_app::find_like(const std::string a_name)
+{
+    vector<string> t_name_list;
+    
+    if (! f_is_constructed) {
+        construct();
+    }
+    if (! f_sensor_table || ! f_data_source) {
+        return t_name_list;
+    }
+
+    auto t_matched_sensors = f_sensor_table->find_like(name_chain(a_name, f_delimiters));
+    for (auto& t_number: t_matched_sensors) {
+        t_name_list.push_back((*f_sensor_table)[t_number].get_name().join(f_delimiters.substr(0, 1)));
+    }
+
+    return t_name_list;
+}
+
 series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, double a_from, double a_to)
 {
     if (! f_is_constructed) {
