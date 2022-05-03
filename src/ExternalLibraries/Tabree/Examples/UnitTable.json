@@ -1,0 +1,63 @@
+{
+  Title: "conversion table for strange units",
+  Creator: "Sanshiro Enomoto",
+  Date: "17 January 2012",
+  Quantity: [
+    {
+      Name: Length,
+      Unit: [
+        {
+          @Standard: SI,
+          Symbol: m
+        },
+        {
+          Symbol: inch,
+          Factor: 0.0254
+        },
+        {
+          Symbol: ft,
+          Factor: 0.3048
+        },
+        {
+          Symbol: mile,
+          Factor: 1.609e3
+        }
+      ]
+    },
+    {
+      Name: Temperature,
+      Unit: [
+        {
+          @Standard: SI,
+          Symbol: K
+        },
+        {
+          @Standard: SI,
+          Symbol: C,
+          Offset: 274.15
+        },
+        {
+          Symbol: F,
+          Coeff: [ 255.37, 0.5556 ]
+        }
+      ]
+    },
+    {
+      Name: Weight,
+      Unit: [
+        {
+          @Standard: SI,
+          Symbol: kg
+        },
+        {
+          Symbol: oz,
+          Factor: 0.02835
+        },
+        {
+          Symbol: lb,
+          Factor: 0.4536
+        }
+      ]
+    }
+  ]
+}

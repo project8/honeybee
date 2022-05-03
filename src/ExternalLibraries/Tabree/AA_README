@@ -1,0 +1,103 @@
+=====================================================
+TABREE: Table + Tree data structure with Variant type
+=====================================================
+
+------------------------
+Section 1: Introduction
+------------------------
+
+Tabree is a data structure for table-oriented data (table, spreadsheet, CSV, Ntuple, ROOT TTree, etc) with tree-structure header (typically represented by XML, JSON, Mac PList, Windows Ini, etc). The data type stored in Tabree is "Variant", which can be basically any of POD scaler types (int, long, float, double, string, bool and void). The table data can be accessed as two dimensional array with integer or string indexes, and the tree data can be accessed as sparse multi-dimensional array with string keys or XPATH style addressing. This module also defines a simple text format (KTF: Katrin Tabree Format) for the Tabree data I/O, which is basically the SSV format for table data with YAML-like tree header, where the table data part is directly readable from ROOT (TTree::ReadFile()). The format is configurable from either library calls and headers in data files, to be compatible with lots of other formats including CSV and traditional UNIX (as in /etc/group file).
+
+The tree part can be used separately, with I/O in XML, JSON, Mac Plist and KTF formats. To access the tree data, SAX-style interface is provided in addition to the multi-dimensional array interface (DOM-style), and they can be combined (i.e., SAX-style parsing with DOM-style parameter). User operator to generate user objects from tree nodes can be added without modifying the Tabree library.
+
+In addition, two classes to handle program arguments (argc/argv) are also provided which utilize the Tabree style interface (associative array of variants); one class to get argument values, another class for argument definition and validation.
+
+
+---------------------------
+Section 2: What's Included
+---------------------------
+
+ - Sources: Tabree makes extensive use of templates and operator overloading, often recursively, so the source code is somewhat hard to read (just like the STL/Boost libraries). Instead of reading the source code and headers, playing with the examples is recommended; reading from a file, accessing data with the "[]" operator, either with integer index (table) and string key (tree), is practically everything.
+ 
+ - Applications: contain dump tools which might be useful to test the input files.
+
+ - Examples: sample programs with test data files. You have to run "make" separately at this directory. See the Tutorial manual for usage.
+
+ - Documentation: Tutorial and Doxygen reference manuals. Run "make reference-Tabree" to generate the Doxygen manual.
+
+
+---------------------------
+Section 3: Example Programs
+---------------------------
+
+Example programs under the Examples directory will not be compiled together with the Tabree library; you have to go to the Example directory and type "make". There are also some useful programs under Applications directory.
+
+*) Applications/ktf-dump.cxx
+Minimum example of reading KTF file. Also can be used to check the input file syntax.
+Usage: ../Applications/ktf-dump INPUT_FILE
+
+Test with SimpleTable-(dos)(mac)(unix).ktf and notice that line terminaters are properly recognized. 
+KFPDGeometry.ktf, KFPDChannelMap and OrcaHeader.ktf are practical input file examples.
+
+*) Applications/ktf-tree-dump.cxx
+Practical example of reading Tree file in various formats and writing Tree in various formats. Also can be used to convert formats.
+  Usage: ../Applications/ktf-tree-dump INPUT_FILE [ --format=FORMAT ]
+FORMAT can be xml, json and ktf.
+
+Test with UnitTable.ktf, UnitTable.json and UnitTable.xml, notice that various formats are properly processed. 
+In UnitTable.xml, near the bottom, there is an example of inline JSON (Temperature Coeff for Unit F).
+
+*) Examples/argument-list-dump.cxx
+An example to show how arguments are handled.
+  Example Usage: ./argument-list-dump foo --bar --buz=qux
+
+*) Examples/argument-list-text.cxx
+An useless example to show how to access argument list values
+  Example Usage: ./argument-list-test
+  Example Usage: ./argument-list-test --help
+  Example Usage: ./argument-list-test 1 2 3
+  Example Usage: ./argument-list-test --start=10 1 2 3
+
+*) Examples/argument-schema-test.cxx
+An useless example to show how to define argument parameters and validate.
+  Example Usage: ./argument-schema-test
+  Example Usage: ./argument-schema-test --help
+  Example Usage: ./argument-schema-test 1 2 3
+  Example Usage: ./argument-schema-test 1 2 abc  (see the error is handled)
+
+*) Examples/table-test.cxx
+An useless example to show how to access table values, using KChannelMap.ktf
+  Usage: ./table-test
+
+*) Examples/tree-test.cxx
+An useless example to show how the tree data structure works
+  Usage: ./tree-test
+
+*) Examples/configfile-test.cxx
+An useless example to show how to access tree values, used for configuration file
+  Usage: ./configfile-test
+
+*) Examples/unit-converter.cxx
+Example application using ArgumentList and Tree config file.
+  Usage: ./unit-converter
+  Usage: ./unit-converter --help
+  Usage: ./unit-converter 12 inch
+
+*) Examples/tree-walker-test.cxx (ADVANCED)
+Advanced example for iterating Tree nodes; using SAX-style callback + DOM-object parameter
+
+*) Examples/factory-test.cxx
+Advanced example of using Tree as object factory; directly create objects from Tree node
+
+
+---------------------------
+Section 4: Trouble Shooting
+---------------------------
+
+Sometimes Tabree's implicit type conversion causes unreadable compiler error messages. A good practice to avoid this problem is to use explicit type conversion with As<TYPE>() method when you are not sure whether the context is ambiguous or not for the compiler. It can be more ambiguous than you might think when string and char* are involved.
+example)
+  inputfile = config["Input"]["FileName"].As<string>();
+
+
+
+For any questions, contact Sanshiro Enomoto <sanshiro@uw.edu>

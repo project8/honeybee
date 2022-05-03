@@ -1,0 +1,86 @@
+=========================================
+KEBAP: Katrin's Evaluator Base And Parser
+=========================================
+
+Date: 4 December 2014
+Author: Sanshiro Enomoto <sanshiro@uw.edu>
+
+
+------------------------
+Section 1: Introduction
+------------------------
+Kabep is a general syntax parsing engine. Although the "standard" parser is constructed to be much like C/C++, the library can be used to parse various languages in different regimes, such as Pascal, BASIC, XML and your own. It is highly exntesible and the syntax can be dynamically changed even at run time (which you might not want to do). Kebap is based on Sanshiro's previous product, KiNOKO - KamLAND DAQ, and was slightly modified for KATRIN to optimize for intensive numerical calculation.
+
+The name, Kebap, is temporary. Suggestions are very welcome.
+
+The default syntax for KATRIN is not yet finalized. Expect changes without backwards compabitility until this gets settled.
+
+
+---------------------------
+Section 2: What's Included
+---------------------------
+ - Sources: all source files to build KebapLib
+
+ - Applications: kebap executable (interactive script)
+
+ - Examples: demonstration programs for Expression-Evaluator and Script-Parser. You need to run "make" separately at this directory. 
+
+ - Documentation: Tutorial and Doxygen reference manuals. Run "make reference-Kebap" to generate the Doxygen manual.
+
+
+---------------------------
+Section 3: Example Programs
+---------------------------
+
+A command for interactive evaluation/execution, "kebap", is available to quickly test the script features. Just type "kebap" at your shell terminal:
+
+$ kebap
+> 1+2*3;
+7
+> double pi = 3.141592;
+> sin(pi/2)**2;
+0.5
+> int a = 123;
+> a + 456;
+579
+> string b = 123;
+> b + 456;
+123456
+#### Kebap Feature: variant type (similar to JavaScript) ###
+> var c = 123;
+> c + 456;
+579
+> var d = "123";
+> d + 456;
+123456
+#### Kebap Feature: list operations (similar to MATLAB) ###
+> exp({0, 1, 2});
+{ 1, 2.71828, 7.38906 }
+> [0, 10];
+{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+> sum([0, 10]);
+45
+> rms([0, 10]);
+2.87228
+> [1, 11]**2 - [0, 10]**2;
+{ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 }
+> count(find(sin([0, 10]) > 0));
+6
+
+Example programs under the Examples directory will not be compiled together with the Kebap library; you have to go to the Example directory and type "make". There are also some useful programs under Applications directory.
+
+*) Example/demo-evaluator
+An example program for expression evaluator. See the source code for usage; it is short and self-explanatory. The core part is shown below:
+- - - - - - - - - - 8< - - - - - - - - - - 8< - - - - - - - - - -
+    KPEvaluator f("A * exp(-x/pi) * sin(2*pi*x) + B");  // Definition
+    f["A"] = 10;                                        // Parameter Setting
+    f["B"] = 3;
+    cout << f(10) << endl;                              // Evaluation
+- - - - - - - - - - 8< - - - - - - - - - - 8< - - - - - - - - - -
+
+
+---------------------------
+Section 4: Trouble Shooting
+---------------------------
+
+For any questions, contact Sanshiro Enomoto <sanshiro@uw.edu>

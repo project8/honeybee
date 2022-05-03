@@ -1,0 +1,207 @@
+# data_source:
+#  dripline_psql:
+#    uri: p8_db_user:dripline@localhost:5432/p8_sc_db
+#    basename: ATDS
+
+# sensor_table:
+#   setup:
+#     id: { name: ATDS, label: Atomic Tritium Demonstrator in Seattle }
+#     valid_if: date > 20201001
+
+#     section:
+#       id: { name: Gas, label: Gas Handling }
+#       subsection:
+#         id: { name: Inj, label: Injection }
+#         module:
+#           id: { name: Alicat, label: Alicat Flowmeter }
+#           channel:
+#             id: { name: sccm, label: Flow }
+#           channel:
+#             id: { name: degC, label: Temperature }
+#           channel:
+#             id: { name: psia, label: Pressure }
+#         module:
+#           id: { name: CC10, label: CC10 Pressure Gauge }
+#           channel:
+#             id: { name: V, label: LabJunk Voltage }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+
+#     section:
+#       id: { name: AS, label: Atomic Source }
+#       subsection:
+#         id: { name: Diss, label: Dissociator }
+#         module:
+#           id: { name: Sys, label: Dissociator System }
+#           channel:
+#             id: { name: Type, label: Type }
+#             enum: { 0: HABS, 1: Coaxial }
+#         module:
+#           id: { name: PS, label: Power Supply }
+#           channel:
+#             id: { name: V, label: Voltage }
+#           channel:
+#             id: { name: A, label: Current }
+#         module:
+#           id: { name: ThrmCpl, label: Thermocouple }
+#           channel:
+#             id: { name: V, label: Voltage }
+#             x-dripline_endpoint: V_ThermoCo_Diss_AS
+#           channel:
+#             id: { name: degC, label: Temperature in Celsius }
+#             default_calibration: V:5.1865e-01+V*(-7.0934e+04+V*(-2.4686e+06+V*(-1.3643e+08+V*(-3.3825e+09+V*(-3.5836e+10)))))
+#           channel:
+#             id: { name: K, label: Temperature in Kelvin }
+#             default_calibration: degC:degC+273.15
+
+#       subsection:
+#         id: { name: Acc, label: Accomodator }
+#         module:
+#           id: { name: RTD, label: RTD }
+#           array_length: 8
+#           channel:
+#             id: { name: degC, label: Temperature in Celsius }
+#           channel:
+#             id: { name: K, label: Temperature in Kelvin}
+#             default_calibration: degC:degC+273.15
+
+#       subsection:
+#         id: { name: Chop, label: Chopper }
+#         module:
+#           id: { name: Motor, label: Motor }
+#           channel:
+#             id: { name: Status, label: Status }
+#             enum: { 0:off, 1:on }
+#           channel:
+#             id: { name: Pos, label: Position }
+#             enum: { 0:close, 1:open }
+#           channel:
+#             id: { name: rpm, label: Rotational Speed }
+#       subsection:
+#         id: { name: Aper, label: Aperture }
+#         module:
+#           id: { name: Aper, label: Aperture }
+#           channel:
+#             id: { name: Dim, label: Dimension }
+#           channel:
+#             id: { name: Loc, label: Location }
+#           channel:
+#             id: { name: Stop, label: Beam Stop }
+#             enum: {0:close, 1:open}
+#       subsection:
+#         id: { name: Vac, label: Vacuum }
+#         module:
+#           id: { name: GV, label: Gate Valve }
+#           channel:
+#             id: { name: Status, label: Status }
+#             enum: {0:close, 1:open}
+#         module:
+#           id: { name: TMP, label: TMP }
+#           channel:
+#             id: { name: Status, label: Status }
+#             enum: {0:close, 1:open}
+#         module:
+#           id: { name: IG, label: Ion Gauge }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+
+#     section:
+#       id: { name: VSS, label: Velocity Selector }
+#       subsection:
+#         id: { name: Mag, label: Magnet }
+#         module:
+#           id: { name: PS, label: Power Supply }
+#           channel:
+#             id: { name: V, label: Voltage }
+#           channel:
+#             id: { name: A, label: Current }
+#         module:
+#           id: { name: Field, label: Field Strength }
+#         module:
+#           id: { name: RTD, label: RTD }
+#           array_length: 2
+#           channel:
+#             id: { name: ADC, label: ADC }
+#           channel:
+#             id: { name: K, label: Temperature }
+#             default_calibration: ADC:ADC/32-256
+#       subsection:
+#         id: { name: Aper, label: Aperture }
+#         module:
+#           id: { name: Aper, label: Aperture }
+#           channel:
+#             id: { name: Dim, label: Dimension }
+#           channel:
+#             id: { name: Loc, label: Location }
+#           channel:
+#             id: { name: Stop, label: Beam Stop }
+#             enum: {0:close, 1:open}
+#       subsection:
+#         id: { name: Vac, label: Vacuum }
+#         module:
+#           id: { name: GV, label: Gate Valve }
+#           channel:
+#             id: { name: Status, label: Status }
+#             enum: {0:close, 1:open}
+#         module:
+#           id: { name: TMP, label: TMP }
+#           channel:
+#             id: { name: Status, label: Status }
+#             enum: {0:close, 1:open}
+#         module:
+#           id: { name: IG, label: Ion Gauge }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+
+#     section:
+#       id: { name: MS, label: Mass Spectrometer }
+#       subsection:
+#         id: { name: Hdn, label: Hiden }
+#         module:
+#           id: { name: Mass, label: Mass }
+#           array_length: 100
+#           channel:
+#             id: { name: Cnts, label: Raw Counts } 
+#       subsection:
+#         id: { name: TT, label: Translation Table }
+#       subsection:
+#         id: { name: Vac, label: Vacuum }
+#         module:
+#           id: { name: GV, label: Gate Valve }
+#           channel:
+#             id: { name: Status, label: Status }
+#             enum: {0:close, 1:open}
+#         module:
+#           id: { name: TMP, label: TMP }
+#           channel:
+#             id: { name: Status, label: Status }
+#             enum: {0:close, 1:open}
+#         module:
+#           id: { name: IG, label: Ion Gauge }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+
+#     section:
+#       id: { name: DAQ, label: DAQ }
+#       subsection:
+#         id: { name: Comp, label: Computer System }
+#         module:
+#           id: { name: DLPC, label: Dripline PC }
+#           channel:
+#             id: { name: Load, label: Load Average }
+#           channel:
+#             id: { name: Mem, label: Memory Usage }
+#           channel:
+#             id: { name: Disk, label: Disk Usage }
+#           channel:
+#             id: { name: Net, label: Network Usage }
+#           channel:
+#             id: { name: NTP, label: NTP Accuracy }
+#         module:
+#           id: { name: DLDB, label: Dripline Database }
+
+#     section:
+#       id: { name: Misc, label: Misc }
+
+#     section:
+#       id: { name: Common, label: Common }
