@@ -1,8 +1,8 @@
 Honeybee: Slow-Controls Data Access Library in C++
 ==================================================
 
-Sanshiro Enomoto &lt;sanshiro@uw.edu&gt;
-May 3 2022
+Sanshiro Enomoto &lt;sanshiro@uw.edu&gt;<br>
+May 3, 2022
 
 Purposes:
 - Pandas-like interface to Dripline SQL data
@@ -21,10 +21,10 @@ Installation
 
 
 ## Compiling
-This library uses two sub-modules (external libraries, written by Sanshiro and publicly available) and one main module:
+This library consists of two sub-modules (external libraries, written by Sanshiro and publicly available) and one main module:
+- Honeybee: main module
 - Kebap: formula evaluator
 - Tabree: table and tree of variants, JSON I/O, SQL result structure
-- Honeybee
 
 The usual CMake procedure can be used to install these all (Method 1). Alternatively, for the default installation configuration, a shell script can be used for convenience (Method 2, recommended).
 
@@ -40,7 +40,7 @@ A shell script is provided to do the Method 1 procedure with the default configu
 - the `build` directories are `honeybee/src/build-extern` and `honeybee/src/build-honeybee`
 - the `install` directory is `honeybee/install`
 
-Therefore nothing will be placed outside the honeybee tree and no environmental variable is automatically set.
+Nothing will be placed outside the honeybee tree and no environmental variable is automatically set.
 ```
 $ cd honeybee/src
 $ ./setup-honeybee.sh 
@@ -93,7 +93,7 @@ p8_sc_db=> select * from numeric_data order by timestamp desc limit 10;
 
 ## Quick Tour
 ### Sensor Table and Management of Sensor Channels
-The `honeybee/SensorTable/SensorTable_ATDS.ktf` file defines the sensor channels for the ATD setup:
+Sensors are organized in a tree structure, and the configuration is typically described in a config file. For the ATD at UW (ATDS) setup, the file is `honeybee/SensorTable/SensorTable_ATDS.ktf`:
 ```
 # data_sources:
 #  dripline_psql:
@@ -132,9 +132,9 @@ The `honeybee/SensorTable/SensorTable_ATDS.ktf` file defines the sensor channels
 #           id: { name: Sys, label: Dissociator System }
 ..... (continues)
 ```
-(here the format is very similar to YAML, but not exactly the same: multiple child nodes of the same tag name construct an array. This format will be replaced with YAML.)
+(here the format is very similar to YAML, but not exactly the same: multiple child nodes of the same tag name construct an array. This format will be / can be replaced with YAML.)
 
-The sensors defined in the config file can be viewed with `install/bin/hb-list-sensors` command:
+The sensors defined in the config file can be viewed by the `install/bin/hb-list-sensors` command:
 ```
 $ ./install/bin/hb-list-sensors --config=SensorTable/SensorTable_ATDS.ktf 
 [
@@ -158,7 +158,7 @@ $ ./install/bin/hb-list-sensors --config=SensorTable/SensorTable_ATDS.ktf
 ..... (continues)
 ```
 
-The sensor list can be filtered by providing name (partial) matches:
+The sensor list can be filtered by providing (partial) name matches:
 ```
 ### all sensors in the "Diss.AS" section ###
 $ ./install/bin/hb-list-sensors  --config=SensorTable/SensorTable_ATDS.ktf   Diss.AS
@@ -182,7 +182,7 @@ $ ./install/bin/hb-list-sensors  --config=SensorTable/SensorTable_ATDS.ktf   mba
 ]
 ```
 
-Instead of using the Sensor Table config file, sensor entries can be constructed from Dripline data:
+The sensor table can be constructed from Dripline data, instead of or in addition to configuration files:
 ```
 $ ./install/bin/hb-list-sensors  --dripline-db=p8_db_user:****@localhost:5432/p8_sc_db
 [
@@ -199,13 +199,13 @@ $ ./install/bin/hb-list-sensors  --dripline-db=p8_db_user:****@localhost:5432/p8
 ]
 ```
 
-Instead of using a program option, the config file can be specified with an environmental variable:
+The location of the configuration file can be specified with an environmental variable, instead of using the program option:
 ```
 $ export HONEYBEE_CONFIG_PATH=/PATH/TO/YOUR/DIR/SensorTable
 ```
-With this setting, all the files with the `.ktf` extension at the directory will be parsed. Hereafter this setting is assumed.
+With this setting, all the files with the `.ktf` extension at the indicated directory will be parsed. Hereafter in this documentation, this setting is assumed.
 
-Majority of channels have automatically-inferred binding to Dripline end-points:
+Majority of channels have an automatically-inferred binding to a Dripline end-point:
 ```
 $ ./install/bin/hb-list-sensors  mbar.IG
 [
@@ -215,14 +215,14 @@ $ ./install/bin/hb-list-sensors  mbar.IG
 ]
 ```
 
-Some channel has explicit binding described in the config file:
+Some channels have an explicit binding described in the config file:
 ```
 $ ./install/bin/hb-list-sensors  V.ThrmCpl.Diss.AS
 [
     { "number": 268435464, "name": "V.ThrmCpl.Diss.AS.ATDS", "options": { "dripline_endpoint": "V_ThermoCo_Diss_AS" } }
 ]
 ```
-(note that namings are not consistent: `ThrmCpl` vs `ThermoCo`; the config file was used to absorb the error.)
+(note that namings are not consistent here: `ThrmCpl` vs `ThermoCo`; the config file was used to absorb the error.)
 
 Instead of binding to a Dripline endpoint, some channels have a _calibration_ associated to another input channel:
 ```
@@ -233,9 +233,9 @@ $ ./install/bin/hb-list-sensors  ThrmCpl.Diss.AS
     { "number": 268435466, "name": "K.ThrmCpl.Diss.AS.ATDS", "default_calibration": "degC:degC+273.15" }
 ]
 ```
-Multiple calibrations can be chained (`V` -> `degC` -> `K` in the example).
+Multiple calibrations can be chained (as in this example, `V` -> `degC` -> `K`).
 
-These bindings and calibrations can be displayed with `--verbose` option:
+These bindings and calibrations can be displayed with the `--verbose` option:
 ```
 $ ./install/bin/hb-list-sensors  --verbose
 ##INFO: honeybee.cc:98: Dripline Datasource: p8_db_user:****@localhost:5432/p8_sc_db
@@ -277,10 +277,10 @@ $ ./install/bin/hb-list-sensors  --verbose
 
 Note:
 - Calibrations are applied at run-time, enabling retrospective updates.
-- _Identity_ calibration can be used for channel mapping.
+- Identity calibration can be used for channel mapping.
 - Calibration can be also used for decoding (unpacking of packed bits etc).
 
-All the entries in the config file can be put under a conditional block (`valid_if`), enabling time-dependent calibration and mapping.
+All the entries in the config file can be placed under a conditional block (`valid_if`), enabling time-dependent calibration and mapping.
 ```
 #         module:
 #           id: { name: ThrmCpl, label: Thermocouple }
@@ -303,7 +303,7 @@ degC.ThrmCpl.Diss,2022-02-01T08:00:00,9999-01-01T00:00:00,V:0.519*V
 ```
 
 ### Data Access
-[As of Apr 20 2022, the UW ATD setup has been down since Mar 4. Only `CC10.Inj.Gas` and `ThrmCpl.Diss` produces varying values for this period.]
+[As of Apr 20 2022, the UW ATD setup has been down since Mar 4. Only `CC10.Inj.Gas` and `ThrmCpl.Diss` produce varying values for this period.]
 
 Using the sensor names, data can be obtained with the `install/bin/hb-get-data` command:
 ```
@@ -316,8 +316,9 @@ DateTime,TimeStamp,sccm.Inj,K.ThrmCpl,mbar.IG.MS
 2022-03-04T22:00:45,1646431245,5.002,539.792,6e-09
 2022-03-04T22:00:55,1646431255,4.999,548.503,6e-09
 ```
+If time range is not specified with `--from` and/or `--length`, the last 1 minute data will be shown by default. (The default `length` is 1 minute, and the default `from` is _length_ seconds ago. Also `--to` can be used instead of `--from` or `--length`.)
 
-Without the time range, the last 1 minute data will be shown. `--summary` option calculates digested values:
+`--summary` option calculates digested values:
 ```
 $ ./install/bin/hb-get-data   sccm.Inj  K.ThrmCpl  --summary=n,mean,std
 {
@@ -327,16 +328,17 @@ $ ./install/bin/hb-get-data   sccm.Inj  K.ThrmCpl  --summary=n,mean,std
 }
 ```
 
-Down sampling can be done with `--resample[=INTERVAL[,REDUCER]]`:
+Each sensor is read out at its own timing, therefore data points are not (necessarily) aligned. In order to display the data in the table format (CSV), resampling is internally applied. Parameters to the resampler can be specified with the `--resample=[INTERVAL[,METHOD]]` option:
 ```
-$ ./install/bin/hb-get-data  --from=2022-03-04T22:00:00  --length=60   sccm.Inj  K.ThrmCpl  mbar.IG.MS  --resample=20,mean
+$ ./install/bin/hb-get-data  --from=2022-03-04T22:00:00  --length=60  --resample=20,mean   sccm.Inj  K.ThrmCpl  mbar.IG.MS
 DateTime,TimeStamp,sccm.Inj,K.ThrmCpl,mbar.IG.MS
 2022-03-04T22:00:10,1646431210,4.9995,507.491,6e-09
 2022-03-04T22:00:30,1646431230,4.9995,526.273,6e-09
 2022-03-04T22:00:50,1646431250,5.0005,544.147,6e-09
 ```
+Both the resampler parameters are optional. If the interval parameter is not specified (or zero is given), the time buckets are determined automatically based on the majority of the input data intervals. The default reduction method is `middle`, which takes one data point closest to the center of each time bucket. By taking one data point (at most) from each time bucket, the fluctuations in the data is preserved. If this is not necessary, `mean` would be a better reduction method.
 
-Each sensor is read out at its own timing, therefore data points are not (necessarily) aligned. In order to output the data in the aligned table format, implicit resampling is applied; if `--resampling=INTERVAL` is not specified, the first column data defines the time buckets that are applied to the other columns. With `--series` option, each time-series data can be displayed without the implicit resampling:
+If resampling is not necessary, each time-series data can be displayed individually with the `--series` option:
 ```
 $ ./install/bin/hb-get-data  --from=2022-03-04T22:00:00  --length=120   --series   sccm.Inj  K.ThrmCpl  mbar.IG.MS
 {
@@ -426,12 +428,14 @@ int main(int argc, char** argv)
     return 0;
 }
 ```
+
 The `CMaleLists.txt` file in the example directory searches for all the files with the `.cxx` extension.
 ```
 $ cd install/Examples/Honeybee
 $ cmake .
 $ make
 ```
+
 Before running, make sure that the ssh-tunneling to Dripline DB has been established.
 ```
 $ ./demo-honeybee
@@ -474,6 +478,7 @@ mbar.IG.MS: 49, 8.75102e-08, 5.05076e-10
 
 ### Data Objects
 Example here can be found in `install/bin/Examples/Honeybee/demo-series.cxx`.
+
 #### Series
 The `series` class represents one chain of time-series data.
 ```
@@ -486,7 +491,8 @@ The `series` class represents one chain of time-series data.
         double get_start() const;
         double get_stop() const;
 ```
-Although the implementation is _struct of arrays_, `{t[],x[]}`, the class provides interface for _array of structs_, `{t,x}[]`:
+
+Although the implementation is _a struct of arrays_, `{t[],x[]}`, the class provides interface for _an array of structs_, `{t,x}[]`:
 ```
         // as {t[],x[]}
         for (unsigned k = 0; k < t_series.size(); k++) {
@@ -503,6 +509,7 @@ Although the implementation is _struct of arrays_, `{t[],x[]}`, the class provid
             cout << long(t_tx.t()) << "," << t_tx.x() << endl;
         }
 ```
+
 Algorithms for `series` are generally implemented as a functor. For example,
 ```
     t_series.apply_inplace(fillna_with(0));
@@ -523,9 +530,14 @@ Currently the following functors are available:
 - to apply_inplace: `fillna_with(val)`, `fillna_with_prev`, `fillna_with_next`, `fillna_with_closest`, `fillna_by_line`, `keepna`
 - to reduce: `reduce_to_XXX` where XXX is `mean`, `median`, `min`, `max`, `n`, `std`, `var`, `first`, `last`, `middle`
 
-To apply an in-place functor to a const object, use `clone()`:
+To apply an mutating functor to a const object, use `clone()`:
 ```
-    series s2 = s1.clone().apply_inplace(fillna_by_line);
+    series t_series_2 = t_series_1.clone().apply_inplace(fillna_by_line);
+```
+
+For the other way, not crating an additional variable even for non-mutating functors, 
+```
+    (t_series = t_series.apply(dropna)).apply_inplace(...
 ```
 
 #### Resampling
@@ -546,10 +558,10 @@ where linear interpolation is used by `fillna_by_line`. If it is only for down s
     resampler t_resampler(group_by_time(10), reduce_to_middle, keepna);
     series t_resampled_series = t_series.apply(t_resampler);
 ```
-where `reduce_to_middle`, as well as `reduce_to_first` and `reduce_to_last`, takes one sample per bucket, and `keepna` does not perform any kind of interpolation; for data from sparse / lazy recording, `fillna_with_prev` or `fillna_with_closest` might be used instead.
+where `reduce_to_middle`, as well as `reduce_to_first` and `reduce_to_last`, takes one sample per bucket, and `keepna` does not perform any kind of interpolation; for data from sparse or lazy recording, `fillna_with_closest` or `fillna_with_prev` might be used instead.
 
 #### Series Bundle
-The `honeybee::zip(key_vector, value_vector)` combines two vectors and makes an Python's _OrderedDict_ like key-value array. It is often convenient to _zip_ series data and series names:
+The `honeybee::zip(key_vector, value_vector)` combines two input vectors and makes an ordered map of key-value, something similar to Python's _OrderedDict_. It is often convenient to _zip_ a set of series data with their names:
 ```
     vector<string> t_name_list{ "sccm.Alicat", "K.ThrmCpl.Diss", "mbar.IG.AS" };
     vector<hb::series> t_series_list = read data...;
@@ -565,7 +577,7 @@ In addition to the key-based access, index-based access is still available, just
             cout << t_series.to_json() << endl;
         }
 ```
-It also can iterate over the (key, series) pairs:
+It also can be _iterated_ over the (key, series) pairs:
 ``` 
         for (auto t_item: t_series_bundle.items()) {
             cout << t_item.first << ": " << t_item.second.to_json() << endl;
@@ -580,7 +592,7 @@ Data Frame is a bundle of aligned (resampled) series.
     cout << t_data_frame.to_csv();
 ```
 
-The data structure provides interface of 1) 2-dim matrix, 2) row-oriented tables, as well as 3) column-oriented bundle of series.
+Data Frame provides three _shapes_ to access data: 1) 2-dim matrix, 2) row-oriented tables, and 3) column-oriented bundle of series.
 ```
    // matrix of doubles
    for (unsigned i = 0; i < t_data_frame.number_of_rows(); i++) {
@@ -598,12 +610,14 @@ The data structure provides interface of 1) 2-dim matrix, 2) row-oriented tables
       for (double xk: t_record) {
          cout << xk << "  ";
       }
+      // xk can also be accessed like t_record[t_column_index]
+      // xk can also be accessed like t_record[t_column_name]
       cout << endl;
    }
 ```
 ```
    // column-oriented (bundle of series)
-   for (series& t_col: t_data_frame.columns()) {
+   for (series& t_col: t_data_frame.columns()) {  // t_col is just a series
        for (double xk: t_col.x()) {
            cout << xk << "  ";
        }
@@ -614,7 +628,7 @@ The data structure provides interface of 1) 2-dim matrix, 2) row-oriented tables
    // column-oriented, by names (bundle of series)
    for (string t_col_name: t_data_frame.column_names()) {
       cout << t_col_name << ": ";
-      for (auto pk: t_data_frame[t_col_name]) {
+      for (auto pk: t_data_frame[t_col_name]) {  // t_data_frame[t_col_name] is just a series
          cout << pk.x() << "  ";
       }
       cout << endl;
@@ -635,7 +649,7 @@ Sensors are organized in a tree structure. Sensor names are a chain of mnemonic,
     };
 ```
 
-For performance reasons, sensors are internally handled with an integer `sensor_number`. Also each sensor name node has a descriptive label. The `sensor` class composed of these:
+For performance reasons, sensors are internally handled with an integer `sensor_number`. Also each sensor name node has a descriptive label. The `sensor` class is composed of these:
 ```
     class sensor {
         int f_number;
@@ -652,7 +666,7 @@ For performance reasons, sensors are internally handled with an integer `sensor_
 ```
 The type-cast operator to `int` enables us to handle a sensor object as an integer value.
 
-While majority of sensors are bound to entries in data sources (such as Dripline SQL DB), some sensor values are obtained from values of other sensors. The optional `calibration` field describes this.
+While majority of sensors are bound to entries in data sources (such as Dripline SQL DB), some sensor values are derived from values of other sensors. The optional `calibration` field describes this.
 
 #### Sensor Table
 Sensor table organizes all the sensors in the system.
@@ -663,9 +677,9 @@ Sensor table organizes all the sensors in the system.
         const sensor& operator[](const name_chain& a_name) const;
         vector<int> find_like(const name_chain& a_chain) const;
 ```
-The array operator `[]` converts a sensor number or name to a corresponding sensor object, and `find_like` methods search for sensors that have a matching name.
+The array operator `[]` converts a sensor number or name to a corresponding sensor object, and `find_like` method searches for sensors that have a (partly) matching name.
 
-The sensor table can be configured by multiple ways. For the simplest system, it can be configured based on entries in a Dripline SQL data base:
+The sensor table can be configured by multiple ways. For the simplest system, it can be configured based on entries in a data source such as the Dripline SQL DB:
 ```
     hb::sensor_table t_table;
     
@@ -674,7 +688,7 @@ The sensor table can be configured by multiple ways. For the simplest system, it
     t_config.load(t_table, t_dripline_db.get_data_names(), {{"ATDS"}});
 ```
 
-For a managed system, sensor entries are described in a config file:
+For a managed system, sensor entries are typically described in a config file:
 ```
     hb::sensor_table t_table;
     
@@ -682,6 +696,8 @@ For a managed system, sensor entries are described in a config file:
     t_config.set_variables({{"version", 3}, {"date", 20201010}});
     t_config.load(t_table, "PATH/TO/CONF/SensorTable_ATDS.ktf");
 ```
+Here the configuration file does not have to list all the sensors. If entries constructed from a data source is sufficient, they can be used in that way.
+
 Sensor configuration file can have variables (`version` and `date` in this example) for conditional contents.
 
 #### Example
@@ -733,7 +749,7 @@ To loop over all the defined channels, use `find_like()` with an empty match pat
 ```
 
 ### Data Source
-The `data_source` class is an abstraction to data store. It defines interfaces to query sensor names defined in the data store (already used to construct a sensor table from DB contents), and to fetch data from the data store.
+The `data_source` class is an abstraction to various types of data source implementations, such as Dripline DB, other time-series DB, and CSV files. It defines interfaces 1) to query sensor names defined in the data source, and 2) to fetch data from the data source.
 ```
     class data_source {
       public:
@@ -743,9 +759,9 @@ The `data_source` class is an abstraction to data store. It defines interfaces t
         virtual void bind(sensor_table& a_sensor_table);
         virtual vector<series> read(const vector<int>& a_sensor_list, double a_from, double a_to);
 ```
-The `bind()` method constructs bindings between sensor entries defined in the sensor table and entries in the data store.
+The `bind()` method constructs bindings between sensor entries defined in the sensor table and entries in the data source.
 
-Currently only Dripline PostgreSQL data store is implemented:
+Currently only Dripline PostgreSQL data source is implemented:
 ```
     class dripline_pgsql: public data_source {
       public:
@@ -753,7 +769,7 @@ Currently only Dripline PostgreSQL data store is implemented:
 ```
 where `a_basename` is used to define a namespace for the DB entries (such as `ATDS` for the DB system for the UW Atomic Tritium test-stand).
 
-Combined with the sensor table construction from DB contents, a minimal system to fetch data is something like this:
+Combined with the sensor table construction based on DB contents, a minimal system to fetch data is something like this:
 (available in `install/Examples/Honeybee/demo-data-source.cxx`)
 ```
 // demo-data-source.cxx //
@@ -808,8 +824,6 @@ degC.Alicat.Inj.Gas: {
 }
 ```
 
-
-
 ### Wrapping Up
 The `honeybee_app` class wraps up the data access part for convenience:
 ```
@@ -821,6 +835,7 @@ The `honeybee_app` class wraps up the data access part for convenience:
         void set_delimiter(const std::string& delimiters);
         std::shared_ptr<sensor_table> get_sensor_table();
         std::shared_ptr<data_source> get_data_source();
+        std::vector<std::string> find_like(const std::string a_name);
         series_bundle read(const vector<std::string>& a_sensor_list, double a_start, double a_stop);
 ```
 If no sensor configuration is given by calling `add_config_file()` or `add_dripline_db()`, it will search for (a) configuration file(s) in the directory indicated by the `HONEYBEE_CONFIG_PATH` environmental variable.
@@ -844,10 +859,24 @@ The configuration file can contain, in addition to the sensor table configuratio
 (... more lines)
 ```
 
-With the environmental variable defined, and the Dripline DB URL is described in a configuration file (even without a sensor table), the user C++ code becomes very simple:
+With the environmental variable defined, and the Dripline DB URL is described in a configuration file (even without the sensor table part), the user C++ code becomes very simple.
+
+To look up sensors:
 ```
-#include <string>
-#include <vector>
+#include "honeybee/honeybee.hh"
+namespace hb = honeybee;
+
+int main(int argc, char** argv)
+{
+    hb::honeybee_app t_honeybee;
+    for (std::string& t_name: t_honeybee.find_like("mbar.Vac")) {
+        std::cout << t_name << std::endl;
+    }
+...
+```
+
+To get data:
+```
 #include "honeybee/honeybee.hh"
 namespace hb = honeybee;
 
@@ -858,12 +887,13 @@ int main(int argc, char** argv)
 
     hb::honeybee_app t_honeybee;
     auto t_series_bundle = t_honeybee.read(t_sensors, t_from, t_to);
+...
 ```
 
 Design and Implementation
 =========================
 ## Sensor Configuration
-Sensors are organized in a tree structure. Sensor table is described in (a) YAML-like configuration file (s).
+Sensors are organized in a tree structure. Sensor table can be described in (a) YAML-like configuration file (s).
 ```
 # sensor_table:
 #   setup:
@@ -890,46 +920,46 @@ Sensors are organized in a tree structure. Sensor table is described in (a) YAML
 #             id: { name: mbar, label: Pressure }
 (... more lines)
 ```
-(This format will be replaced with YAML. A major difference from YAML is that multiple child nodes with the same tag name create an array, which is actually convenient and improves readability and writablity...)
+(This format will be / cab be replaced with YAML. A major difference from YAML is that multiple child nodes with the same tag name create an array, which is actually convenient and improves readability and writablity...)
 
-Layers are defined like `setup` &rarr; `section` &rarr; `module` &rarr; `channel`, but the layers can be of any depth with any of the following layer names:
+Layers are defined in this example like `setup` &rarr; `section` &rarr; `module` &rarr; `channel`, but the layers can be of any depth with any of the following layer tags:
 - `experiment`, `setup`, `teststand`, `system`
 - `section`, `subsection`, `division`, `segment`, `crate`
-- `module`, `device`, `card`, `board`  (`unit` is not included on purpose)
+- `module`, `device`, `card`, `board`  (`unit` is NOT included on purpose)
 - `channel`, `endpoint`, `metric`
 
-Currently Honeybee does not care which layer has which name, but this might be changed in the future. A good practice will be to use one in the first set for the top-level, and one in the bottom set for data-producing nodes (i.e., leaves of the tree).
+Currently Honeybee does not care which layer has which tag, but this might be changed in the future. A good practice will be to use one in the first set for the top-level, and one in the bottom set for data-producing nodes (i.e., leaves of the tree).
 
 Each layer must have an `id`, with at least a `name` and optionally with a `label`. A full sensor name will be a concatenation of the layer names, with an arbitrary separator (typically one of `.`, `_`, `-`, `/`, `:`, `;`), in the reversed order (leaf to root).
 
-An integer sensor number will be assigned for each leaf node by the system at run-time. This assignment of the numbers is not fixed and must not be used externally.
+An integer sensor number will be assigned for each leaf node by the system at run-time. This assignment of the numbers is not fixed and cannot be used for persistent purposes.
 
 Each layer can have a `valid_if` tag, with a value of the tag being a conditional expression with _variables_. The variables can be provided by users at run-time.
 
-Optional key-value pairs can be added, with a key name staring with `x-`. Explicit binding to a Dripline endpoint, for example, can be described with `x-dripline_endpoint`, which will be used only by Dripline data source.
+Optional key-value pairs can be added, with a key name staring with `x-`. Explicit binding to a Dripline endpoint, for example, is described with `x-dripline_endpoint`, where the content is specific to the Dripline data source.
 
 
 ## Data Entry Binding, Channel Mapping, and Calibrations
-The `data_source::bind()` method manages bindings between sensor entries and DB contents, or mappings among sensor table entries (_calibrations_). 
+The `data_source::bind()` method manages bindings between the sensor entries and the DB contents, and/or mappings among sensor table entries (_calibrations_). 
 
-If the sensor table is constructed from DB contents only, the sensor names are basically identical to those defined in the data store, optionally with an appended _basename_. If the names in the data store contain delimiters, such as `_`, the names are broken down into a chain, enabling users to use the partial name match. Moreover, if a configuration file is to be used later, using a consistent naming structure (i.e., organized in a tree, separated by a delimiter) makes the configuration simpler; here "convention over configuration" (CoC) takes place. For example, Honeybee can automatically infer the binding between a sensor name of `sccm.Alicat.Inj.Gas.AS.ATDS` and a dripline endpoint of `sccm_Alicat_Gas`.
+If a sensor table is constructed from DB contents only, the sensor names are basically identical to those defined in the data source, optionally with an appended _basename_. If the names in the data source contain delimiters, such as `_`, the names are broken down into a chain, enabling users to use the partial name matching. Moreover, if a configuration file is to be used later, already using a consistent naming structure in the database (i.e., organized in a tree, separated by a delimiter) makes the future configuration simpler; here "convention over configuration" (CoC) takes place. For example, Honeybee can automatically infer the binding between a sensor name of `sccm.Alicat.Inj.Gas.AS.ATDS` and a dripline endpoint of `sccm_Alicat_Gas` in namespace `ATDS`.
 
-Beyond using the names in data store directly, configuration by file or database becomes necessary. The configuration can contain:
+Beyond simple data access using names in data source, configuration by file or database becomes necessary. The configuration can contain:
 - explicit binding between sensor names and data store entries
 - derived sensor entries, whose values are calculated from other sensor values (_calibrations_)
 - conditional block depending on external parameters such as date
 
 Note that the calibrations can be used for:
-- calibrate the device
-- convert units
-- map channels (physics quantity to sensor, sensor to digitizer, digitizer to end-point, etc)
-- decode packed bits
+- calibrating the device
+- converting units
+- mapping between channels (physics quantity to sensor, sensor to digitizer, digitizer to end-point, etc)
+- decoding packed bits
 
-See the Quick Tour section for an example.
+See the Quick Tour section for examples.
 
 
 ### Calibration implementation
-Calibration is a text property of a sensor, stored in `std::string f_calibration` in the `sensor` class. The text is a lambda expression with (a) input(s) from (an)other sensor(s), in a form of:
+Calibration is a text property of a sensor, stored in `std::string f_calibration` of the `sensor` class. The text is a lambda expression with a input from another sensor, or inputs from other sensors, in a form of:
 ```
 INPUT: f(INPUT)
 ```
@@ -951,3 +981,9 @@ In a sensor configuration file, this is described as the `default_calibration` p
 Here the `K.ThrmCpl` has a calibration with an input from `degC` (of `ThrmCpl` by default).
 
 `data_source::bind()` parses the text at run-time (currently using the "Kebap" library) and holds an evaluator object together with a link to input sensor(s).
+
+
+## Python Binding (Plan)
+Export only:
+- honeybee_app::find_like()
+- honeybee_app::read(), returning a list of Panda's Series
