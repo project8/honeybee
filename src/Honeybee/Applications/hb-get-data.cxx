@@ -101,10 +101,11 @@ int main(int argc, char** argv)
         {"min", hb::reduce_to_min},
         {"max", hb::reduce_to_max},
         {"median", hb::reduce_to_mean},
+        {"count", hb::reduce_to_count},
+        {"sum", hb::reduce_to_sum},
         {"first", hb::reduce_to_first},
         {"last", hb::reduce_to_last},
-        {"middle", hb::reduce_to_middle},
-        {"n", hb::reduce_to_n}
+        {"middle", hb::reduce_to_middle}
     };
 
     // output summary (reduced values) //

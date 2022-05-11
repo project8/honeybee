@@ -22,7 +22,7 @@ using namespace std;
 static const double NaN = numeric_limits<double>::quiet_NaN();
 
 
-double reduce_to_n(const series& a_series)
+double reduce_to_count(const series& a_series)
 {
     auto acc = [](int y0, double x) { return std::isnan(x) ? y0 : y0+1; };
     return std::accumulate(a_series.x().begin(), a_series.x().end(), 0, acc);
@@ -30,7 +30,7 @@ double reduce_to_n(const series& a_series)
 
 double reduce_to_sum(const series& a_series)
 {
-    double n = reduce_to_n(a_series);
+    double n = reduce_to_count(a_series);
     if (n <= 0) {
         return NaN;
     }
@@ -40,7 +40,7 @@ double reduce_to_sum(const series& a_series)
 
 double reduce_to_mean(const series& a_series)
 {
-    double n = reduce_to_n(a_series);
+    double n = reduce_to_count(a_series);
     if (n <= 0) {
         return NaN;
     }
@@ -50,7 +50,7 @@ double reduce_to_mean(const series& a_series)
 double reduce_to_var(const series& a_series)
 {
     const int ddof = 1;
-    double n = reduce_to_n(a_series);
+    double n = reduce_to_count(a_series);
     if (n <= ddof) {
         return NaN;
     }
@@ -80,7 +80,7 @@ double reduce_to_std(const series& a_series)
 
 double reduce_to_sem(const series& a_series)
 {
-    return sqrt(reduce_to_var(a_series)/reduce_to_n(a_series));
+    return sqrt(reduce_to_var(a_series)/reduce_to_count(a_series));
 }
 
 double reduce_to_min(const series& a_series)
@@ -537,8 +537,8 @@ std::string series::to_json(const std::string& indent) const
     string delim="";
     os << "{" << endl;
     os << std::setprecision(12);
-    os << indent << "  \"t_start\": " << f_start << ",";
-    os << " \"t_stop\": " << f_stop << "," << endl;
+    os << indent << "  \"start\": " << f_start << ",";
+    os << " \"length\": " << (f_stop-f_start) << "," << endl;
     os << std::setprecision(6);
     os << indent << "  \"t\": ["; delim = "";
     for (auto& t: this->t()) {

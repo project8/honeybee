@@ -166,7 +166,7 @@ namespace honeybee {
     //// Series-applicable functors (reduce) ////
     // example usages:
     //   double mean = t_series.apply(reduce_to_mean);
-    extern double reduce_to_n(const series& a_series);
+    extern double reduce_to_count(const series& a_series);
     extern double reduce_to_sum(const series& a_series);
     extern double reduce_to_mean(const series& a_series);
     extern double reduce_to_var(const series& a_series);

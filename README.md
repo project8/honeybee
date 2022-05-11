@@ -343,17 +343,17 @@ If resampling is not necessary, each time-series data can be displayed individua
 $ ./install/bin/hb-get-data  --from=2022-03-04T22:00:00  --length=120   --series   sccm.Inj  K.ThrmCpl  mbar.IG.MS
 {
     "sccm.Inj": {
-      "t_start": 1646431200, "t_stop": 1646431320,
+      "start": 1646431200, "length": 120,
       "t": [1.3,11.3,21.3,31.3,41.3,51.3,61.3,71.3,81.3,91.3,101.3,111.3],
       "x": [4.999,5,5.001,4.998,5.002,4.999,5.003,4.997,5.001,5.001,4.999,5]
     },
     "K.ThrmCpl": {
-      "t_start": 1646431200, "t_stop": 1646431320,
+      "start": 1646431200, "length": 120,
       "t": [1.3,11.3,21.3,31.3,41.3,51.3,61.3,71.3,81.3,91.3,101.3,111.3],
       "x": [502.444,512.539,521.774,530.772,539.792,548.503,557.22,565.721,573.955,582.233,590.24,598.056]
     },
     "mbar.IG.MS": {
-      "t_start": 1646431200, "t_stop": 1646431320,
+      "start": 1646431200, "length": 120,
       "t": [1.3,11.3,21.3,31.3,41.3,51.3,61.3,71.3,81.3,91.3,101.3,111.3],
       "x": [6e-09,6e-09,6e-09,6e-09,6e-09,6e-09,6e-09,6e-09,6e-09,6e-09,6e-09,6e-09]
     }
@@ -401,7 +401,7 @@ int main(int argc, char** argv)
     std::cout << "### Reduced to N, Mean and Std ####" << std::endl;
     for (const auto& t_item: t_series_bundle.items()) { // item: pair of name and series
         std::cout << t_item.first << ": ";
-        std::cout << t_item.second.reduce(hb::reduce_to_n) << ", ";
+        std::cout << t_item.second.reduce(hb::reduce_to_count) << ", ";
         std::cout << t_item.second.reduce(hb::reduce_to_mean) << ", ";
         std::cout << t_item.second.reduce(hb::reduce_to_std) << std::endl;
     }
@@ -449,17 +449,17 @@ K.ThrmCpl.Diss: 60, 265.881, 0.0570167
 mbar.IG.MS: 49, 8.75102e-08, 5.05076e-10
 ### Resampled ####
 {
-  "t_start": 1643184000, "t_stop": 1643184600,
+  "start": 1643184000, "length": 600,
   "t": [30,90,150,210,270,330,390,450,510,570],
   "x": [0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002,0.002]
 }
 {
-  "t_start": 1643184000, "t_stop": 1643184600,
+  "start": 1643184000, "length": 600,
   "t": [30,90,150,210,270,330,390,450,510,570],
   "x": [265.926,265.886,265.859,265.898,265.918,265.909,265.849,265.849,265.878,265.842]
 }
 {
-  "t_start": 1643184000, "t_stop": 1643184600,
+  "start": 1643184000, "length": 600,
   "t": [30,90,150,210,270,330,390,450,510,570],
   "x": [8.8e-08,8.8e-08,8.8e-08,8.78333e-08,8.76667e-08,8.71667e-08,8.7e-08,8.7e-08,8.7e-08,8.7e-08]
 }
@@ -528,7 +528,7 @@ Here are the methods to apply a functor:
 Currently the following functors are available:
 - to apply: `dropna`, `resample(...)`
 - to apply_inplace: `fillna_with(val)`, `fillna_with_prev`, `fillna_with_next`, `fillna_with_closest`, `fillna_by_line`, `keepna`
-- to reduce: `reduce_to_XXX` where XXX is `mean`, `median`, `min`, `max`, `n`, `std`, `var`, `first`, `last`, `middle`
+- to reduce: `reduce_to_XXX` where XXX is `mean`, `median`, `min`, `max`, `count`, `sum`, `std`, `var`, `first`, `last`, `middle`
 
 To apply an mutating functor to a const object, use `clone()`:
 ```
@@ -808,17 +808,17 @@ int main(int argc, char** argv)
 ```
 $ ./demo-data-source 
 sccm.Alicat.Inj.Gas: {
-  "t_start": 1643184000, "t_stop": 1643184060,
+  "start": 1643184000, "length": 60,
   "t": [1.3,11.3,21.3,31.3,41.3,51.3],
   "x": [0.002,0.002,0.002,0.002,0.002,0.002]
 }
 psia.Alicat.Inj.Gas: {
-  "t_start": 1643184000, "t_stop": 1643184060,
+  "start": 1643184000, "length": 60,
   "t": [1.2,11.2,21.2,31.2,41.2,51.2],
   "x": [7.3,7.4,7.3,7.3,7.2,7.3]
 }
 degC.Alicat.Inj.Gas: {
-  "t_start": 1643184000, "t_stop": 1643184060,
+  "start": 1643184000, "length": 60,
   "t": [1.3,11.3,21.3,31.3,41.3,51.3],
   "x": [30.85,30.85,30.85,30.85,30.85,30.84]
 }
