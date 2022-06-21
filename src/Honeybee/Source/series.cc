@@ -538,7 +538,7 @@ std::string series::to_json(const std::string& indent) const
     os << "{" << endl;
     os << std::setprecision(12);
     os << indent << "    \"start\": " << f_start << "," << endl;
-    os << indent << "    \"length\": " << (f_stop-f_start) << "," << endl;
+    os << indent << "    \"duration\": " << (f_stop-f_start) << "," << endl;
     os << indent << "    \"timeseries\": {" << endl;
     os << std::setprecision(6);
     os << indent << "        \"t\": ["; delim = "";
