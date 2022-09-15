@@ -159,7 +159,7 @@ namespace honeybee {
         }
       public:        
         std::string to_json(const std::string& indent="") const;
-        std::string to_csv() const;
+        std::string to_csv(const std::string& label="Value") const;
     };
 
 

@@ -183,8 +183,13 @@ int main(int argc, char** argv)
     }
 
     // output dataframe in CSV //
-    else {
+    else if (t_resampling_enabled) {
         std::cout << t_data_frame.to_csv();
+    }
+    
+    // output single time-series in CSV //
+    else if (t_series_bundle.size() == 1) {
+        std::cout << t_series_bundle[0].to_csv(t_series_bundle.keys()[0]);
     }
     
     return 0;

@@ -559,11 +559,11 @@ std::string series::to_json(const std::string& indent) const
     return os.str();
 }
 
-std::string series::to_csv() const
+std::string series::to_csv(const std::string& label) const
 {
     ostringstream os;
     
-    os << "DateTime,TimeStamp,Value" << endl;
+    os << "DateTime,TimeStamp," << label << endl;
     for (unsigned irow: arange(this->t())) {
         const double& time = f_t[irow];
         os << datetime(time).as_string() << ",";
