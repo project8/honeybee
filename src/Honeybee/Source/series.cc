@@ -539,21 +539,19 @@ std::string series::to_json(const std::string& indent) const
     os << std::setprecision(12);
     os << indent << "    \"start\": " << f_start << "," << endl;
     os << indent << "    \"length\": " << (f_stop-f_start) << "," << endl;
-    os << indent << "    \"timeseries\": {" << endl;
     os << std::setprecision(6);
-    os << indent << "        \"t\": ["; delim = "";
+    os << indent << "    \"t\": ["; delim = "";
     for (auto& t: this->t()) {
         os << delim; delim = ",";
         os << std::round(10*(t-f_start))/10.0;
     }
     os << "]," << endl; 
-    os << indent << "        \"x\": ["; delim="";
+    os << indent << "    \"x\": ["; delim="";
     for (auto& x: this->x()) {
         os << delim; delim = ",";
         writeFloat(os, x);
     }
     os << "]" << endl;
-    os << indent << "    }" << endl;
     os << indent << "}";
 
     return os.str();
@@ -644,7 +642,7 @@ std::string data_frame::to_json(const std::string& indent) const
     os << " }," << endl;
     
     string delim;
-    os << indent << "  \"data\": [";
+    os << indent << "  \"table\": [";
     for (const auto& row: this->rows()) {
         os << delim << endl << row.to_json(indent + "    ");
         delim = ",";
