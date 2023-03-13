@@ -24,6 +24,9 @@ int main(int argc, char** argv)
         std::cerr << "  --dripline-db=DB_URI     dripline database" << std::endl;
         std::cerr << "  --fields                 list of sensor data fields to display"<< std::endl;
         std::cerr << "  --var-KEY=VALUE          set parameter values (used in config files)"<< std::endl;
+        std::cerr << "  --delimiter=VALUE        set channel name delimiter"<< std::endl;
+        std::cerr << "  --delimiter-input=VALUE  set channel name delimiter in the data store"<< std::endl;
+        std::cerr << "  --delimiter-output=VALUE set channel name delimiter for output"<< std::endl;
         std::cerr << "  --verbose                make it verbose"<< std::endl;
         return -1;
     }
@@ -39,6 +42,9 @@ int main(int argc, char** argv)
     
     std::string t_config_file = args["--config"].Or("");
     std::string t_dripline_db = args["--dripline-db"].Or("");
+    std::string t_delimiter = args["--delimiter"].Or("");
+    std::string t_delimiter_input = args["--delimiter-input"].Or(t_delimiter);
+    std::string t_delimiter_output = args["--delimiter-output"].Or(t_delimiter.substr(0,1));
     
     std::vector<std::string> t_fields; {
         if (args["--fields"].As<std::string>() != "ALL") {
@@ -69,10 +75,12 @@ int main(int argc, char** argv)
     hb::honeybee_app t_honeybee_app;
     t_honeybee_app.add_config_file(t_config_file);
     t_honeybee_app.add_dripline_db(t_dripline_db);
+    t_honeybee_app.set_delimiter(t_delimiter_input, t_delimiter_output);
     for (auto& variable: t_variables) {
         t_honeybee_app.add_variable(variable.first, variable.second);
     }
     auto t_sensor_table = t_honeybee_app.get_sensor_table();
+    t_delimiter_output = t_honeybee_app.get_output_delimiter();
     
 
     //// Serach in Sensor Table ////
@@ -91,7 +99,7 @@ int main(int argc, char** argv)
     std::cout << "[";
     for (auto& t_number: t_sensors) {
         std::cout << delimiter << std::endl;
-        std::cout << "    " << (*t_sensor_table)[t_number].to_json(t_fields);
+        std::cout << "    " << (*t_sensor_table)[t_number].to_json(t_fields, t_delimiter_output);
         delimiter = ",";
     }
     std::cout << std::endl << "]" << std::endl;

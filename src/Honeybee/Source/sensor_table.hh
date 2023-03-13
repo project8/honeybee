@@ -52,9 +52,12 @@ namespace honeybee {
         }
         inline const vector<string>& get_chain() const { return f_chain; }
         inline vector<string>& get_chain() { return f_chain; }
-        string join(const string& a_sep=".") const {
+        string join(const string& a_sep=".", bool a_collapse_empty=true) const {
             string t_joined;
             for (unsigned i = 0; i < f_chain.size(); i++) {
+                if (a_collapse_empty && f_chain[i].empty()) {
+                    continue;
+                }
                 t_joined += (i == 0) ? f_chain[i] : (a_sep + f_chain[i]);
             }
             return t_joined;
@@ -79,7 +82,7 @@ namespace honeybee {
             auto iter = f_options.find(name);
             return (iter == f_options.end()) ? default_value : iter->second;
         }
-        string to_json(vector<string> a_field_list = {{}}) const;
+        string to_json(vector<string> a_field_list = {{}}, const std::string& a_delimiter=".") const;
       public:
         // used by sensor_config
         void set_calibration(const string& calibration) { f_calibration = calibration; }
@@ -152,13 +155,13 @@ namespace honeybee {
 
     class sensor_config_by_names {
       public:
-        sensor_config_by_names(const string& a_name_space=""): f_name_space(a_name_space), f_delimiters("/.-_") {}
-        void set_delimiters(const string& a_delimiters);
+        sensor_config_by_names(const string& a_name_space=""): f_name_space(a_name_space), f_input_delimiters("/.-_"), f_output_delimiter(".") {}
+        void set_delimiters(const string& a_delimiters, const string& f_output_delimiter);
         void load(sensor_table& a_table, const vector<string>& a_name_list, name_chain a_basename=name_chain());
       protected:
         string f_name_space;  // "dripline_endpoint" etc
         vector<string> f_basenames;
-        string f_delimiters;
+        string f_input_delimiters, f_output_delimiter;
     };
     
 }

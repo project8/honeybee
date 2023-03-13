@@ -50,7 +50,7 @@ namespace honeybee {
     
     class dripline_pgsql: public data_source {
       public:
-        dripline_pgsql(string a_uri, name_chain a_basename=name_chain());
+        dripline_pgsql(string a_uri, name_chain a_basename, const string& a_input_delimiters, const string& a_output_delimiters);
         vector<string> get_data_names() override;
       protected:
         void bind_inputs(sensor_table& a_sensor_table) override;
@@ -59,6 +59,7 @@ namespace honeybee {
       protected:
         string f_db_uri;
         vector<string> f_basename;
+        string f_input_delimiters, f_output_delimiter;
       protected:
         pgsql f_pgsql;
         map<int, string> f_endpoint_table;

@@ -1,7 +1,11 @@
+# options:
+#   delimiter: .
+
 # data_source:
 #  dripline_psql:
 #    uri: p8_db_user:dripline@localhost:5432/p8_sc_db
 #    basename: ATDS
+#    delimiter: _
 
 # sensor_table:
 #   setup:
