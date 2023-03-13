@@ -31,5 +31,5 @@ cd ./build-extern && make -j install || exit -1
 
 ## Compile and Install Honeybee ##
 cd ${BASEDIR}/src
-cmake -B ./build-honeybee -D CMAKE_INSTALL_PREFIX=${INSTALLDIR} ./Honeybee || exit -1
+cmake -B ./build-honeybee -D CMAKE_INSTALL_PREFIX=${INSTALLDIR} -D CMAKE_PREFIX_PATH=${INSTALLDIR}/lib ./Honeybee || exit -1
 cd ./build-honeybee && make -j install || exit -1
