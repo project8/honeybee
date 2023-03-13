@@ -22,8 +22,7 @@ using namespace honeybee;
 
 int sensor_table::f_unique_sequence = 0;
 
-
-string sensor::to_json(vector<string> a_field_list) const
+string sensor::to_json(vector<string> a_field_list, const std::string& a_delimiter) const
 {
     if (a_field_list.empty()) {
         a_field_list = {{"number", "name", "label", "default_calibration", "options"}};
@@ -39,7 +38,7 @@ string sensor::to_json(vector<string> a_field_list) const
             os << delim << "\"" << f << "\": " << f_number;
         }
         else if (f == "name") {
-            os << delim << "\"" << f << "\": \"" << f_name.join(".") << "\"";
+            os << delim << "\"" << f << "\": \"" << f_name.join(a_delimiter) << "\"";
         }
         else if (f == "label") {
             os << delim << "\"" << f << "\": \"" << f_label.join(", ") << "\"";
@@ -217,9 +216,10 @@ void sensor_config_by_file::add_sensor(sensor_table& a_table, const tabree::KTre
 
 
 
-void sensor_config_by_names::set_delimiters(const string& a_delimiters)
+void sensor_config_by_names::set_delimiters(const string& a_input_delimiters, const string& a_output_delimiter)
 {
-    f_delimiters = a_delimiters;
+    f_input_delimiters = a_input_delimiters;
+    f_output_delimiter = a_output_delimiter;
 }
 
 void sensor_config_by_names::load(sensor_table& a_table, const vector<string>& a_name_list, name_chain a_basename)
@@ -236,11 +236,11 @@ void sensor_config_by_names::load(sensor_table& a_table, const vector<string>& a
              const sensor& t_sensor = a_table[t_number];
              string t_endpoint = t_sensor.get_option(f_name_space, "");
              if (! t_endpoint.empty()) {
-                 t_binding[t_endpoint] = t_sensor.get_name().join(".");
+                 t_binding[t_endpoint] = t_sensor.get_name().join(f_output_delimiter);
              }
         }
     }
-    
+
     for (const string& t_name: a_name_list) {
         // explicit matching
         auto t_explicit_iter = t_binding.find(t_name);
@@ -250,21 +250,21 @@ void sensor_config_by_names::load(sensor_table& a_table, const vector<string>& a
         }
         
         // inference by loose matching
-        vector<string> t_chain = name_chain{t_name, f_delimiters}.get_chain();
+        vector<string> t_chain = name_chain{t_name, f_input_delimiters}.get_chain();
         t_chain.insert(t_chain.end(), a_basename.get_chain().begin(), a_basename.get_chain().end());
 
         sensor t_sensor;
         auto t_sensor_matches = a_table.find_like(t_chain);
         if (t_sensor_matches.size() == 1) {
             t_sensor = a_table[t_sensor_matches.front()];
-            hINFO(cerr << "    Inferred: " << t_name << " => " << t_sensor.get_name().join(".") << endl);
+            hINFO(cerr << "    Inferred: " << t_name << " => " << t_sensor.get_name().join(f_output_delimiter) << endl);
         }
 
         // non-unique matching, error, skipped
         else if (t_sensor_matches.size() > 1) {
             hERROR(cerr << "    Mutiple possibilities on binding: " << t_name << ": " << endl);
             for (auto& s: t_sensor_matches) {
-                hERROR(cerr << "        " << a_table[s].get_name().join(".") << endl);
+                hERROR(cerr << "        " << a_table[s].get_name().join(f_output_delimiter) << endl);
             }
             hERROR(cerr << "      hint: use explicit binding to resolve ambiguity" << endl);
             continue;
@@ -274,7 +274,7 @@ void sensor_config_by_names::load(sensor_table& a_table, const vector<string>& a
         if (! t_sensor) {
             auto t_number = a_table.create_unique_number();
             t_sensor = sensor{t_number, t_chain, t_chain};
-            hINFO(cerr << "    Created: " << t_name << " => " << t_sensor.get_name().join(".") << endl);
+            hINFO(cerr << "    Created: " << t_name << " => " << t_sensor.get_name().join(f_output_delimiter) << endl);
         }
         if (! f_name_space.empty()) {
             t_sensor.set_option(f_name_space, t_name);

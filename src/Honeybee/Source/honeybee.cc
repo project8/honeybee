@@ -18,7 +18,9 @@ honeybee_app::honeybee_app()
     f_variables.emplace_back("version", 1);
     f_variables.emplace_back("date", datetime::now().as_string("%Y%m%d"));
     
-    f_delimiters = "./:;-_";
+    f_default_delimiters = "./:;-_";
+    f_input_delimiters = "";
+    f_output_delimiter = "";
    
     f_sensor_table = make_shared<sensor_table>();
     f_data_source = make_shared<empty_data_source>();
@@ -41,9 +43,14 @@ void honeybee_app::add_variable(const string& key, const tabree::KVariant& value
     f_variables.emplace_back(key, value);
 }
 
-void honeybee_app::set_delimiter(const std::string& delimiters)
+void honeybee_app::set_delimiter(const std::string& input_delimiters, const std::string& output_delimiter)
 {
-    f_delimiters = delimiters;
+    if (! input_delimiters.empty()) {
+        f_input_delimiters = input_delimiters;
+    }
+    if (! output_delimiter.empty()) {
+        f_output_delimiter = output_delimiter;
+    }
 }
 
 shared_ptr<sensor_table> honeybee_app::get_sensor_table()
@@ -101,6 +108,32 @@ void honeybee_app::construct()
         hINFO(cerr << "No data source defined");
     }
 
+    if (f_input_delimiters.empty()) {
+        if (! t_config["data_source"]["dripline_psql"]["delimiter"].IsVoid()) {
+            f_input_delimiters = t_config["data_source"]["dripline_psql"]["delimiter"].As<string>();
+        }
+        else if (! t_config["options"]["delimiter_input"].IsVoid()) {
+            f_input_delimiters = t_config["options"]["delimiter_input"].As<string>();
+        }
+        else if (! t_config["options"]["delimiter"].IsVoid()) {
+            f_input_delimiters = t_config["options"]["delimiter"].As<string>();
+        }
+        else {
+            f_input_delimiters = f_default_delimiters;
+        }
+    }
+    if (f_output_delimiter.empty()) {
+        if (! t_config["options"]["delimiter_output"].IsVoid()) {
+            f_output_delimiter = t_config["options"]["delimiter_output"].As<string>();
+        }
+        else if (! t_config["options"]["delimiter"].IsVoid()) {
+            f_output_delimiter = t_config["options"]["delimiter"].As<string>().substr(0, 1);
+        }
+        else {
+            f_output_delimiter = f_input_delimiters.substr(0, 1);
+        }
+    }
+        
     string t_db_uri = t_config["data_source"]["dripline_psql"]["uri"];
     string t_basename = t_config["data_source"]["dripline_psql"]["basename"];
     if (t_db_uri.empty()) {
@@ -108,7 +141,9 @@ void honeybee_app::construct()
     }
     else {
         hINFO(cerr << "Dripline Datasource: " << t_db_uri << endl);
-        f_data_source = make_shared<dripline_pgsql>(t_db_uri, name_chain{t_basename, "./-_"});
+        f_data_source = make_shared<dripline_pgsql>(
+            t_db_uri, name_chain{t_basename, f_input_delimiters}, f_input_delimiters, f_output_delimiter
+        );
     }
     
     f_data_source->bind(*f_sensor_table);
@@ -125,9 +160,9 @@ std::vector<std::string> honeybee_app::find_like(const std::string a_name)
         return t_name_list;
     }
 
-    auto t_matched_sensors = f_sensor_table->find_like(name_chain(a_name, f_delimiters));
+    auto t_matched_sensors = f_sensor_table->find_like(name_chain(a_name, f_input_delimiters));
     for (auto& t_number: t_matched_sensors) {
-        t_name_list.push_back((*f_sensor_table)[t_number].get_name().join(f_delimiters.substr(0, 1)));
+        t_name_list.push_back((*f_sensor_table)[t_number].get_name().join(f_output_delimiter));
     }
 
     return t_name_list;
@@ -145,7 +180,7 @@ series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, doubl
     vector<string> t_sensor_name_list;
     vector<int> t_sensor_number_list;
     for (auto& t_name: a_sensor_list) {
-        auto t_matched_sensors = f_sensor_table->find_like(name_chain(t_name, f_delimiters));
+        auto t_matched_sensors = f_sensor_table->find_like(name_chain(t_name, f_input_delimiters));
         if (t_matched_sensors.empty()) {
             hWARN(cerr << "undefined sensor name: " << t_name << endl);
             t_sensor_number_list.push_back(0);
@@ -155,7 +190,7 @@ series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, doubl
         if (t_matched_sensors.size() > 1) {
             for (auto& t_number: t_matched_sensors) {
                 t_sensor_number_list.push_back(t_number);
-                t_sensor_name_list.push_back((*f_sensor_table)[t_number].get_name().join(f_delimiters.substr(0, 1)));
+                t_sensor_name_list.push_back((*f_sensor_table)[t_number].get_name().join(f_output_delimiter));
             }
         }
         else {

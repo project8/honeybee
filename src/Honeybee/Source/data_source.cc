@@ -114,8 +114,8 @@ vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_fro
 
 
 
-dripline_pgsql::dripline_pgsql(string a_uri, name_chain a_basename)
-: f_db_uri(a_uri), f_basename(a_basename.get_chain())
+dripline_pgsql::dripline_pgsql(string a_uri, name_chain a_basename, const string& a_input_delimiters, const string& a_output_delimiter)
+: f_db_uri(a_uri), f_basename(a_basename.get_chain()), f_input_delimiters(a_input_delimiters), f_output_delimiter(a_output_delimiter)
 {
     f_pgsql.set_db(f_db_uri);
 
@@ -174,6 +174,9 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
 
     // 2: construct sensor entries from Dripline endpoints
     sensor_config_by_names t_config("dripline_endpoint");
+    if (! f_input_delimiters.empty()) {
+        t_config.set_delimiters(f_input_delimiters, f_output_delimiter);
+    }
     t_config.load(a_sensor_table, t_dripline_names, f_basename);
 
     // 3: make a Dripline endpoint table
@@ -184,7 +187,7 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
         string t_endpoint = t_sensor.get_option("dripline_endpoint", "");
         if (t_endpoint_list.count(t_endpoint) > 0) {
             f_endpoint_table[t_number] = t_endpoint;
-            hINFO(cerr << "    " << t_endpoint << " => " << t_sensor.get_name().join(".") << endl);
+            hINFO(cerr << "    " << t_endpoint << " => " << t_sensor.get_name().join(f_output_delimiter) << endl);
         }
     }
 }
