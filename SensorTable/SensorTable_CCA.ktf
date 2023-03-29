@@ -1,0 +1,118 @@
+# options:
+#   delimiter: .
+
+# sensor_table:
+#   setup:
+#     id: { name: CCA, label: Cavity CRES Apparatus }
+
+#     section:
+#       id: { name: Egun, label: Egun }
+
+#       subsection:
+#         id: { name: Pwr, label: Power }
+#         device:
+#           id: { name: LED, label: LED Power }
+#           channel:
+#             id: { name: V, label: Voltage }
+#           channel:
+#             id: { name: A, label: Current }
+#         device:
+#           id: { name: SRS, label: SRS Controller }
+#           channel:
+#             id: { name: V, label: Voltage }
+#           channel:
+#             id: { name: A, label: Current }
+#         device:
+#           id: { name: Splmn, label: Spellman }
+#           channel:
+#             id: { name: V, label: Voltage }
+#           channel:
+#             id: { name: A, label: Current }
+
+#       subsection:
+#         id: { name: Cath, label: Cathode }
+#         device:
+#           id: { name: Flmnt, label: Filament Heater }
+#           channel:
+#             id: { name: V, label: Voltage }
+#           channel:
+#             id: { name: A, label: Current }
+#         device:
+#           id: { name: Ems, label: Emission }
+#           channel:
+#             id: { name: nA, label: Current }
+#         device:
+#           id: { name: Beam, label: Beam }
+#           channel:
+#             id: { name: nA, label: Current }
+#         device:
+#           id: { name: Spark, label: Spark Monitor }
+#           channel:
+#             id: { name: readout, label: Spark Monitor Readout }
+#         device:
+#           id: { name: Ripple, label: Ripple Monitor }
+#           channel:
+#             id: { name: V, label: Voltage Amplitude }
+
+#       subsection:
+#         id: { name: Pos, label: Position }
+#         device:
+#           id: { name: PiezoX, label: Piezo Controller X }
+#           channel:
+#             id: { name: steps, label: Position Steps }
+#         device:
+#           id: { name: PiezoY, label: Piezo Controller Y }
+#           channel:
+#             id: { name: steps, label: Position Steps }
+
+#     section:
+#       id: { name: Cavity, label: Cavity }
+
+#     section:
+#       id: { name: Gas, label: Gas Handling }
+
+#       subsection:
+#         id: { name: Inlet, label: Inlet }
+#         device:
+#           id: { name: IG, label: Ion Gauge }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+#         device:
+#           id: { name: PirG, label: Pirani Gauge }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+#         device:
+#           id: { name: SRG, label: SRG }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+#         device:
+#           id: { name: CMG, label: CMG }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+#         device:
+#           id: { name: LV, label: Leak Valve }
+#           channel:
+#             id: { name: readout, label: Readout Value }
+
+#       subsection:
+#         id: { name: Vac, label: Vacuum }
+#         device:
+#           id: { name: IG, label: Ion Gauge }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+#         device:
+#           id: { name: PirG, label: Pirani Gauge }
+#           channel:
+#             id: { name: mbar, label: Pressure }
+#         device:
+#           id: { name: TMP, label: TMP }
+#           channel:
+#             id: { name: rpm, label: Speed }
+#         device:
+#           id: { name: DiaP, label: Diaphragm Pump }
+#           channel:
+#             id: { name: readout, label: Readout Value }
+#       device:
+#         id: { name: RGA, label: RGA }
+#         channel:
+#           id: { name: status, label: Status}
