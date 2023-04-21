@@ -1,5 +1,10 @@
 # options:
-#   delimiter: .
+#   output_delimiter: .
+
+# data_source:
+#  dripline_psql:
+#    uri: p8_db_user:dripline@localhost:5432/p8_sc_db
+#    basename: CCA
 
 # sensor_table:
 #   setup:
@@ -38,7 +43,7 @@
 #           channel:
 #             id: { name: A, label: Current }
 #         device:
-#           id: { name: Ems, label: Emission }
+#           id: { name: Emss, label: Emission }
 #           channel:
 #             id: { name: nA, label: Current }
 #         device:
