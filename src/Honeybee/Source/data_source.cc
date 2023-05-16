@@ -55,14 +55,14 @@ void data_source::bind(sensor_table& a_sensor_table)
     this->bind_inputs(a_sensor_table);
 }
 
-vector<series> data_source::read(const vector<int>& a_sensor_list, double a_from, double a_to)
+vector<series> data_source::read(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
     vector<int> t_input_sensor_list;
     for (unsigned i = 0; i < a_sensor_list.size(); i++) {
         t_input_sensor_list.emplace_back(find_input(a_sensor_list[i]));
     }
 
-    vector<series> t_series_list = this->fetch(t_input_sensor_list, a_from, a_to);
+    vector<series> t_series_list = this->fetch(t_input_sensor_list, a_from, a_to, a_resampling_interval, a_reducer);
     
     for (unsigned i = 0; i < a_sensor_list.size(); i++) {
         apply_calibration(a_sensor_list[i], t_series_list[i]);
@@ -99,14 +99,14 @@ void data_source::apply_calibration(int a_sensor, series& a_series)
     hINFO(cerr << "    " << t_calib.get_description() << endl);
 }
 
-vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to)
+vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
     // default implemantation, might be overriden as needed //
     
     vector<series> t_series_list;
     for (auto& t_sensor: a_sensor_list) {
         t_series_list.emplace_back(a_from, a_to);
-        fetch_single(t_series_list.back(), t_sensor, a_from, a_to);
+        fetch_single(t_series_list.back(), t_sensor, a_from, a_to, a_resampling_interval, a_reducer);
     }
 
     return t_series_list;
@@ -192,41 +192,20 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
     }
 }
 
-void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to)
+void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
-    auto iter = f_endpoint_table.find(a_sensor);
-    if (iter == f_endpoint_table.end()) {
-        return;
+    try {
+        auto t_series_list = this->fetch({{a_sensor}}, a_from, a_to, a_resampling_interval, a_reducer);
+        if (t_series_list.size() == 1) {
+            a_series = std::move(t_series_list[0]);
+        }
     }
-    string endpoint = sanitize(iter->second);
-    
-    string t_sql = (string("")
-        + "select extract(epoch from timestamp), value_raw"
-        + "  from numeric_data"
-        + "  where " + f_sensorname_column + "='" + endpoint + "'"
-        + "  and timestamp>='" + datetime(a_from).as_string() + "'"
-        + "  and timestamp<'" + datetime(a_to).as_string() + "'"
-        + "  order by timestamp asc"
-    );
-
-    hINFO(cerr << "SQL: " << endl);
-    hINFO(cerr << "    " << t_sql << endl);
-    
-    double time;
-    auto t_handler = [&](int a_row, int a_col, const char* a_value) {
-        if (a_col == 0) {
-            time = stod(a_value);
-        }
-        else {
-            a_series.emplace_back(time, stod(a_value));
-        }
-    };
-    if (f_pgsql.query(t_sql, t_handler) < 0) {
-        throw std::runtime_error("DB Query Error: SQL: " + t_sql);
+    catch (std::runtime_error &e) {
+        throw e;
     }
 }
 
-vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_from, double a_to)
+vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
     vector<series> t_series_list;
     
@@ -247,15 +226,121 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
         return t_series_list;
     }
     
-    string t_sql = (string("")
-        + "select extract(epoch from timestamp), " + f_sensorname_column + ", value_raw"
-        + "  from numeric_data"
-        + "  where " + f_sensorname_column + " in (" + t_targets + ")"
-        + "  and timestamp>='" + datetime(a_from).as_string() + "Z'"
-        + "  and timestamp<'" + datetime(a_to).as_string() + "Z'"
-        + "  order by timestamp asc"
-    );
+    string t_sql; {
+        string date_from = datetime(a_from).as_string() + "Z";
+        string date_to = datetime(a_to).as_string() + "Z";
+        string tag = f_sensorname_column;
+        string tag_values = t_targets;
+        string field = "value_raw";
+        string bucket = std::to_string(a_resampling_interval);
+        string to = std::to_string(a_to);
+        
+        string time_selector; {
+            static const std::map<std::string, std::string> func_list = {
+                {"first", "min"},
+                {"last", "max"}
+                // missing: middle
+            };
+            auto iter = func_list.find(a_reducer);
+            if (iter != func_list.end()) {
+                time_selector = iter->second;
+            }
+        }
+        string value_aggregator; {
+            static const std::map<std::string, std::string> func_list = {
+                //{"mean", "avg"},     // not correct if non-linear calibration is applied after this
+                //{"sum", "sum"},      // not correct if non-linear calibration is applied after this
+                //{"std", "stddev"},   // multiple application of this will cause a problem
+                //{"count", "count"},  // multiple application of this will cause a problem
+                {"min", "min"},        // min and max might flip depending on the calibration 
+                {"max", "max"}         // min and max might flip depending on the calibration 
+                // missing: median, sem
+            };
+            auto iter = func_list.find(a_reducer);
+            if (iter != func_list.end()) {
+                value_aggregator = iter->second;
+            }
+        }
+                
+        string cte_data = (string("")
+            + "SELECT timestamp, " + tag + ", " + field
+            + "  FROM numeric_data"
+            + "  WHERE " + tag + " IN (" + tag_values + ")"
+            + "  AND timestamp>='" + date_from + "'"
+            + "  AND timestamp<'" + date_to + "'"
+        );
 
+        if (a_resampling_interval > 0) {
+            if (! time_selector.empty()) {
+                string cte_last_bucket = (string("")
+                    + "SELECT "
+                    + "  floor(("+to+"-extract(epoch from timestamp))/"+bucket+") AS bucket, "
+                    + "  " + tag + ", "
+                    + "  " + time_selector + "(timestamp) AS picked_timestamp "
+                    + "FROM "
+                    + "  numeric_data "
+                    + "WHERE "
+                    + "  timestamp>='" + date_from + "' AND timestamp<'" + date_to + "' "
+                    + "  AND " + tag + " in (" + tag_values + ") "
+                    + "GROUP BY "
+                    + "  bucket, " + tag
+                );
+                t_sql = (string("")
+                    + "WITH "
+                    + "  cte_bucket AS (" + cte_last_bucket + "), "
+                    + "  cte_data AS (" + cte_data + ") "
+                    + "SELECT"
+                    + "  " + to + "-" + bucket + "*(bucket+0.5) AS timestamp, t." + tag + ", " + field + " "
+                    + "FROM"
+                    + "  cte_data as t "
+                    + "JOIN"
+                    + "  cte_bucket as b "
+                    + "ON "
+                    + "  t.timestamp = b.picked_timestamp AND t." + tag + " = b." + tag + " "
+                    + "ORDER BY"
+                    + "  timestamp asc "
+                );
+            }
+            else if (! value_aggregator.empty()) {
+                string cte_avg_bucket = (string("")
+                    + "SELECT"
+                    + "  floor((" + to + "-extract(epoch from timestamp))/" + bucket + ") AS bucket, "
+                    + "  " + tag + ", "
+                    + "  " + value_aggregator + "(" + field + ") AS " + field + " "
+                    + "FROM"
+                    + "  numeric_data "
+                    + "WHERE"
+                    + "  timestamp>='" + date_from + "' AND timestamp<'" + date_to + "' "
+                    + "  and " + tag + " in (" + tag_values + ") "
+                    + "GROUP BY"
+                    + "  bucket, " + tag
+                );
+                t_sql = (string("")
+                    + "WITH "
+                    + "  cte_bucket AS (" + cte_avg_bucket + ") "
+                    + "SELECT"
+                    + "  " + to + "-" + bucket + "*(bucket+0.5) AS timestamp, " + tag + ", " + field + " "
+                    + "FROM"
+                    + "  cte_bucket "
+                    + "ORDER BY"
+                    + "  timestamp asc "
+                );
+            }
+        }
+        if (t_sql.empty()) {
+            t_sql = (string("")
+                + "WITH"
+                + "  cte_data AS (" + cte_data + ") "
+                + "SELECT"
+                + "  extract(epoch from timestamp), " + tag + ", " + field + " "
+                + "FROM"
+                + "  cte_data "
+                + "ORDER BY"
+                + "  timestamp asc"
+            );
+        }
+    }
+    
     hINFO(cerr << "SQL: " << endl);
     hINFO(cerr << "    " << t_sql << endl);
 
@@ -277,7 +362,7 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
     if (f_pgsql.query(t_sql, t_handler) < 0) {
         throw std::runtime_error("DB Query Error: SQL: " + t_sql);
     }
-    
+
     return t_series_list;
 }
 
@@ -288,6 +373,6 @@ vector<string> csv_file::get_data_names()
     return vector<string>();
 }
 
-void csv_file::fetch_single(series& a_series, int a_sensor, double a_from, double a_to)
+void csv_file::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
 }

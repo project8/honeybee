@@ -31,7 +31,7 @@ namespace honeybee {
         std::shared_ptr<sensor_table> get_sensor_table();
         std::shared_ptr<data_source> get_data_source();
         std::vector<std::string> find_like(const std::string a_name);
-        series_bundle read(const vector<std::string>& a_sensor_list, double a_start, double a_stop);
+        series_bundle read(const vector<std::string>& a_sensor_list, double a_start, double a_stop, double a_resampling_interval=-1, const std::string& a_reducer="");
         std::string get_output_delimiter() const { return f_output_delimiter; }
       protected:
         void construct();

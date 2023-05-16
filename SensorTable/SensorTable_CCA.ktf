@@ -121,3 +121,19 @@
 #         id: { name: RGA, label: RGA }
 #         channel:
 #           id: { name: status, label: Status}
+
+
+
+#     section:
+#       id: { name: Infra, label: Infrastructure }
+
+#       subsection:
+#         id: { name: MRI, label: MRI }
+#         device:
+#           id: { name: Piezo0, label: Cold-Head Piezo Sensor }
+#           channel:
+#             id: { name: NormVibPwr , label:  Normalized Vibration Power }
+#         device:
+#           id: { name: Piezo1, label: Cold-Head Piezo Sensor }
+#           channel:
+#             id: { name: NormVibPwr , label:  Normalized Vibration Power }

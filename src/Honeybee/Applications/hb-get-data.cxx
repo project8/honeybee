@@ -62,7 +62,7 @@ int main(int argc, char** argv)
     
     double t_resampling_enabled = ! args["--resample"].IsVoid();
     double t_resampling_interval = args["--resample"].SplitBy(",")[0].Or(0); // 0 for auto
-    std::string t_resampling_reducer = args["--resample"].SplitBy(",")[1].Or("first");
+    std::string t_resampling_reducer = args["--resample"].SplitBy(",")[1].Or("last");
     
     bool t_output_summary = ! args["--summary"].IsVoid();
     std::vector<std::string> t_summary_items; {
@@ -97,7 +97,10 @@ int main(int argc, char** argv)
         t_honeybee_app.add_variable(variable.first, variable.second);
     }
     
-    auto t_series_bundle = t_honeybee_app.read(t_sensor_names, hb::datetime(t_from), hb::datetime(t_to));
+    auto t_series_bundle = t_honeybee_app.read(
+        t_sensor_names, hb::datetime(t_from), hb::datetime(t_to),
+        t_resampling_interval, t_resampling_reducer
+    );
 
     
     //// Reducing (if necessary)  ////

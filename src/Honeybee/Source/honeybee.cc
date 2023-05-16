@@ -168,7 +168,7 @@ std::vector<std::string> honeybee_app::find_like(const std::string a_name)
     return t_name_list;
 }
 
-series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, double a_from, double a_to)
+series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
     if (! f_is_constructed) {
         construct();
@@ -203,10 +203,15 @@ series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, doubl
     hINFO(cerr << "(" << datetime(a_from).as_string() << " to " << datetime(a_to).as_string() << ", ");
     hINFO(cerr << t_sensor_number_list.size() << " sensors)..." << flush);
     datetime start = datetime::now();
-    vector<series> t_series_list = f_data_source->read(t_sensor_number_list, datetime(a_from), datetime(a_to));
+    vector<series> t_series_list = f_data_source->read(
+        t_sensor_number_list, datetime(a_from), datetime(a_to),
+        a_resampling_interval, a_reducer
+    );
     datetime stop = datetime::now();
     hINFO(cerr << "done. (" << (stop-start) << " s)" << endl);
 
+    // Resampling might have be done on the server-side, might not.
+    // We will perform resampling on the returned result here; server-side resampling is to reduce the data size.
     return hb::zip(std::move(t_sensor_name_list), std::move(t_series_list));
 }
 
