@@ -235,6 +235,7 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
         string bucket = std::to_string(a_resampling_interval);
         string to = std::to_string(a_to);
         
+#if 0
         string time_selector; {
             static const std::map<std::string, std::string> func_list = {
                 {"first", "min"},
@@ -263,13 +264,15 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
         }
                 
         string cte_data = (string("")
-            + "SELECT timestamp, " + tag + ", " + field
-            + "  FROM numeric_data"
-            + "  WHERE " + tag + " IN (" + tag_values + ")"
-            + "  AND timestamp>='" + date_from + "'"
-            + "  AND timestamp<'" + date_to + "'"
+            + "SELECT"
+            + "  timestamp, " + tag + ", " + field + " "
+            + "FROM"
+            + "  numeric_data "
+            + "WHERE "
+            + "  " + tag + " IN (" + tag_values + ") "
+            + "  AND timestamp>='" + date_from + "' AND timestamp<'" + date_to + "'"
         );
-
+        
         if (a_resampling_interval > 0) {
             if (! time_selector.empty()) {
                 string cte_last_bucket = (string("")
@@ -327,6 +330,7 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
                 );
             }
         }
+
         if (t_sql.empty()) {
             t_sql = (string("")
                 + "WITH"
@@ -339,6 +343,19 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
                 + "  timestamp asc"
             );
         }
+#else
+        t_sql = (string("")
+            + "SELECT"
+            + "  extract(epoch from timestamp), " + tag + ", " + field + " "
+            + "FROM"
+            + "  numeric_data "
+            + "WHERE "
+            + "  " + tag + " IN (" + tag_values + ") "
+            + "  AND timestamp>='" + date_from + "' AND timestamp<'" + date_to + "'"
+            + "ORDER BY"
+            + "  timestamp asc"
+        );
+#endif
     }
     
     hINFO(cerr << "SQL: " << endl);
