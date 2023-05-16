@@ -335,6 +335,11 @@ void time_grouper::begin_group(const series& a_series)
     if (std::isnan(f_stop) || (f_stop <= f_start)) {
         f_stop = a_series.get_stop();
     }
+
+    // align the end of the last group boundary to stop by adjusting start
+    if ((f_step > 0) && (f_start < f_stop)) {
+        f_start = f_stop - ceil((f_stop - f_start) / f_step) * f_step;
+    }
     
     f_current_segment = 0;
     f_current_point = 0;
@@ -405,7 +410,7 @@ time_grouper& adaptive_time_grouper::group_to_align(const vector<series>& a_seri
     f_stop = median_of(t_stops);
 
     if (std::isnan(f_step)) {
-        f_step = 10;
+        f_step = 1;
     }
     
     return *this;
