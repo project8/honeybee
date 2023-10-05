@@ -25,6 +25,7 @@
 #           id: { name: SRS, label: SRS Controller }
 #           channel:
 #             id: { name: V, label: Voltage }
+#             x-dripline_endpoint: V_SRS_Pwr_Egun
 #           channel:
 #             id: { name: A, label: Current }
 #         device:
@@ -33,6 +34,11 @@
 #             id: { name: V, label: Voltage }
 #           channel:
 #             id: { name: A, label: Current }
+#             default_calibration: V.VltMtr1:1.0*V.VltMtr1
+#         device:
+#           id: { name: VltMtrAgilent, label: Agilent Voltmeter }
+#           channel:
+#             id: { name: V, label: Voltage }
 
 #       subsection:
 #         id: { name: Cath, label: Cathode }
@@ -58,6 +64,14 @@
 #           id: { name: Ripple, label: Ripple Monitor }
 #           channel:
 #             id: { name: V, label: Voltage Amplitude }
+
+#       subsection:
+#         id: { name: FC, label: Faraday Cup }
+#         device:
+#           id: { name: PicoAm, label: Picoammeter }
+#           channel:
+#             id: { name: nA, label: Current }
+#             x-dripline_endpoint: nA_PicoAm1_Egun
 
 #       subsection:
 #         id: { name: Pos, label: Position }
