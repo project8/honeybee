@@ -51,11 +51,11 @@
 #         device:
 #           id: { name: Emss, label: Emission }
 #           channel:
-#             id: { name: nA, label: Current }
+#             id: { name: A, label: Current }
 #         device:
 #           id: { name: Beam, label: Beam }
 #           channel:
-#             id: { name: nA, label: Current }
+#             id: { name: A, label: Current }
 #         device:
 #           id: { name: Spark, label: Spark Monitor }
 #           channel:
@@ -70,8 +70,8 @@
 #         device:
 #           id: { name: PicoAm, label: Picoammeter }
 #           channel:
-#             id: { name: nA, label: Current }
-#             x-dripline_endpoint: nA_PicoAm1_Egun
+#             id: { name: A, label: Current }
+#             x-dripline_endpoint: A_PicoAm1_Egun
 
 #       subsection:
 #         id: { name: Pos, label: Position }
