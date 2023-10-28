@@ -50,6 +50,9 @@ namespace honeybee {
         inline string& operator[](int index) {
             return const_cast<string&>(static_cast<const name_chain*>(this)->operator[](index));
         }
+        inline unsigned size() const {
+            return f_chain.size();
+        }
         inline const vector<string>& get_chain() const { return f_chain; }
         inline vector<string>& get_chain() { return f_chain; }
         string join(const string& a_sep=".", bool a_collapse_empty=true) const {

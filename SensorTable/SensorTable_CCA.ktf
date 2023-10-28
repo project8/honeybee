@@ -26,15 +26,14 @@
 #           channel:
 #             id: { name: V, label: Voltage }
 #             x-dripline_endpoint: V_SRS_Pwr_Egun
-#           channel:
-#             id: { name: A, label: Current }
 #         device:
 #           id: { name: Splmn, label: Spellman }
 #           channel:
 #             id: { name: V, label: Voltage }
+#             default_calibration: V.SRS: V.SRS
 #           channel:
-#             id: { name: A, label: Current }
-#             default_calibration: V.VltMtr1:1.0*V.VltMtr1
+#             id: { name: uA, label: Current }
+#             default_calibration: V.VltMtrAgilent: 400/10.0*V.VltMtrAgilent
 #         device:
 #           id: { name: VltMtrAgilent, label: Agilent Voltmeter }
 #           channel:
@@ -72,11 +71,17 @@
 #           channel:
 #             id: { name: A, label: Current }
 #             x-dripline_endpoint: A_PicoAm1_Egun
+#           channel:
+#             id: { name: nA, label: Current in nA }
+#             default_calibration: A: A*1e9
 #         device:
 #           id: { name: PicoAm2, label: Picoammeter 2 }
 #           channel:
 #             id: { name: A, label: Current }
 #             x-dripline_endpoint: A_PicoAm2_Egun
+#           channel:
+#             id: { name: nA, label: Current in nA }
+#             default_calibration: A: A*1e9
 
 #       subsection:
 #         id: { name: Pos, label: Position }

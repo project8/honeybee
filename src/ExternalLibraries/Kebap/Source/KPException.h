@@ -21,7 +21,7 @@ class KPException:  public std::runtime_error {
     template<typename XValue> KPException& operator<<(const XValue& message) {
         std::ostringstream os;
         os << message;
-        fWhat += os.str();
+        fWhat += ": " + os.str();
         return *this;
     }
   protected:
