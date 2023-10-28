@@ -7,6 +7,7 @@
 
 #include <string>
 #include <memory>
+#include <regex>
 #include <kebap/Kebap.h>
 #include "sensor_table.hh"
 #include "calibration.hh"
@@ -49,23 +50,26 @@ calibration::calibration(const sensor& a_sensor, const sensor_table& a_sensor_ta
         t_exp_text = strip(f_description.substr(colon+1));
     }
     
-    name_chain t_input_name = a_sensor.get_name();
-    t_input_name[0] = f_variable_name;
-    f_input = a_sensor_table[t_input_name];
-    if (! f_input) {
-        t_input_name = name_chain(f_variable_name, "./-_");
-        auto a_candidates = a_sensor_table.find_like(t_input_name);
-        if (a_candidates.size() == 1) {
-            f_input = a_candidates.front();
-            f_variable_name = t_input_name[0];
+    name_chain t_input_name_chain = a_sensor.get_name();
+    name_chain t_variable_name_chain = name_chain(f_variable_name, "./-_");
+    if (t_input_name_chain.size() < t_variable_name_chain.size()) {
+        t_input_name_chain = t_variable_name_chain;
+    }
+    else {
+        for (unsigned i = 0; i < t_variable_name_chain.size(); i++) {
+            t_input_name_chain[i] = t_variable_name_chain[i];
         }
-        else if (a_candidates.size() > 0) {
-            cerr << "ERROR: ambiguous calibration input: " << f_variable_name << endl;
-            return;
-        }
-        else {
-            f_input = a_sensor_table[{{f_variable_name}}];
-        }
+    }
+    auto t_candidates = a_sensor_table.find_like(t_input_name_chain);
+    if (t_candidates.size() == 1) {
+        f_input = t_candidates.front();
+    }
+    else if (t_candidates.size() > 0) {
+        cerr << "ERROR: ambiguous calibration input: " << f_variable_name << endl;
+        return;
+    }
+    else {
+        f_input = a_sensor_table[t_variable_name_chain];
     }
     if (! f_input) {
         cerr << "ERROR: unable to find calibration input: " << f_variable_name << endl;
@@ -74,16 +78,19 @@ calibration::calibration(const sensor& a_sensor, const sensor_table& a_sensor_ta
     
     if ((f_variable_name == t_exp_text) || t_exp_text.empty()) {
         f_is_identity = true;
+        return;
     }
-    else {
-        f_evaluator = make_shared<kebap::KPEvaluator>(t_exp_text);
-        try {
-            f_evaluator->operator[](f_variable_name) = 1;
-            f_evaluator->operator()(0);
-        }
-        catch (kebap::KPException &e) {
-            cerr << "ERROR: bad calibration expression: " << e.what() << endl;
-            f_evaluator = 0;
-        }
+
+    // replace the variable in the expression with "x"
+    string t_pattern = regex_replace(f_variable_name, regex("\\."), "\\.");
+    t_exp_text = regex_replace(t_exp_text, regex("(^|[^a-zA-Z_])(" + t_pattern + ")($|[^a-zA-Z0-9_])"), "$1x$3");
+    
+    f_evaluator = make_shared<kebap::KPEvaluator>(t_exp_text);
+    try {
+        f_evaluator->operator()(0);
+    }
+    catch (kebap::KPException &e) {
+        cerr << "ERROR: bad calibration expression: " << e.what() << endl;
+        f_evaluator = 0;
     }
 }

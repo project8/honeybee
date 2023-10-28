@@ -31,9 +31,7 @@ namespace honeybee {
             if (! f_evaluator) {
                 return std::numeric_limits<double>::quiet_NaN();
             }
-            //...TODO: restructure this (exporting the symbol table?)
-            f_evaluator->operator[](f_variable_name) = x;
-            return f_evaluator->operator()(0);
+            return (*f_evaluator)(x);
         }
       protected:
         string f_description, f_variable_name;
