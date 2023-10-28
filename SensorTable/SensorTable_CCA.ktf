@@ -68,10 +68,15 @@
 #       subsection:
 #         id: { name: FC, label: Faraday Cup }
 #         device:
-#           id: { name: PicoAm, label: Picoammeter }
+#           id: { name: PicoAm1, label: Picoammeter 1 }
 #           channel:
 #             id: { name: A, label: Current }
 #             x-dripline_endpoint: A_PicoAm1_Egun
+#         device:
+#           id: { name: PicoAm2, label: Picoammeter 2 }
+#           channel:
+#             id: { name: A, label: Current }
+#             x-dripline_endpoint: A_PicoAm2_Egun
 
 #       subsection:
 #         id: { name: Pos, label: Position }
