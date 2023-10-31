@@ -30,7 +30,7 @@
 #           id: { name: Splmn, label: Spellman }
 #           channel:
 #             id: { name: V, label: Voltage }
-#             default_calibration: V.SRS: V.SRS
+#             default_calibration: V.SRS: 3000*V.SRS
 #           channel:
 #             id: { name: uA, label: Current }
 #             default_calibration: V.VltMtrAgilent: 400/10.0*V.VltMtrAgilent
