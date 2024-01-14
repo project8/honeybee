@@ -1,7 +1,7 @@
 Honeybee: Slow-Controls Data Access Library in C++
 ==================================================
 
-Sanshiro Enomoto &lt;sanshiro@uw.edu&gt;<br>
+Sanshiro Enomoto<br>
 May 3, 2022
 
 Purposes:
