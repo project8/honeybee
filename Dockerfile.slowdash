@@ -7,12 +7,14 @@ RUN apt-get update && \
 COPY ./SensorTable /honeybee/SensorTable
 COPY ./src /honeybee/src
 
-RUN mkdir -p /honeybee/src/build-externals && rm -rf /honeybee/src/build-externals/* && cd /honeybee/src/build-externals && \
+RUN mkdir -p /honeybee/src/build-ext && rm -rf /honeybee/src/build-ext/* && cd /honeybee/src/build-ext && \
     cmake -DCMAKE_INSTALL_PREFIX=/honeybee ../ExternalLibraries && \
     make install && \
     /bin/true
 
-RUN mkdir -p /honeybee/src/build-honeybee && rm -rf /honeybee/src/build-honeybee/* && cd /honeybee/src/build-honeybee && \
+RUN mkdir -p /honeybee/src/build && rm -rf /honeybee/src/build/* && cd /honeybee/src/build && \
     cmake -DCMAKE_INSTALL_PREFIX=/honeybee -DCMAKE_PREFIX_PATH=/honeybee/lib/cmake ../Honeybee && \
     make install && \
     /bin/true
+
+RUN ln -s /honeybee/bin/hb-* /bin
