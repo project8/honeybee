@@ -1,0 +1,18 @@
+FROM slowdash
+
+RUN apt-get update && \
+    apt-get install -y build-essential dpkg-dev cmake postgresql-server-dev-all libpq-dev && \
+    apt-get clean
+
+COPY ./SensorTable /honeybee/SensorTable
+COPY ./src /honeybee/src
+
+RUN mkdir -p /honeybee/src/build-externals && rm -rf /honeybee/src/build-externals/* && cd /honeybee/src/build-externals && \
+    cmake -DCMAKE_INSTALL_PREFIX=/honeybee ../ExternalLibraries && \
+    make install && \
+    /bin/true
+
+RUN mkdir -p /honeybee/src/build-honeybee && rm -rf /honeybee/src/build-honeybee/* && cd /honeybee/src/build-honeybee && \
+    cmake -DCMAKE_INSTALL_PREFIX=/honeybee -DCMAKE_PREFIX_PATH=/honeybee/lib/cmake ../Honeybee && \
+    make install && \
+    /bin/true
