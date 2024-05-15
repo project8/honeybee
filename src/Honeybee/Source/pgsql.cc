@@ -30,7 +30,7 @@ void pgsql::set_db(string a_uri)
 int pgsql::query(const string& a_sql, handler a_handler, bool a_header_enabled)
 {
     if (! f_connection) {
-        if (f_uri.substr(0, 12) != "postgresql://") {
+        if (f_uri.substr(0, 13) != "postgresql://") {
             f_uri = "postgresql://" + f_uri;
         }
         hINFO(cerr << "connecting to DB (" + f_uri + ")..." << endl);
