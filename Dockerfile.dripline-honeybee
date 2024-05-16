@@ -1,0 +1,20 @@
+FROM ghcr.io/driplineorg/dripline-python:latest
+
+RUN apt-get update && \
+    apt-get install -y build-essential dpkg-dev cmake postgresql-server-dev-all libpq-dev && \
+    apt-get clean
+
+COPY ./SensorTable /honeybee/SensorTable
+COPY ./src /honeybee/src
+
+RUN mkdir -p /honeybee/src/build-ext && rm -rf /honeybee/src/build-ext/* && cd /honeybee/src/build-ext && \
+    cmake -DCMAKE_INSTALL_PREFIX=/honeybee ../ExternalLibraries && \
+    make -j install && \
+    /bin/true
+
+RUN mkdir -p /honeybee/src/build && rm -rf /honeybee/src/build/* && cd /honeybee/src/build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/honeybee -DCMAKE_PREFIX_PATH=/honeybee/lib/cmake ../Honeybee && \
+    make -j install && \
+    /bin/true
+
+RUN ln -s /honeybee/bin/hb-* /bin
