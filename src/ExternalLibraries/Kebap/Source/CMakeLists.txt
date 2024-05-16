@@ -50,6 +50,7 @@ set_target_properties(KebapLib PROPERTIES PUBLIC_HEADER "${MyPublicHeaders}")
 install(TARGETS KebapLib
   EXPORT kebaplib-config
   LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
   PUBLIC_HEADER DESTINATION include/kebap
 )
 install(EXPORT kebaplib-config DESTINATION lib/cmake)

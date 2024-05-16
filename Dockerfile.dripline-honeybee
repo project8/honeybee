@@ -1,4 +1,4 @@
-FROM ghcr.io/driplineorg/dripline-python:latest
+FROM driplineorg/dripline-python:v4.5.8
 
 RUN apt-get update && \
     apt-get install -y build-essential dpkg-dev cmake postgresql-server-dev-all libpq-dev && \

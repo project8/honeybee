@@ -54,6 +54,7 @@ set_target_properties(TabreeLib PROPERTIES PUBLIC_HEADER "${MyPublicHeaders}")
 install(TARGETS TabreeLib
   EXPORT tabreelib-config
   LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
   INCLUDES DESTINATION include
   PUBLIC_HEADER DESTINATION include/tabree
 )

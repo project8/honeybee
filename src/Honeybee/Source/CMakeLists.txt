@@ -39,6 +39,7 @@ set_target_properties(HoneybeeLib PROPERTIES PUBLIC_HEADER "${MyPublicHeaders}")
 install(TARGETS HoneybeeLib
   EXPORT honeybeelib-config
   LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
   PUBLIC_HEADER DESTINATION include/honeybee
 )
 install(EXPORT honeybeelib-config DESTINATION lib/cmake)
