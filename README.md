@@ -1,9 +1,6 @@
 Honeybee: Slow-Controls Data Access Library in C++
 ==================================================
 
-Sanshiro Enomoto<br>
-May 3, 2022
-
 Purposes:
 - Pandas-like interface to Dripline SQL data
 - Managed sensor names in multiple data sources

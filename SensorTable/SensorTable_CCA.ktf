@@ -40,6 +40,23 @@
 #             id: { name: V, label: Voltage }
 
 #       subsection:
+#         id: { name: Telm, label: Telemetry }
+#         device:
+#           id: { name: Flmnt, label: Filament Heater }
+#           channel:
+#             id: { name: V, label: Voltage }
+#           channel:
+#             id: { name: A, label: Current }
+#         device:
+#           id: { name: Emss, label: Emission }
+#           channel:
+#             id: { name: A, label: Current }
+#         device:
+#           id: { name: Reflct, label: Reflector }
+#           channel:
+#             id: { name: A, label: Current }
+
+#       subsection:
 #         id: { name: Cath, label: Cathode }
 #         device:
 #           id: { name: Flmnt, label: Filament Heater }
