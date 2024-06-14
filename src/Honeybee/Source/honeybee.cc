@@ -182,7 +182,7 @@ series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, doubl
     for (auto& t_name: a_sensor_list) {
         auto t_matched_sensors = f_sensor_table->find_like(name_chain(t_name, f_input_delimiters));
         if (t_matched_sensors.empty()) {
-            hWARN(cerr << "undefined sensor name: " << t_name << endl);
+            hINFO(cerr << "undefined sensor name: " << t_name << endl);
             t_sensor_number_list.push_back(0);
             t_sensor_name_list.push_back(t_name);
             continue;
