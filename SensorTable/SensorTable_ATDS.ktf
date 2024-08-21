@@ -73,13 +73,12 @@
 #         module:
 #           id: { name: Motor, label: Motor }
 #           channel:
-#             id: { name: Status, label: Status }
-#             enum: { 0:off, 1:on }
+#             id: { name: Home, label: At the Home Position }
+#             enum: { 0:no, 1:yes }
 #           channel:
-#             id: { name: Pos, label: Position }
-#             enum: { 0:close, 1:open }
+#             id: { name: Step, label: Position }
 #           channel:
-#             id: { name: rpm, label: Rotational Speed }
+#             id: { name: Hz, label: Rotational Speed }
 #       subsection:
 #         id: { name: Aper, label: Aperture }
 #         module:
