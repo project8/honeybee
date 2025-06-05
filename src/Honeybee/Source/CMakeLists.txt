@@ -6,6 +6,7 @@ add_library(HoneybeeLib STATIC
   sensor_table.cc
   series.cc
   utils.cc
+  evaluator.cc
 )
 
 set(MyPublicHeaders
@@ -16,6 +17,7 @@ set(MyPublicHeaders
   sensor_table.hh
   series.hh
   utils.hh
+  evaluator.hh
 )
 
 target_compile_features(HoneybeeLib PRIVATE cxx_std_14)

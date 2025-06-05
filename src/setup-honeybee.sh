@@ -33,3 +33,7 @@ cd ./build-extern && make -j install || exit -1
 cd ${BASEDIR}/src
 cmake -B ./build-honeybee -D CMAKE_INSTALL_PREFIX=${INSTALLDIR} -D CMAKE_PREFIX_PATH=${INSTALLDIR}/lib ./Honeybee || exit -1
 cd ./build-honeybee && make -j install || exit -1
+
+## Create Makefiles for exampes ##
+cd ${BASEDIR}/src/Honeybee/Examples
+echo cmake -D CMAKE_PREFIX_PATH=${INSTALLDIR}/lib . || exit -1

@@ -9,7 +9,7 @@ namespace hb = honeybee;
 
 int main(int argc, char** argv)
 {
-    hb::dripline_pgsql t_data_source("p8_db_user:dripline@localhost:5432/p8_sc_db");
+    hb::dripline_pgsql t_data_source("p8_db_user:dripline@localhost:5432/p8_sc_db", {{}}, "_", ".");
    
     hb::sensor_table t_sensor_table;
 #if 1

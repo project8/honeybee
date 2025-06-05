@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 
 #if 1
     hb::sensor_config_by_names t_config;
-    hb::dripline_pgsql t_dripline_db("p8_db_user:dripline@localhost:5432/p8_sc_db");
+    hb::dripline_pgsql t_dripline_db("p8_db_user:dripline@localhost:5432/p8_sc_db", {{}}, "_", ".");
     t_config.load(t_table, t_dripline_db.get_data_names(), {{"ATDS"}});
 #else
     hb::sensor_config_by_file t_config;

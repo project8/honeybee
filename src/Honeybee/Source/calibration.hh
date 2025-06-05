@@ -10,9 +10,9 @@
 
 #include <string>
 #include <memory>
-#include <kebap/Kebap.h>
 #include "series.hh"
 #include "sensor_table.hh"
+#include "evaluator.hh"
 
 
 namespace honeybee {
@@ -37,7 +37,7 @@ namespace honeybee {
         string f_description, f_variable_name;
         int f_input;
         bool f_is_identity;
-        shared_ptr<kebap::KPEvaluator> f_evaluator;
+        shared_ptr<evaluator> f_evaluator;
     };
     
 }

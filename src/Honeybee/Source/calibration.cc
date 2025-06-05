@@ -8,13 +8,14 @@
 #include <string>
 #include <memory>
 #include <regex>
-#include <kebap/Kebap.h>
 #include "sensor_table.hh"
+#include "evaluator.hh"
 #include "calibration.hh"
 
 
 using namespace std;
 using namespace honeybee;
+
 
 calibration::calibration(const sensor& a_sensor, const sensor_table& a_sensor_table)
 {
@@ -85,11 +86,11 @@ calibration::calibration(const sensor& a_sensor, const sensor_table& a_sensor_ta
     string t_pattern = regex_replace(f_variable_name, regex("\\."), "\\.");
     t_exp_text = regex_replace(t_exp_text, regex("(^|[^a-zA-Z_])(" + t_pattern + ")($|[^a-zA-Z0-9_])"), "$1x$3");
     
-    f_evaluator = make_shared<kebap::KPEvaluator>(t_exp_text);
+    f_evaluator = make_shared<evaluator>(t_exp_text);
     try {
         f_evaluator->operator()(0);
     }
-    catch (kebap::KPException &e) {
+    catch (std::exception &e) {
         cerr << "ERROR: bad calibration expression: " << e.what() << endl;
         f_evaluator = 0;
     }

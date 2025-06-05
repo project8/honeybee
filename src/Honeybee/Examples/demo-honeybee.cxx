@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     std::cout << "### Reduced to N, Mean and Std ####" << std::endl;
     for (const auto& t_item: t_series_bundle.items()) { // item: pair of name and series
         std::cout << t_item.first << ": ";
-        std::cout << t_item.second.reduce(hb::reduce_to_n) << ", ";
+        std::cout << t_item.second.reduce(hb::reduce_to_count) << ", ";
         std::cout << t_item.second.reduce(hb::reduce_to_mean) << ", ";
         std::cout << t_item.second.reduce(hb::reduce_to_std) << std::endl;
     }
