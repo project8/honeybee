@@ -2,9 +2,9 @@
 #   output_delimiter: .
 
 # data_source:
-#  dripline_psql:
-#    uri: p8_db_user:dripline@localhost:5431/p8_sc_db
-#    basename: ATDS
+#   dripline_psql:
+#      uri: postgres:postgres@localhost:5432/sensor_data
+#      basename: ATDS
 
 # sensor_table:
 #   setup:
@@ -196,7 +196,7 @@
 #           channel:
 #             id: { name: Disk, label: Disk Usage }
 #           channel:
-#             id: { name: Net, label: Network Usage }
+#             id: { name: Net, label: Network Usage }/'x
 #           channel:
 #             id: { name: NTP, label: NTP Accuracy }
 #         module:

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<UnitTable>
+  <Title>conversion table for   strange   units</Title>
+  <Creator>Sanshiro Enomoto</Creator>
+  <Date>17 January 2012</Date>
+  <Quantity>
+    <Name>Length</Name>
+    <Unit Standard="SI">
+      <Symbol>m</Symbol>
+    </Unit>
+    <Unit>
+      <Symbol>inch</Symbol>
+      <Factor>0.0254</Factor>
+    </Unit>
+    <Unit>
+      <Symbol>ft</Symbol>
+      <Factor>0.3048</Factor>
+    </Unit>
+    <Unit>
+      <Symbol>mile</Symbol>
+      <Factor>1.609e3</Factor>
+    </Unit>
+  </Quantity>
+  <Quantity>
+    <Name>Temperature</Name>
+    <Unit Standard="SI">
+      <Symbol>K</Symbol>
+    </Unit>
+    <Unit Standard="SI">
+      <Symbol>C</Symbol>
+      <Offset>274.15</Offset>
+    </Unit>
+    <Unit>
+      <Symbol>F</Symbol>
+      <Coeff>[255.37, 0.5556]</Coeff>
+    </Unit>
+  </Quantity>
+  <Quantity>
+    <Name>Weight</Name>
+    <Unit Standard="SI">
+      <Symbol>kg</Symbol>
+    </Unit>
+    <Unit>
+      <Symbol>oz</Symbol>
+      <Factor>0.02835</Factor>
+    </Unit>
+    <Unit>
+      <Symbol>lb</Symbol>
+      <Factor>0.4536</Factor>
+    </Unit>
+  </Quantity>
+</UnitTable>

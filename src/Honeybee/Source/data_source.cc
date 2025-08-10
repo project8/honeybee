@@ -54,15 +54,15 @@ void data_source::bind(sensor_table& a_sensor_table)
     
     this->bind_inputs(a_sensor_table);
 }
-
-vector<series> data_source::read(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+//modified for ability to switch between raw and cal column, added for calibration 
+vector<series> data_source::read(const vector<int>& a_sensor_list, const std::string& value_column, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
     vector<int> t_input_sensor_list;
     for (unsigned i = 0; i < a_sensor_list.size(); i++) {
         t_input_sensor_list.emplace_back(find_input(a_sensor_list[i]));
     }
 
-    vector<series> t_series_list = this->fetch(t_input_sensor_list, a_from, a_to, a_resampling_interval, a_reducer);
+    vector<series> t_series_list = this->fetch(t_input_sensor_list, a_from, a_to, a_resampling_interval, a_reducer, value_column);
     
     for (unsigned i = 0; i < a_sensor_list.size(); i++) {
         apply_calibration(a_sensor_list[i], t_series_list[i]);
@@ -99,14 +99,15 @@ void data_source::apply_calibration(int a_sensor, series& a_series)
     hINFO(cerr << "    " << t_calib.get_description() << endl);
 }
 
-vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+//added another 
+vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     // default implemantation, might be overriden as needed //
     
     vector<series> t_series_list;
     for (auto& t_sensor: a_sensor_list) {
         t_series_list.emplace_back(a_from, a_to);
-        fetch_single(t_series_list.back(), t_sensor, a_from, a_to, a_resampling_interval, a_reducer);
+        fetch_single(t_series_list.back(), t_sensor, a_from, a_to, a_resampling_interval, a_reducer, value_column);
     }
 
     return t_series_list;
@@ -191,11 +192,12 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
         }
     }
 }
-
-void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+//before: 6 parameter into , added for calibration 
+//added another paramter for the string, need to do the same for the .hh framework design 
+void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     try {
-        auto t_series_list = this->fetch({{a_sensor}}, a_from, a_to, a_resampling_interval, a_reducer);
+        auto t_series_list = this->fetch({{a_sensor}}, a_from, a_to, a_resampling_interval, a_reducer, value_column); //added for calibration
         if (t_series_list.size() == 1) {
             a_series = std::move(t_series_list[0]);
         }
@@ -204,8 +206,10 @@ void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from,
         throw e;
     }
 }
-
-vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+//before: 5 parameter into , added for calibration
+//returning a array of series output from the db
+//added another paramter , need to do the same for the .hh fm design
+vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     vector<series> t_series_list;
     
@@ -231,7 +235,7 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
         string date_to = datetime(a_to).as_string() + "Z";
         string tag = f_sensorname_column;
         string tag_values = t_targets;
-        string field = "value_raw";
+        string field = value_column;  //need to change, hard coded, added for calibration 
         string bucket = std::to_string(a_resampling_interval);
         string to = std::to_string(a_to);
         
@@ -390,6 +394,6 @@ vector<string> csv_file::get_data_names()
     return vector<string>();
 }
 
-void csv_file::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+void csv_file::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
 }

@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "memory": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "iostream": "cpp",
+        "__config": "cpp",
+        "__tree": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp",
+        "istream": "cpp",
+        "locale": "cpp",
+        "map": "cpp",
+        "vector": "cpp"
+    }
+}

@@ -31,11 +31,11 @@ int main(int argc, char** argv)
         std::cerr << "  --delimiter=VALUE        set channel name delimiter"<< std::endl;
         std::cerr << "  --delimiter-input=VALUE  set channel name delimiter in the data store"<< std::endl;
         std::cerr << "  --delimiter-output=VALUE set channel name delimiter for output"<< std::endl;
+        std::cerr << "  --calibrated             show calibrated values instead of raw values"<< std::endl; //added for calibration
         std::cerr << "  --verbose                make it verbose"<< std::endl;
         return -1;
     }
-    
-    std::vector<std::string> t_sensor_names;
+    std::vector<std::string> t_sensor_names;   
     for (std::string t_name: args.ParameterList()) {
         t_sensor_names.push_back(t_name);
     }
@@ -45,6 +45,9 @@ int main(int argc, char** argv)
     std::string t_delimiter = args["--delimiter"].Or("");
     std::string t_delimiter_input = args["--delimiter-input"].Or(t_delimiter);
     std::string t_delimiter_output = args["--delimiter-output"].Or(t_delimiter.substr(0,1));
+    //edited addition, initial testing of calibration
+    bool use_calibrated = !args["--calibrated"].IsVoid();
+
     
     double t_to_ts = args["--to-ts"].Or(long(hb::datetime::now()));
     std::string t_to = args["--to"].Or(hb::datetime(t_to_ts).as_string());
@@ -92,6 +95,7 @@ int main(int argc, char** argv)
     hb::honeybee_app t_honeybee_app;
     t_honeybee_app.add_config_file(t_config_file);
     t_honeybee_app.add_dripline_db(t_dripline_db);
+    t_honeybee_app.set_value_col(use_calibrated); //added for calibration 
     t_honeybee_app.set_delimiter(t_delimiter_input, t_delimiter_output);
     for (auto& variable: t_variables) {
         t_honeybee_app.add_variable(variable.first, variable.second);

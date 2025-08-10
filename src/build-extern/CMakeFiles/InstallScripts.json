@@ -1,0 +1,13 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-extern/cmake_install.cmake",
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-extern/Kebap/cmake_install.cmake",
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-extern/Kebap/Source/cmake_install.cmake",
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-extern/Kebap/Applications/cmake_install.cmake",
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-extern/Tabree/cmake_install.cmake",
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-extern/Tabree/Source/cmake_install.cmake",
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-extern/Tabree/Applications/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

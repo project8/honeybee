@@ -53,6 +53,12 @@ void honeybee_app::set_delimiter(const std::string& input_delimiters, const std:
     }
 }
 
+//added for calibration
+void honeybee_app::set_value_col(const bool& use_calibrated)
+{
+   f_value_column = use_calibrated ? "value_cal" : "value_raw";
+}
+
 shared_ptr<sensor_table> honeybee_app::get_sensor_table()
 {
     if (! f_is_constructed) {
@@ -203,8 +209,8 @@ series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, doubl
     hINFO(cerr << "(" << datetime(a_from).as_string() << " to " << datetime(a_to).as_string() << ", ");
     hINFO(cerr << t_sensor_number_list.size() << " sensors)..." << flush);
     datetime start = datetime::now();
-    vector<series> t_series_list = f_data_source->read(
-        t_sensor_number_list, datetime(a_from), datetime(a_to),
+    vector<series> t_series_list = f_data_source->read( //added additional parameters, 
+        t_sensor_number_list, f_value_column, datetime(a_from), datetime(a_to), 
         a_resampling_interval, a_reducer
     );
     datetime stop = datetime::now();
