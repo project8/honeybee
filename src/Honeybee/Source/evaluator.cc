@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <map>
-//#include <regex> for preprocessing of tenrary cond
+//#include <regex> //for preprocessing of tenrary cond
 #include <kebap/Kebap.h>
 #include "evaluator.hh"
 #include "data_source.hh"
