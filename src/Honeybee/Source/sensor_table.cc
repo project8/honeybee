@@ -8,19 +8,84 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 #include <set>
 #include <algorithm>
 #include <cmath>
+#include <regex>
 #include <kebap/Kebap.h>
 #include <tabree/KTreeFile.h>
 #include "utils.hh"
 #include "sensor_table.hh"
+#include "data_source.hh"
 
 using namespace std;
 using namespace honeybee;
 
 int sensor_table::f_unique_sequence = 0;
+
+// Nobel: Extract user-defined calibration functions from KTF file
+static void extract_user_functions_from_file(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "ERROR: Cannot open KTF file for UDF extraction: " << filename << std::endl;
+        return;
+    }
+    
+    // Regex to parse: #% returnType functionName(args) {body}
+    regex udf_regex(R"(^\s*#%\s*(\w+)\s+(\w+)\s*\(([^)]*)\)\s*\{(.*)\}\s*$)");
+    
+    std::string line;
+    int line_number = 0;
+    while (std::getline(file, line)) {
+        line_number++;
+        
+        if (line.substr(0, 2) == "#%") {
+            std::cerr << "INFO: Found UDF line " << line_number << ": " << line << std::endl;
+            
+            smatch match;
+            if (regex_match(line, match, udf_regex)) {
+                std::cerr << "INFO: UDF regex matched!" << std::endl;
+                UserCalibrateFunction udf;
+                udf.return_type = match[1].str();
+                udf.name = match[2].str();
+                udf.body_expr = match[4].str();
+                
+                // Parse arguments (split by comma, extract variable names)
+                string args_str = match[3].str();
+                if (!args_str.empty()) {
+                    stringstream ss(args_str);
+                    string arg;
+                    while (getline(ss, arg, ',')) {
+                        // Extract variable name from "type varname" -> "varname"
+                        regex arg_regex(R"(\s*\w+\s+(\w+)\s*)");
+                        smatch arg_match;
+                        if (regex_match(arg, arg_match, arg_regex)) {
+                            udf.arg_names.push_back(arg_match[1].str());
+                        }
+                    }
+                }
+                
+                // Clean up body (remove return statement wrapper if present)
+                string body = udf.body_expr;
+                regex return_regex(R"(^\s*return\s+(.*?);?\s*$)");
+                smatch body_match;
+                if (regex_match(body, body_match, return_regex)) {
+                    udf.body_expr = body_match[1].str();
+                }
+                
+                g_user_calibrate_functions[udf.name] = udf;
+                cerr << "INFO: Registered UDF: " << udf.name << "(" << args_str << ") with body: " << udf.body_expr << endl;
+            } else {
+                cerr << "ERROR: Invalid UDF syntax on line " << line_number << ": " << line << endl;
+            }
+        }
+    }
+    
+    file.close();
+    std::cerr << "INFO: UDF extraction complete. Found " << g_user_calibrate_functions.size() << " UDFs" << std::endl;
+}
 
 string sensor::to_json(vector<string> a_field_list, const std::string& a_delimiter) const
 {
@@ -114,6 +179,9 @@ void sensor_config_by_file::set_variables(const sensor_config_by_file::variables
 
 void sensor_config_by_file::load(sensor_table& a_table, const string& a_filename)
 {
+    // Nobel: Extract user-defined calibration functions first, before KTF parsing
+    extract_user_functions_from_file(a_filename);
+    
     tabree::KTree t_tree;
     try {
         tabree::KTreeFile(a_filename).Read(t_tree);
@@ -122,6 +190,13 @@ void sensor_config_by_file::load(sensor_table& a_table, const string& a_filename
         cerr << "ERROR: " << e.what() << endl;
         return;
     }
+
+    // Debug: delete: Print all keys in the parsed tree
+    // cerr << "DEBUG: KTF tree keys: ";
+    // for (const auto& key : t_tree.KeyList()) {
+    //     cerr << "'" << key << "' ";
+    // }
+    // cerr << endl;
 
     context t_context;
     load_layer(a_table, t_tree["sensor_table"], t_context);
@@ -174,6 +249,7 @@ void sensor_config_by_file::load_layer(sensor_table& a_table, const tabree::KTre
                 }
             }
             
+            //Nobel: so here need to update so that it has checks if the x-'s retrieved is object of a string 
             for (int j = 0; j < std::max<int>(1, t_array_length); j++) {
                 auto t_context = a_context;
                 t_context.f_name.push_front(append_index(t_name, t_array_length, j));
@@ -181,9 +257,21 @@ void sensor_config_by_file::load_layer(sensor_table& a_table, const tabree::KTre
                 for (const auto& t_key: t_node.KeyList()) {
                     if ((t_key.substr(0, 2) == "x_") || (t_key.substr(0, 2) == "x-")) {
                         string t_opt_name = t_key.substr(2);
-                        string t_opt_value = t_node[t_key].As<string>();
-                        if (! t_opt_name.empty()) {
-                            t_context.f_opts.emplace_back(t_opt_name, t_opt_value);
+
+                        if (t_node[t_key].IsLeaf()) {
+                            // Simple string format (backward compatibility)
+                            string t_opt_value = t_node[t_key].As<string>();
+                            if (! t_opt_name.empty()) {
+                                t_context.f_opts.emplace_back(t_opt_name, t_opt_value);
+                            }
+                        } else {
+                            // Object format: x-dripline_endpoint: { tag: ..., field: ... }
+                            if (t_opt_name == "dripline_endpoint") {
+                                string tag = t_node[t_key]["tag"].As<string>();
+                                string field = t_node[t_key]["field"].Or("raw");
+                                t_context.f_opts.emplace_back("dripline_endpoint", tag);
+                                t_context.f_opts.emplace_back("dripline_endpoint_field", field);
+                            }
                         }
                     }
                 }
