@@ -1,7 +1,9 @@
-FROM driplineorg/dripline-python:v4.5.8
+ARG BASE_IMAGE=driplineorg/dripline-python:v5.1.0
+
+FROM ${BASE_IMAGE}
 
 RUN apt-get update && \
-    apt-get install -y build-essential dpkg-dev cmake postgresql-server-dev-all libpq-dev && \
+    apt-get install -y build-essential dpkg-dev cmake libpq-dev && \
     apt-get clean
 
 COPY ./SensorTable /honeybee/SensorTable

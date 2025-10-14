@@ -13,7 +13,6 @@ Installation
 
 ## Prerequisite
 #### PostgreSQL System-wide
-- postgresql-server-dev-all
 - libpq-dev
 
 

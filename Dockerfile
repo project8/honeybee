@@ -1,4 +1,5 @@
-ARG BASE_IMAGE=slowproj/slowdash
+ARG BASE_IMAGE=python:3.12
+
 FROM ${BASE_IMAGE}
 
 RUN apt-get update && \
