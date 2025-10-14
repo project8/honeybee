@@ -62,7 +62,8 @@ namespace honeybee {
         string f_input_delimiters, f_output_delimiter;
       protected:
         pgsql f_pgsql;
-        map<int, string> f_endpoint_table;
+        //Nobel: mapping of sensor_id to (endpoint, field)
+        map<int, pair<string, string>> f_endpoint_n_field_table; 
         vector<string> f_data_names;
       protected:
         bool f_has_idmap;

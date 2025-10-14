@@ -182,20 +182,24 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
     // 3: make a Dripline endpoint table
     hINFO(cerr << "Dripline Endpoint Binding: " << endl);
     set<string> t_endpoint_list(t_dripline_names.begin(), t_dripline_names.end());
-    for (int t_number: a_sensor_table.find_like({{}})) {
+    for (int t_number: a_sensor_table.find_like({{}})) { // --> getting all sensors
         const sensor& t_sensor = a_sensor_table[t_number];
-        string t_endpoint = t_sensor.get_option("dripline_endpoint", "");
+        string t_endpoint = t_sensor.get_option("dripline_endpoint", ""); 
+        string t_field = t_sensor.get_option("dripline_endpoint_field", "raw"); //Nobel: populate the added f_field_table 
+
         if (t_endpoint_list.count(t_endpoint) > 0) {
-            f_endpoint_table[t_number] = t_endpoint;
+            f_endpoint_n_field_table[t_number] = {t_endpoint, t_field}; //---> HERE, STORES THE ENDPOINT MAPPING, like 131 --> {name, field pref(calibrated or raw)}
             hINFO(cerr << "    " << t_endpoint << " => " << t_sensor.get_name().join(f_output_delimiter) << endl);
         }
     }
 }
 
-void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+/before: 6 parameter into , added for calibration 
+//added another paramter for the string, need to do the same for the .hh framework design 
+void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     try {
-        auto t_series_list = this->fetch({{a_sensor}}, a_from, a_to, a_resampling_interval, a_reducer);
+        auto t_series_list = this->fetch({{a_sensor}}, a_from, a_to, a_resampling_interval, a_reducer, value_column); //added for calibration
         if (t_series_list.size() == 1) {
             a_series = std::move(t_series_list[0]);
         }
@@ -204,34 +208,49 @@ void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from,
         throw e;
     }
 }
-
-vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+//before: 5 parameter into , added for calibration
+//returning a array of series output from the db
+//added another paramter , need to do the same for the .hh fm design
+vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
+    //seperating endpoints name based on their data type pref using the f_endpoint_n_field_table
+
     vector<series> t_series_list;
     
     map<string, vector<unsigned>> t_series_index_table;
-    string t_targets;
+    string t_raw_targets, t_cal_targets;
+    string t_targets;      //Nobel: changed so that while the f_endpoint_n... hold int -> {tag, field}, stll be able to endpoint list and index table
+    
     for (auto t_sensor: a_sensor_list) {
-        auto iter = f_endpoint_table.find(t_sensor);
-        if (iter != f_endpoint_table.end()) {
-            if (t_series_index_table.count(iter->second) == 0) {
-                t_targets += (t_targets.empty() ? "'" : ",'") + iter->second + "'";
+        auto iter = f_endpoint_n_field_table.find(t_sensor);
+        if (iter != f_endpoint_n_field_table.end()) {
+            const string& endpoint = iter->second.first; // endpoint_name
+            
+            if (t_series_index_table.count(endpoint) == 0) {
+                if (iter->second.second == "raw") {
+                    t_raw_targets += (t_raw_targets.empty() ? "'" : ",'") + endpoint + "'";
+                } else if (iter->second.second == "calibrated") {
+                    t_cal_targets += (t_cal_targets.empty() ? "'" : ",'") + endpoint + "'";
+                }
             }
-            t_series_index_table[iter->second].push_back(t_series_list.size());
+            t_series_index_table[endpoint].push_back(t_series_list.size());
         }
         t_series_list.emplace_back(a_from, a_to);
     }
+
+    t_targets = t_raw_targets + (t_cal_targets.empty() ? "" : "," + t_cal_targets); //Nobel: combining for initial query
 
     if (t_targets.empty()) {
         return t_series_list;
     }
     
+    string t_sql_raw, t_sql_cal; //Nobel: for seperating querying of raw and cal 
     string t_sql; {
         string date_from = datetime(a_from).as_string() + "Z";
         string date_to = datetime(a_to).as_string() + "Z";
         string tag = f_sensorname_column;
         string tag_values = t_targets;
-        string field = "value_raw";
+        string field = value_column; //Nobel: Top level --calibration prioritized
         string bucket = std::to_string(a_resampling_interval);
         string to = std::to_string(a_to);
         
@@ -343,8 +362,9 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
                 + "  timestamp asc"
             );
         }
-#else
-        t_sql = (string("")
+#else            //Nobel: new adjument to querying 
+        if(field == "value_cal") { //if --calibrated then all is calibrated, otherwise
+            t_sql = (string("")
             + "SELECT"
             + "  extract(epoch from timestamp), " + tag + ", " + field + " "
             + "FROM"
@@ -355,34 +375,111 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
             + "ORDER BY"
             + "  timestamp asc"
         );
-#endif
-    }
-    
-    hINFO(cerr << "SQL: " << endl);
-    hINFO(cerr << "    " << t_sql << endl);
 
-    double time;
-    map<string, vector<unsigned>>::iterator t_channel_iter;
-    auto t_handler = [&](int a_row, int a_col, const char* a_value) {
-        if (a_col == 0) {
-            time = stod(a_value);
-        }
-        else if (a_col == 1) {
-            t_channel_iter = t_series_index_table.find(a_value);
-        }
-        else {
-            for (unsigned index: t_channel_iter->second) {
-                t_series_list[index].emplace_back(time, stod(a_value));
+            hINFO(cerr << "SQL: " << endl);
+            hINFO(cerr << "    " << t_sql << endl);
+
+            double time;
+            map<string, vector<unsigned>>::iterator t_channel_iter;
+            auto t_handler = [&](int a_row, int a_col, const char* a_value) {
+                if (a_col == 0) {
+                    time = stod(a_value);
+                }
+                else if (a_col == 1) {
+                    t_channel_iter = t_series_index_table.find(a_value);
+                }
+                else {
+                    for (unsigned index: t_channel_iter->second) {
+                        t_series_list[index].emplace_back(time, stod(a_value));
+                    }
+                }
+            };
+            if (f_pgsql.query(t_sql, t_handler) < 0) {
+                throw std::runtime_error("DB Query Error: SQL: " + t_sql);
             }
-        }
-    };
-    if (f_pgsql.query(t_sql, t_handler) < 0) {
-        throw std::runtime_error("DB Query Error: SQL: " + t_sql);
+
+        } else {
+            if (!t_raw_targets.empty()) {
+                t_sql_raw = (string("")
+                + "SELECT"
+                + "  extract(epoch from timestamp), " + tag + ", " + "value_raw" + " "
+                + "FROM"
+                + "  numeric_data "
+                + "WHERE "
+                + "  " + tag + " IN (" + t_raw_targets + ") "
+                + "  AND timestamp>='" + date_from + "' AND timestamp<'" + date_to + "'"
+                + "ORDER BY"
+                + "  timestamp asc"
+                );
+                
+                hINFO(cerr << "SQL: " << endl);
+                hINFO(cerr << "    " << t_sql_raw << endl);
+
+                double time;
+                map<string, vector<unsigned>>::iterator t_channel_iter;
+                auto t_handler_raw = [&](int a_row, int a_col, const char* a_value) {
+                    if (a_col == 0) {
+                        time = stod(a_value);
+                    }
+                    else if (a_col == 1) {
+                        t_channel_iter = t_series_index_table.find(a_value);
+                    }
+                    else {
+                        for (unsigned index : t_channel_iter->second) {
+                            // Only fill for sensors that want raw
+                            auto iter = f_endpoint_n_field_table.find(a_sensor_list[index]);
+                            if (iter != f_endpoint_n_field_table.end() && iter->second.second == "raw") {
+                                t_series_list[index].emplace_back(time, stod(a_value));
+                            }
+                        }
+                    }
+                };
+                if (f_pgsql.query(t_sql_raw, t_handler_raw) < 0) {
+                    throw std::runtime_error("DB Query Error: SQL: " + t_sql_raw);
+                }
+            }
+            if(!t_cal_targets.empty()) {
+                t_sql_cal = (string("")
+                + "SELECT"
+                + "  extract(epoch from timestamp), " + tag + ", " + "value_cal" + " "
+                + "FROM"
+                + "  numeric_data "
+                + "WHERE "
+                + "  " + tag + " IN (" + t_cal_targets + ") "
+                + "  AND timestamp>='" + date_from + "' AND timestamp<'" + date_to + "'"
+                + "ORDER BY"
+                + "  timestamp asc"
+                );
+                
+                double time;
+                map<string, vector<unsigned>>::iterator t_channel_iter;
+                auto t_handler_cal = [&](int a_row, int a_col, const char* a_value) {
+                    if (a_col == 0) {
+                        time = stod(a_value);
+                    }
+                    else if (a_col == 1) {
+                        t_channel_iter = t_series_index_table.find(a_value);
+                    }
+                    else {
+                        for (unsigned index : t_channel_iter->second) {
+                            // Only fill for sensors that want cal
+                            auto iter = f_endpoint_n_field_table.find(a_sensor_list[index]);
+                            if (iter != f_endpoint_n_field_table.end() && iter->second.second == "calibrated") {//Nobel: if issues, make sure its calibrated not cal
+                                t_series_list[index].emplace_back(time, stod(a_value));
+                            }
+                        }
+                    }
+                };
+                if (f_pgsql.query(t_sql_cal, t_handler_cal) < 0) {
+                    throw std::runtime_error("DB Query Error: SQL: " + t_sql_cal);
+                }
+            }  
+        }   
+#endif
     }
 
     return t_series_list;
 }
-
 
 
 vector<string> csv_file::get_data_names()
@@ -390,6 +487,6 @@ vector<string> csv_file::get_data_names()
     return vector<string>();
 }
 
-void csv_file::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+void csv_file::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
 }

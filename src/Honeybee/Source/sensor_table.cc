@@ -174,6 +174,7 @@ void sensor_config_by_file::load_layer(sensor_table& a_table, const tabree::KTre
                 }
             }
             
+            //Nobel: checks if the x-'s retrieved is object of a string 
             for (int j = 0; j < std::max<int>(1, t_array_length); j++) {
                 auto t_context = a_context;
                 t_context.f_name.push_front(append_index(t_name, t_array_length, j));
@@ -181,9 +182,21 @@ void sensor_config_by_file::load_layer(sensor_table& a_table, const tabree::KTre
                 for (const auto& t_key: t_node.KeyList()) {
                     if ((t_key.substr(0, 2) == "x_") || (t_key.substr(0, 2) == "x-")) {
                         string t_opt_name = t_key.substr(2);
-                        string t_opt_value = t_node[t_key].As<string>();
-                        if (! t_opt_name.empty()) {
-                            t_context.f_opts.emplace_back(t_opt_name, t_opt_value);
+
+                        if (t_node[t_key].IsLeaf()) {
+                            // Simple string format 
+                            string t_opt_value = t_node[t_key].As<string>();
+                            if (! t_opt_name.empty()) {
+                                t_context.f_opts.emplace_back(t_opt_name, t_opt_value);
+                            }
+                        } else {
+                            // Object format: x-dripline_endpoint: { tag: ..., field: ... }
+                            if (t_opt_name == "dripline_endpoint") {
+                                string tag = t_node[t_key]["tag"].As<string>();
+                                string field = t_node[t_key]["field"].Or("raw");
+                                t_context.f_opts.emplace_back("dripline_endpoint", tag);
+                                t_context.f_opts.emplace_back("dripline_endpoint_field", field);
+                            }
                         }
                     }
                 }
