@@ -102,7 +102,7 @@ void data_source::apply_calibration(int a_sensor, series& a_series)
     hINFO(cerr << "    " << t_calib.get_description() << endl);
 }
 
-//added another 
+//added another parameter
 vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     // default implemantation, might be overriden as needed //
@@ -189,7 +189,7 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
     for (int t_number: a_sensor_table.find_like({{}})) { // --> getting all sensors
         const sensor& t_sensor = a_sensor_table[t_number];
         string t_endpoint = t_sensor.get_option("dripline_endpoint", ""); 
-        string t_field = t_sensor.get_option("dripline_endpoint_field", "raw"); //Nobel: so here populate the added f_field_table 
+        string t_field = t_sensor.get_option("dripline_endpoint_field", "raw"); //Nobel: extrapolating info and creating ID --> {name, pref} 
 
         if (t_endpoint_list.count(t_endpoint) > 0) {
             f_endpoint_n_field_table[t_number] = {t_endpoint, t_field}; //---> HERE, STORES THE ENDPOINT MAPPING, would be like 131 --> {name, field pref(calibrated or raw)}
@@ -217,7 +217,6 @@ void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from,
 vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     //seperating endpoints name based on their data type pref using the f_endpoint_n_field_table
-
     vector<series> t_series_list;
     
     map<string, vector<unsigned>> t_series_index_table;
@@ -241,7 +240,8 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
         t_series_list.emplace_back(a_from, a_to);
     }
 
-    t_targets = t_raw_targets + (t_cal_targets.empty() ? "" : "," + t_cal_targets); //Nobel: combining for initial query
+      t_targets = t_raw_targets + (t_cal_targets.empty() ? "" : "," + t_cal_targets); 
+      //Nobel: combining for initial query
 
     if (t_targets.empty()) {
         return t_series_list;
@@ -467,7 +467,7 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
                         for (unsigned index : t_channel_iter->second) {
                             // Only fill for sensors that want cal
                             auto iter = f_endpoint_n_field_table.find(a_sensor_list[index]);
-                            if (iter != f_endpoint_n_field_table.end() && iter->second.second == "calibrated") {//Nobel: if issues, make sure its calibrated not cal
+                            if (iter != f_endpoint_n_field_table.end() && iter->second.second == "calibrated") {
                                 t_series_list[index].emplace_back(time, stod(a_value));
                             }
                         }

@@ -13,6 +13,11 @@
 #include <map>
 #include <kebap/Kebap.h>
 
+// Nobel: Forward declaration for UserCalibrateFunction
+// issue of circular includes(ask) with data_source file
+namespace honeybee {
+    struct UserCalibrateFunction;
+}
 
 namespace kebap {
 
@@ -47,7 +52,8 @@ namespace kebap {
         }
     };
 
-    //Nobel: To register the parsed user-def function as callable functoin using kebap logic
+    //Nobel: To register the parsed user-def function as callable function using kebap logic
+    //Has dual execution paths, simple or complex functions
     class KPUserDefinedFunctionObject: public KPObjectPrototype {
     public:
         KPUserDefinedFunctionObject();
@@ -55,6 +61,15 @@ namespace kebap {
         KPObjectPrototype* Clone() override { return new KPUserDefinedFunctionObject(); }
         int MethodIdOf(const std::string& MethodName) override;
         int InvokeMethod(int MethodId, std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue) override;
+        
+    private:
+        // Nobel: Helper methods for dual execution paths
+        std::string find_function_by_method_id(int MethodId);
+        int execute_simple_function(const honeybee::UserCalibrateFunction& udf, 
+                                   std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue);
+        int execute_complex_function(const honeybee::UserCalibrateFunction& udf, 
+                                    std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue);
+        
     private:
         int f_next_method_id;  // Still used for base calculation
     };

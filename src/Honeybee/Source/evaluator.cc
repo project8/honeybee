@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 #include <map>
-//#include <regex> //for preprocessing of tenrary cond
 #include <kebap/Kebap.h>
 #include "evaluator.hh"
 #include "data_source.hh"
@@ -39,96 +38,58 @@ int kebap::KPHoneybeeObject::pt100(std::vector<KPValue*>& ArgumentList, kebap::K
     return 1;
 }
 
-// Nobel: idea to convert ternary expressions to boolean logic that Kebap understands for tenrary condition extension
-//another option is to change kapap
-// static std::string preprocess_ternary(const std::string& expression) {
-//     std::string result = expression;
-    
-//     // Regex to match: condition ? true_value : false_value
-//     std::regex ternary_regex(R"((.+?)\s*\?\s*(.+?)\s*:\s*(.+))");
-//     std::smatch match;
-    
-//     if (std::regex_match(result, match, ternary_regex)) {
-//         std::string condition = match[1].str();
-//         std::string true_val = match[2].str();
-//         std::string false_val = match[3].str();
-        
-//         // Convert to: (condition) && (true_value) || !(condition) && (false_value)
-//         result = "(" + condition + ") && (" + true_val + ") || !(" + condition + ") && (" + false_val + ")";
-//     }
-    
-//     return result;
-// }
-
-//todo: Put more commenting on it's section for easier understanding 
 // Nobel: User-defined function object implementation
 kebap::KPUserDefinedFunctionObject::KPUserDefinedFunctionObject(): 
     KPObjectPrototype("UserFunctions"), f_next_method_id(KPObjectPrototype::fNumberOfMethods) 
 {
-    // std::cerr << "INFO: Initializing UDF object, found " << honeybee::g_user_calibrate_functions.size() << " UDFs" << std::endl;
     // No need to pre-register since we do dynamic lookup
     for (const auto& udf : honeybee::g_user_calibrate_functions) {
         std::cerr << "INFO: Available UDF: " << udf.first << std::endl;
     }
 }
 
+// Nobel: Convert function name to numeric ID for Kebap's function call
+// So you have MethodIdOf(name) -> ID, then InvokeMethod(ID, args) -> result
+// later: call functions by ID instead of string lookup every time
 int kebap::KPUserDefinedFunctionObject::MethodIdOf(const std::string& MethodName) {
-    // Dynamic lookup in the global UDF map instead of using cached map
+    // Check if this is one of our user-defined functions
     auto iter = honeybee::g_user_calibrate_functions.find(MethodName);
     if (iter != honeybee::g_user_calibrate_functions.end()) {
-        // Return a consistent ID for this function name (hash-based or simple mapping)
+        // generated ID for this function name (simple hashed)
         return std::hash<std::string>{}(MethodName) % 10000 + fNumberOfMethods;
     }
+    // if not our function
     return KPObjectPrototype::MethodIdOf(MethodName);
 }
 
-int kebap::KPUserDefinedFunctionObject::InvokeMethod(int MethodId, std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue) {
-    // Dynamic lookup by searching through all UDFs for matching ID
-    std::string func_name;
+// Nobel: Helper function to find function name by method ID by hash approach
+std::string kebap::KPUserDefinedFunctionObject::find_function_by_method_id(int MethodId) {
     for (const auto& udf : honeybee::g_user_calibrate_functions) {
         int expected_id = std::hash<std::string>{}(udf.first) % 10000 + fNumberOfMethods;
         if (expected_id == MethodId) {
-            func_name = udf.first;
-            break;
+            return udf.first;
         }
     }
+    return "";
+}
+
+// Nobel: Execute simple functions using current variable substitution method
+int kebap::KPUserDefinedFunctionObject::execute_simple_function(
+    const honeybee::UserCalibrateFunction& udf,
+    std::vector<KPValue*>& ArgumentList, 
+    KPValue& ReturnValue) {
     
-    if (func_name.empty()) {
-        return KPObjectPrototype::InvokeMethod(MethodId, ArgumentList, ReturnValue);
-    }
-    
-    auto udf_iter = honeybee::g_user_calibrate_functions.find(func_name);
-    if (udf_iter == honeybee::g_user_calibrate_functions.end()) {
-        throw kebap::KPException() << "UDF not found: " << func_name;
-    }
-    
-    const honeybee::UserCalibrateFunction& udf = udf_iter->second;
-    
-    // Validate argument count
-    if (ArgumentList.size() != udf.arg_names.size()) {
-        throw kebap::KPException() << func_name << "(): expected " << udf.arg_names.size() 
-                                   << " arguments, got " << ArgumentList.size();
-    }
-    
-    // Create expression with variable sub
     std::string expression = udf.body_expr;
-    // std::cerr << "DEBUG: Starting variable substitution for " << func_name << std::endl;
-    // std::cerr << "DEBUG: Original expression: " << expression << std::endl;
-    // std::cerr << "DEBUG: Number of arguments: " << ArgumentList.size() << std::endl;
     
-    for (size_t i = 0; i < udf.arg_names.size(); i++) {
+    // Nobel: Replace parameter names with actual values using current approach
+    for (int i = 0; i < udf.arg_names.size(); i++) {
         double arg_value = ArgumentList[i]->AsDouble();
-        // std::cerr << "DEBUG: Arg " << i << " (" << udf.arg_names[i] << ") = " << arg_value << std::endl;
-        
-        // Replace variable name with actual value 
         std::string var_name = udf.arg_names[i];
         std::string var_value = std::to_string(arg_value);
-        // std::cerr << "DEBUG: Replacing '" << var_name << "' with '" << var_value << "'" << std::endl;
         
-        // Simple variable substitution (could be improved with proper regex)
+        // Simple variable substitution with whole word checking
         size_t pos = 0;
         while ((pos = expression.find(var_name, pos)) != std::string::npos) {
-            // std::cerr << "DEBUG: Found variable at position " << pos << std::endl;
             // Check if it's a whole word (not part of another identifier)
             bool is_whole_word = true;
             if (pos > 0 && (std::isalnum(expression[pos-1]) || expression[pos-1] == '_')) {
@@ -140,30 +101,99 @@ int kebap::KPUserDefinedFunctionObject::InvokeMethod(int MethodId, std::vector<K
             }
             
             if (is_whole_word) {
-                // std::cerr << "DEBUG: Replacing whole word" << std::endl;
                 expression.replace(pos, var_name.length(), var_value);
                 pos += var_value.length();
             } else {
-                // std::cerr << "DEBUG: Skipping partial match" << std::endl;
                 pos += var_name.length();
             }
         }
-        // std::cerr << "DEBUG: Expression after substitution: " << expression << std::endl;
     }
     
-    // Nobel: Idea, actually preprocess ternary operators before Kebap evaluation
-    // expression = preprocess_ternary(expression);
-    
-    // Evaluate it using Kebap
+    // Execute using simple evaluator (current approach)
     try {
-        // std::cerr << "DEBUG: Evaluating UDF " << func_name << " with expression: " << expression << std::endl;
         kebap::KPEvaluator evaluator(expression);
-        double result = evaluator(0.0);  // No x-variable needed since we substituted everything
-        // std::cerr << "DEBUG: UDF " << func_name << " result: " << result << std::endl;
+        double result = evaluator(0.0);
         ReturnValue = kebap::KPValue(result);
         return 1;
     } catch (const std::exception& e) {
-        std::cerr << "ERROR: UDF evaluation error in " << func_name << ": " << e.what() << std::endl;
-        throw kebap::KPException() << "UDF evaluation error in " << func_name << ": " << e.what();
+        std::cerr << "ERROR: Simple function execution error in " << udf.name << ": " << e.what() << std::endl;
+        throw kebap::KPException() << "Simple function execution error in " << udf.name << ": " << e.what();
+    }
+}
+
+// Nobel: Execute complex function using dedicated Kebap parser instance
+int kebap::KPUserDefinedFunctionObject::execute_complex_function(
+    const honeybee::UserCalibrateFunction& udf,
+    std::vector<KPValue*>& ArgumentList,
+    KPValue& ReturnValue) {
+    
+    // Check if we have the KPFunction instance stored
+    if (!udf.f_is_complex_function || !udf.f_kebap_function) {
+        throw kebap::KPException() << "Function marked as complex but missing KPFunction";
+    }
+    
+    try {
+        // Nobel: Use KPFunction's built-in execution - it handles parameters and return values automatically
+        
+        // Create a symbol table for execution context
+        kebap::KPStandardParser parser;
+        kebap::KPSymbolTable* symbol_table = parser.GetSymbolTable();
+        
+        // Execute the function - KPFunction handles parameter mapping and return values
+        KPValue result = udf.f_kebap_function->Execute(ArgumentList, symbol_table);
+        
+        ReturnValue = result;
+        return 1;
+        
+    } catch (const kebap::KPException& e) {
+        std::cerr << "ERROR: Complex function execution error in " << udf.name << ": " << e.what() << std::endl;
+        throw;
+    } catch (const std::exception& e) {
+        std::cerr << "ERROR: General execution error in complex function " << udf.name << ": " << e.what() << std::endl;
+        throw kebap::KPException() << "Complex function execution error in " << udf.name << ": " << e.what();
+    }
+}
+
+// Nobel: function execution with dual path for simple vs complex functions
+int kebap::KPUserDefinedFunctionObject::InvokeMethod(int MethodId, std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue) {
+    //Find function by method ID using current hash approach
+    std::string func_name = find_function_by_method_id(MethodId);
+    
+    if (func_name.empty()) {
+        return KPObjectPrototype::InvokeMethod(MethodId, ArgumentList, ReturnValue);
+    }
+    
+    // Get function def and its existence
+    auto udf_iter = honeybee::g_user_calibrate_functions.find(func_name);
+    if (udf_iter == honeybee::g_user_calibrate_functions.end()) {
+        std::cerr << "ERROR: UDF not found: " << func_name << std::endl;
+        throw kebap::KPException() << "UDF not found: " << func_name;
+    }
+    
+    const honeybee::UserCalibrateFunction& udf = udf_iter->second;
+    
+    // check argument count matches function signature
+    if (ArgumentList.size() != udf.arg_names.size()) {
+        std::cerr << "ERROR: Argument count mismatch for " << func_name 
+                  << ": expected " << udf.arg_names.size() 
+                  << ", got " << ArgumentList.size() << std::endl;
+        throw kebap::KPException() << func_name << "(): expected " << udf.arg_names.size() 
+                                   << " arguments, got " << ArgumentList.size();
+    }
+    
+    // Step 4: Choose execution path based on function label
+    try {
+        if (udf.f_is_complex_function) {
+            return execute_complex_function(udf, ArgumentList, ReturnValue);
+        } else {
+            return execute_simple_function(udf, ArgumentList, ReturnValue);
+        }
+    } catch (const kebap::KPException& e) {
+        // Enhanced error handling for parsing, compilation, and runtime issues
+        std::cerr << "ERROR: Function execution failed for " << func_name << ": " << e.what() << std::endl;
+        throw;
+    } catch (const std::exception& e) {
+        std::cerr << "ERROR: General function error for " << func_name << ": " << e.what() << std::endl;
+        throw kebap::KPException() << "Function execution error for " << func_name << ": " << e.what();
     }
 }

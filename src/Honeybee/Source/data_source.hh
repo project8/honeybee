@@ -10,26 +10,43 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <map>
 #include "utils.hh"
 #include "series.hh"
 #include "sensor_table.hh"
 #include "calibration.hh"
 #include "pgsql.hh"
 
+// Nobel: Forward declarations for Kebap integration
+namespace kebap {
+    class KPStatement;
+    class KPFunction;
+}
 
 namespace honeybee {
     using namespace std;
 
-    //Nobel: for user defined fucntion
+    // Nobel: Extended UserCalibrateFunction to handle complex functions with control flow
     struct UserCalibrateFunction {
         string name;
         vector<string> arg_names;
-        string body_expr;
-        string return_type;  // optional, from UDF signature
+        string body_expr;                                    // Keep for backward compatibility
+        string return_type;                                  // optional, from UDF signature
+        
+        // Nobel: Added fields for complex function support
+        bool f_is_complex_function = false;                  // Simple vs complex function flag
+        string f_original_body;                              // Original multi-line function body for complex functions
+        unique_ptr<kebap::KPFunction> f_kebap_function = nullptr;  // Proper Kebap function object for complex functions
     };
 
     // Global registry of user-defined calibration functions
     extern map<string, UserCalibrateFunction> g_user_calibrate_functions;
+
+    // Nobel: Added function parsing utilities for Kebap statement tree parsing
+    unique_ptr<kebap::KPFunction> parse_function_body(const string& body);
+    bool is_complex_function_syntax(const string& body);
+    void validate_function_signature(const string& return_type, const string& name, const vector<string>& args);
 
     class data_source {
       public:
