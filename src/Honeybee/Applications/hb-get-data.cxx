@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     std::string t_delimiter = args["--delimiter"].Or("");
     std::string t_delimiter_input = args["--delimiter-input"].Or(t_delimiter);
     std::string t_delimiter_output = args["--delimiter-output"].Or(t_delimiter.substr(0,1));
-    //edited addition, initial testing of calibration
+    // whether to show calibrated values
     bool use_calibrated = !args["--calibrated"].IsVoid();
 
     
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     hb::honeybee_app t_honeybee_app;
     t_honeybee_app.add_config_file(t_config_file);
     t_honeybee_app.add_dripline_db(t_dripline_db);
-    t_honeybee_app.set_value_col(use_calibrated); //added for calibration 
+    t_honeybee_app.set_value_col(use_calibrated); // configure value column (raw or calibrated)
     t_honeybee_app.set_delimiter(t_delimiter_input, t_delimiter_output);
     for (auto& variable: t_variables) {
         t_honeybee_app.add_variable(variable.first, variable.second);

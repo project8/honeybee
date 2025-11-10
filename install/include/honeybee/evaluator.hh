@@ -12,7 +12,12 @@
 #include <vector>
 #include <map>
 #include <kebap/Kebap.h>
+#include "ktf_script.hh" // full KTFScriptContext type
 
+// helpers for script-level parsing/execution
+// Ensure these prototypes are visible to other translation units 
+bool parse_script(honeybee::KTFScriptContext& ctx);
+bool execute_script_call(honeybee::KTFScriptContext& ctx, const std::string& call_expression, const std::vector<double>& args, double& out_value);
 
 namespace kebap {
 
@@ -47,29 +52,15 @@ namespace kebap {
         }
     };
 
-    //Nobel: To register the parsed user-def function as callable functoin using kebap logic
-    class KPUserDefinedFunctionObject: public KPObjectPrototype {
-    public:
-        KPUserDefinedFunctionObject();
-        ~KPUserDefinedFunctionObject() override {}
-        KPObjectPrototype* Clone() override { return new KPUserDefinedFunctionObject(); }
-        int MethodIdOf(const std::string& MethodName) override;
-        int InvokeMethod(int MethodId, std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue) override;
-    private:
-        int f_next_method_id;  // Still used for base calculation
-    };
 }
-
 
 namespace honeybee {
     class evaluator: public kebap::KPEvaluator {
     public:
         evaluator(const std::string& Expression): kebap::KPEvaluator(Expression) {
             fBuiltinFunctionTable->RegisterStaticObject(new kebap::KPHoneybeeObject());
-            fBuiltinFunctionTable->RegisterStaticObject(new kebap::KPUserDefinedFunctionObject()); // Nobel: register udf with evaluator, globally available to all endpoints
         }
     };
 }
-
 
 #endif

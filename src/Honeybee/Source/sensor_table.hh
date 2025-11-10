@@ -151,7 +151,9 @@ namespace honeybee {
         void load_layer(sensor_table& a_table, const tabree::KTree& a_node, context a_context);
         void add_sensor(sensor_table& a_table, const tabree::KTree& a_node, context a_context);
       protected:
-        variables f_variables;
+  variables f_variables;
+  // Source filename this config loaded from; used to tag sensors with their KTF source
+  string f_source_filename;
     };
 
 

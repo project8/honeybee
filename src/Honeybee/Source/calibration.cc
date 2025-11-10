@@ -11,6 +11,7 @@
 #include "sensor_table.hh"
 #include "evaluator.hh"
 #include "calibration.hh"
+#include "data_source.hh"
 
 
 using namespace std;
@@ -86,11 +87,38 @@ calibration::calibration(const sensor& a_sensor, const sensor_table& a_sensor_ta
     string t_pattern = regex_replace(f_variable_name, regex("\\."), "\\.");
     t_exp_text = regex_replace(t_exp_text, regex("(^|[^a-zA-Z_])(" + t_pattern + ")($|[^a-zA-Z0-9_])"), "$1x$3");
     
+    // if sensor has a KTF source, execute calibration expression in that parser first so UDFs/imports are visible there.
+    string ktf_source = a_sensor.get_option("ktf_source", "");
+    if (!ktf_source.empty()) {
+        auto ctx_iter = g_ktf_script_contexts.find(ktf_source);
+        if (ctx_iter != g_ktf_script_contexts.end()) {
+            // Build call expression replacing "x" with "arg0" and test it in the top-level parser.
+            string t_call_expr = regex_replace(t_exp_text, regex("\\bx\\b"), "arg0");
+            try {
+                // Ensure parser is ready and try executing the call in parser context.
+                parse_script(ctx_iter->second);
+                double tmp_out = std::numeric_limits<double>::quiet_NaN();
+                if (execute_script_call(ctx_iter->second, t_call_expr, std::vector<double>{0.0}, tmp_out)) {
+                    // success: use script-backed execution at runtime
+                    f_evaluator = nullptr;
+                    f_use_script_call = true;
+                    f_ktf_source = ktf_source;
+                    f_script_call_expression = t_call_expr;
+                    return;
+                }
+            } catch (...) {
+                // parsing/execution in top-level parser failed; fall back to evaluator below
+            }
+        }
+    }
+
+    // Fallback: normal evaluator path (handles pure expressions and builtins).
     f_evaluator = make_shared<evaluator>(t_exp_text);
     try {
         f_evaluator->operator()(0);
     }
     catch (std::exception &e) {
+        // Final failure: report and clear evaluator
         cerr << "ERROR: bad calibration expression: " << e.what() << endl;
         f_evaluator = 0;
     }

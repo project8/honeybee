@@ -17,8 +17,10 @@
 using namespace std;
 using namespace honeybee;
 
-// Nobel: global registry for user-defined calibration functions
-map<string, UserCalibrateFunction> honeybee::g_user_calibrate_functions;
+// Define the global registry for KTF script contexts 
+namespace honeybee {
+    std::map<std::string, KTFScriptContext> g_ktf_script_contexts;
+}
 
 
 static string sanitize(const string& text, const string& pattern=R"([a-zA-Z0-9_]+)")
@@ -35,8 +37,6 @@ static string sanitize(const string& text, const string& pattern=R"([a-zA-Z0-9_]
 
     return text;
 }
-
-
 
 
 void data_source::bind(sensor_table& a_sensor_table)
@@ -57,7 +57,7 @@ void data_source::bind(sensor_table& a_sensor_table)
     
     this->bind_inputs(a_sensor_table);
 }
-//modified for ability to switch between raw and cal column, added for calibration 
+// Support switching between raw and calibrated columns
 vector<series> data_source::read(const vector<int>& a_sensor_list, const std::string& value_column, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
     vector<int> t_input_sensor_list;
@@ -102,7 +102,7 @@ void data_source::apply_calibration(int a_sensor, series& a_series)
     hINFO(cerr << "    " << t_calib.get_description() << endl);
 }
 
-//added another parameter
+// Fetch multiple series; value_column selects raw or calibrated values
 vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     // default implemantation, might be overriden as needed //
@@ -197,8 +197,7 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
         }
     }
 }
-//before: 6 parameter into , added for calibration 
-//added another paramter for the string, need to do the same for the .hh framework design 
+// Fetch single series (added value_column parameter for calibration support)
 void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     try {
@@ -211,9 +210,7 @@ void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from,
         throw e;
     }
 }
-//before: 5 parameter into , added for calibration
-//returning a array of series output from the db
-//added another paramter , need to do the same for the .hh fm design
+// Fetch multiple series from DB (value_column selects raw or calibrated values)
 vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     //seperating endpoints name based on their data type pref using the f_endpoint_n_field_table
@@ -240,20 +237,20 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
         t_series_list.emplace_back(a_from, a_to);
     }
 
-      t_targets = t_raw_targets + (t_cal_targets.empty() ? "" : "," + t_cal_targets); 
-      //Nobel: combining for initial query
+    t_targets = t_raw_targets + (t_cal_targets.empty() ? "" : "," + t_cal_targets); 
+    // combine raw and calibrated target lists for the initial query
 
     if (t_targets.empty()) {
         return t_series_list;
     }
     
-    string t_sql_raw, t_sql_cal; //Nobel: for seperating querying of raw and cal 
+    string t_sql_raw, t_sql_cal; // separate queries for raw and calibrated
     string t_sql; {
         string date_from = datetime(a_from).as_string() + "Z";
         string date_to = datetime(a_to).as_string() + "Z";
         string tag = f_sensorname_column;
         string tag_values = t_targets;
-        string field = value_column; //Nobel: Top level --calibration prioritized
+    string field = value_column; // top-level: calibration preferred if requested
         string bucket = std::to_string(a_resampling_interval);
         string to = std::to_string(a_to);
         
@@ -365,7 +362,7 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
                 + "  timestamp asc"
             );
         }
-#else            //Nobel: new adjument to querying 
+#else            // alternate query path (disabled)
         if(field == "value_cal") { //if --calibrated then all is calibrated, otherwise
             t_sql = (string("")
             + "SELECT"

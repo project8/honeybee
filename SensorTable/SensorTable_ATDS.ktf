@@ -1,8 +1,9 @@
 
-#% float times5(float x) {return 5*x}
+#% float times5(float x) {return 5*sin(x}
+
 
 # options:
-#   output_delimiter: .
+#   output_delimiter: 
 
 # data_source:
 #   dripline_psql:

@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <kebap/Kebap.h>
+#include <sstream>                   
 #include "evaluator.hh"
 #include "data_source.hh"
 
@@ -38,162 +39,196 @@ int kebap::KPHoneybeeObject::pt100(std::vector<KPValue*>& ArgumentList, kebap::K
     return 1;
 }
 
-// Nobel: User-defined function object implementation
-kebap::KPUserDefinedFunctionObject::KPUserDefinedFunctionObject(): 
-    KPObjectPrototype("UserFunctions"), f_next_method_id(KPObjectPrototype::fNumberOfMethods) 
-{
-    // No need to pre-register since we do dynamic lookup
-    for (const auto& udf : honeybee::g_user_calibrate_functions) {
-        std::cerr << "INFO: Available UDF: " << udf.first << std::endl;
-    }
-}
-
-// Nobel: Convert function name to numeric ID for Kebap's function call
-// So you have MethodIdOf(name) -> ID, then InvokeMethod(ID, args) -> result
-// later: call functions by ID instead of string lookup every time
-int kebap::KPUserDefinedFunctionObject::MethodIdOf(const std::string& MethodName) {
-    // Check if this is one of our user-defined functions
-    auto iter = honeybee::g_user_calibrate_functions.find(MethodName);
-    if (iter != honeybee::g_user_calibrate_functions.end()) {
-        // generated ID for this function name (simple hashed)
-        return std::hash<std::string>{}(MethodName) % 10000 + fNumberOfMethods;
-    }
-    // if not our function
-    return KPObjectPrototype::MethodIdOf(MethodName);
-}
-
-// Nobel: Helper function to find function name by method ID by hash approach
-std::string kebap::KPUserDefinedFunctionObject::find_function_by_method_id(int MethodId) {
-    for (const auto& udf : honeybee::g_user_calibrate_functions) {
-        int expected_id = std::hash<std::string>{}(udf.first) % 10000 + fNumberOfMethods;
-        if (expected_id == MethodId) {
-            return udf.first;
+// Parse the combined KTF script stored in ctx into a KPStandardParser instance.
+// This populates parser state (functions, variables, imports) for reuse.
+// Returns true on success, false on parse error.
+bool parse_script(honeybee::KTFScriptContext& ctx) {
+    try {
+        if (!ctx.parser) {
+            ctx.parser = std::make_unique<kebap::KPStandardParser>();
         }
+        std::istringstream script_stream(ctx.combined_script);
+        ctx.parser->Parse(script_stream);
+        ctx.parser->Execute();
+        ctx.parsed = true;
+        return true;
     }
-    return "";
-}
-
-// Nobel: Execute simple functions using current variable substitution method
-int kebap::KPUserDefinedFunctionObject::execute_simple_function(
-    const honeybee::UserCalibrateFunction& udf,
-    std::vector<KPValue*>& ArgumentList, 
-    KPValue& ReturnValue) {
-    
-    std::string expression = udf.body_expr;
-    
-    // Nobel: Replace parameter names with actual values using current approach
-    for (int i = 0; i < udf.arg_names.size(); i++) {
-        double arg_value = ArgumentList[i]->AsDouble();
-        std::string var_name = udf.arg_names[i];
-        std::string var_value = std::to_string(arg_value);
-        
-        // Simple variable substitution with whole word checking
-        size_t pos = 0;
-        while ((pos = expression.find(var_name, pos)) != std::string::npos) {
-            // Check if it's a whole word (not part of another identifier)
-            bool is_whole_word = true;
-            if (pos > 0 && (std::isalnum(expression[pos-1]) || expression[pos-1] == '_')) {
-                is_whole_word = false;
-            }
-            if (pos + var_name.length() < expression.length() && 
-                (std::isalnum(expression[pos + var_name.length()]) || expression[pos + var_name.length()] == '_')) {
-                is_whole_word = false;
-            }
-            
-            if (is_whole_word) {
-                expression.replace(pos, var_name.length(), var_value);
-                pos += var_value.length();
-            } else {
-                pos += var_name.length();
-            }
-        }
-    }
-    
-    // Execute using simple evaluator (current approach)
-    try {
-        kebap::KPEvaluator evaluator(expression);
-        double result = evaluator(0.0);
-        ReturnValue = kebap::KPValue(result);
-        return 1;
-    } catch (const std::exception& e) {
-        std::cerr << "ERROR: Simple function execution error in " << udf.name << ": " << e.what() << std::endl;
-        throw kebap::KPException() << "Simple function execution error in " << udf.name << ": " << e.what();
-    }
-}
-
-// Nobel: Execute complex function using dedicated Kebap parser instance
-int kebap::KPUserDefinedFunctionObject::execute_complex_function(
-    const honeybee::UserCalibrateFunction& udf,
-    std::vector<KPValue*>& ArgumentList,
-    KPValue& ReturnValue) {
-    
-    // Check if we have the KPFunction instance stored
-    if (!udf.f_is_complex_function || !udf.f_kebap_function) {
-        throw kebap::KPException() << "Function marked as complex but missing KPFunction";
-    }
-    
-    try {
-        // Nobel: Use KPFunction's built-in execution - it handles parameters and return values automatically
-        
-        // Create a symbol table for execution context
-        kebap::KPStandardParser parser;
-        kebap::KPSymbolTable* symbol_table = parser.GetSymbolTable();
-        
-        // Execute the function - KPFunction handles parameter mapping and return values
-        KPValue result = udf.f_kebap_function->Execute(ArgumentList, symbol_table);
-        
-        ReturnValue = result;
-        return 1;
-        
-    } catch (const kebap::KPException& e) {
-        std::cerr << "ERROR: Complex function execution error in " << udf.name << ": " << e.what() << std::endl;
-        throw;
-    } catch (const std::exception& e) {
-        std::cerr << "ERROR: General execution error in complex function " << udf.name << ": " << e.what() << std::endl;
-        throw kebap::KPException() << "Complex function execution error in " << udf.name << ": " << e.what();
-    }
-}
-
-// Nobel: function execution with dual path for simple vs complex functions
-int kebap::KPUserDefinedFunctionObject::InvokeMethod(int MethodId, std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue) {
-    //Find function by method ID using current hash approach
-    std::string func_name = find_function_by_method_id(MethodId);
-    
-    if (func_name.empty()) {
-        return KPObjectPrototype::InvokeMethod(MethodId, ArgumentList, ReturnValue);
-    }
-    
-    // Get function def and its existence
-    auto udf_iter = honeybee::g_user_calibrate_functions.find(func_name);
-    if (udf_iter == honeybee::g_user_calibrate_functions.end()) {
-        std::cerr << "ERROR: UDF not found: " << func_name << std::endl;
-        throw kebap::KPException() << "UDF not found: " << func_name;
-    }
-    
-    const honeybee::UserCalibrateFunction& udf = udf_iter->second;
-    
-    // check argument count matches function signature
-    if (ArgumentList.size() != udf.arg_names.size()) {
-        std::cerr << "ERROR: Argument count mismatch for " << func_name 
-                  << ": expected " << udf.arg_names.size() 
-                  << ", got " << ArgumentList.size() << std::endl;
-        throw kebap::KPException() << func_name << "(): expected " << udf.arg_names.size() 
-                                   << " arguments, got " << ArgumentList.size();
-    }
-    
-    // Step 4: Choose execution path based on function label
-    try {
-        if (udf.f_is_complex_function) {
-            return execute_complex_function(udf, ArgumentList, ReturnValue);
+    catch (const kebap::KPException &e) {
+        std::cerr << "ERROR: KEBAP parse error: " << e.what() << std::endl;
+        // Print a truncated view of the script for debugging
+        const size_t max_chars = 4096;
+        std::string s = ctx.combined_script;
+        if (s.size() > max_chars) {
+            std::cerr << "---- combined script (first " << max_chars << " chars) ----" << std::endl;
+            std::cerr << s.substr(0, max_chars) << std::endl;
+            std::cerr << "---- (truncated, total length " << s.size() << ") ----" << std::endl;
         } else {
-            return execute_simple_function(udf, ArgumentList, ReturnValue);
+            std::cerr << "---- combined script ----" << std::endl;
+            std::cerr << s << std::endl;
+            std::cerr << "---- end script ----" << std::endl;
         }
-    } catch (const kebap::KPException& e) {
-        // Enhanced error handling for parsing, compilation, and runtime issues
-        std::cerr << "ERROR: Function execution failed for " << func_name << ": " << e.what() << std::endl;
-        throw;
-    } catch (const std::exception& e) {
-        std::cerr << "ERROR: General function error for " << func_name << ": " << e.what() << std::endl;
-        throw kebap::KPException() << "Function execution error for " << func_name << ": " << e.what();
+        ctx.parsed = false;
+        return false;
+    }
+    catch (const std::exception &e) {
+        std::cerr << "ERROR: parse_script exception: " << e.what() << std::endl;
+        ctx.parsed = false;
+        return false;
     }
 }
+
+// Execute a call expression using the per-file KPStandardParser so UDFs, imports
+// and variables are resolved, on fails, fall back to evaluator-based strategies.
+bool execute_script_call(
+    honeybee::KTFScriptContext& ctx, 
+    const std::string& call_expression, 
+    const std::vector<double>& args, 
+    double& out_value) {
+
+    // ensure the script has been parsed into the parser state
+    if (!ctx.parsed) {
+        if (!parse_script(ctx)) {
+            throw kebap::KPException() << "Failed to parse script prior to execution";
+        }
+    }
+
+    if (!ctx.parser) {
+        throw kebap::KPException() << "Parser not initialized in script context";
+    }
+
+    // evaluate the call expression directly in the top-level parser's
+    // expression parser using the parser's symbol table.
+    // parser handles udf, variables and imports without creating
+    // temporary evaluators.
+    try {
+        kebap::KPStandardParser* p = ctx.parser.get();
+        std::istringstream is(call_expression);
+        kebap::KPTokenizer tokenizer(is, p->GetTokenTable());
+        kebap::KPExpression* expr = p->GetExpressionParser()->Parse(&tokenizer, p->GetSymbolTable());
+        try {
+            kebap::KPValue v = expr->Evaluate(p->GetSymbolTable());
+            out_value = v.AsDouble();
+            delete expr;
+            return true;
+        }
+        catch (...) {
+            delete expr;
+            throw;
+        }
+    }
+    catch (const kebap::KPException &e_planA) {
+        // If direct parser evaluation fails, fall back to evaluator-based strategies below.
+    }
+
+    // Minimal ParserAccessor used only to access the parser's builtin function table
+    // for merge-based fallbacks, no nonportable variable readback
+    struct ParserAccessor : public kebap::KPStandardParser {
+        kebap::KPBuiltinFunctionTable* builtin_table() { return fBuiltinFunctionTable; }
+    };
+
+    // Create a temporary parser, parse/execute the combined script into it,
+    // merge its builtin function table into a temporary evaluator and evaulate
+    try {
+        // Build temp parser and parse the combined script
+        kebap::KPStandardParser temp_parser;
+        {
+            std::istringstream s(ctx.combined_script);
+            temp_parser.Parse(s);
+            temp_parser.Execute();
+        }
+
+        // Create evaluator for the call expression and merge function prototypes from temp parser
+        struct EvalAccessor : public kebap::KPEvaluator {
+            EvalAccessor(const std::string& expr): kebap::KPEvaluator(expr) {}
+            kebap::KPBuiltinFunctionTable* builtin_table() { return fBuiltinFunctionTable; }
+        };
+
+        ParserAccessor* temp_acc = static_cast<ParserAccessor*>(&temp_parser);
+        EvalAccessor eval_merged(call_expression);
+
+        if (temp_acc->builtin_table() && eval_merged.builtin_table()) {
+            eval_merged.builtin_table()->Merge(temp_acc->builtin_table());
+        }
+
+        // Bind args as arg0, arg1, ...
+        for (size_t i = 0; i < args.size(); ++i) {
+            std::string name = std::string("arg") + std::to_string(i);
+            eval_merged[name] = args[i];
+        }
+
+        // Evaluate and return result
+        out_value = eval_merged(0.0);
+        return true;
+    }
+    catch (const std::exception &e_main) {
+        // If this attempt fails, fall through to existing merge below
+    }
+
+    // merging: copy parser-registered functions into
+    // the temp evaluator's symbol table so udf are visible at evaluation time. 
+    struct EvalAccessor : public kebap::KPEvaluator {
+        EvalAccessor(const std::string& expr): kebap::KPEvaluator(expr) {}
+        kebap::KPBuiltinFunctionTable* builtin_table() { return fBuiltinFunctionTable; }
+
+        // Import user-defined functions that were registered in parser_sym.
+        // only register them to be called
+        void import_functions_from_parser(kebap::KPSymbolTable* parser_sym, kebap::KPModule* module) {
+            if (!parser_sym || !module) return;
+            const std::vector<std::string>& names = module->EntryNameList();
+            for (const std::string& name : names) {
+                long id = parser_sym->NameToId(name);
+                kebap::KPFunction* func = parser_sym->GetFunction(id);
+                if (func) {
+                    // Register the parser's function pointer into evaluator's symbol table
+                    fSymbolTable->RegisterFunction(id, func);
+                }
+            }
+        }
+    };
+
+    try {
+        ParserAccessor* src = static_cast<ParserAccessor*>(ctx.parser.get());
+        EvalAccessor merged_eval(call_expression);
+
+        // Merge builtin table first so builtins are present
+        if (src->builtin_table() && merged_eval.builtin_table()) {
+            merged_eval.builtin_table()->Merge(src->builtin_table());
+        }
+
+        // Import user-defined functions from the parser's module
+        merged_eval.import_functions_from_parser(ctx.parser->GetSymbolTable(), ctx.parser->GetModule());
+
+        // Bind args as arg0, arg1, ...
+        for (size_t i = 0; i < args.size(); ++i) {
+            std::string name = std::string("arg") + std::to_string(i);
+            merged_eval[name] = args[i];
+        }
+
+        // Evaluate and return result
+        out_value = merged_eval(0.0);
+        return true;
+    }
+    catch (...) {
+        // Merge fallback failed; continue to below
+    }
+
+    // Last resort: evaluate via merged evaluator using the parser's builtin table again.
+    try {
+        ParserAccessor* src = static_cast<ParserAccessor*>(ctx.parser.get());
+        EvalAccessor eval_reader(call_expression);
+        if (src->builtin_table() && eval_reader.builtin_table()) {
+            eval_reader.builtin_table()->Merge(src->builtin_table());
+        }
+        for (size_t i = 0; i < args.size(); ++i) {
+            std::string name = std::string("arg") + std::to_string(i);
+            eval_reader[name] = args[i];
+        }
+        out_value = eval_reader(0.0);
+        return true;
+    }
+    catch (const std::exception &e_final) {
+        // Nothing worked; propagate last error as KPException
+        throw kebap::KPException() << "execute_script_call: failed to execute call: " << e_final.what();
+    }
+}
+

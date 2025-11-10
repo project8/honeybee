@@ -23,168 +23,108 @@
 #include "utils.hh"
 #include "sensor_table.hh"
 #include "data_source.hh"
+#include "evaluator.hh"   
+#include <functional>   //function wrapper
 
 using namespace std;
 using namespace honeybee;
 
 int sensor_table::f_unique_sequence = 0;
 
-// Nobel: Global parser instance being reused across all function parsing
-static kebap::KPStandardParser* g_function_parser = nullptr;
 
-// Nobel: Detect functions that need full Kebap execution
-// Any function with multiple statements, loops, or complex logic
-bool honeybee::is_complex_function_syntax(const string& body) {
-    // Check for control flow that requires full statement execution
-    if (body.find("if (") != string::npos) return true;
-    if (body.find("while (") != string::npos) return true;
-    if (body.find("for (") != string::npos) return true;  // Include for loops
-    if (body.find("var ") != string::npos) return true;
-    
-    // Check for multiple statements (semicolons indicate statement separation)
-    if (body.find(';') != string::npos) return true;
-    
-    // Check for variable declarations
-    if (body.find("double ") != string::npos) return true;
-    if (body.find("float ") != string::npos) return true;
-    if (body.find("int ") != string::npos) return true;
-    
-    return false;  // Simple expression function
-}
-
-// Nobel: Parse complex function body using proper KPFunction mechanism
-unique_ptr<kebap::KPFunction> honeybee::parse_function_body(const string& body) {
-    try {
-        // Create a KPCxxFunction for proper C++ style function parsing
-        unique_ptr<kebap::KPCxxFunction> kebap_function = make_unique<kebap::KPCxxFunction>();
-        
-        // Wrap function body in proper Kebap function syntax: "returnType functionName(params) { body }"
-        // Extract return type, function name, and parameters from the original function definition
-        string wrapped_function = "double temp_func(double base) { " + body + " }";
-        
-        // Create tokenizer and parsers for function parsing
-        stringstream ss(wrapped_function);
-        kebap::KPStandardParser parser;
-        kebap::KPTokenizer tokenizer(ss, parser.GetTokenTable());
-        kebap::KPSymbolTable* symbol_table = parser.GetSymbolTable();
-        
-        // Parse the function using Kebap's function parsing mechanism
-        kebap_function->Parse(&tokenizer, parser.GetStatementParser(), symbol_table);
-        
-        cerr << "INFO: Complex function parsed successfully using KPFunction" << endl;
-        
-        return kebap_function;
-    } catch (const exception& e) {
-        cerr << "ERROR: KPFunction parsing failed: " << e.what() << endl;
-        cerr << "ERROR: Function body was: '" << body << "'" << endl;
-        return nullptr;
+// Extracts and combines all "#%" script lines from a KTF file into a single script, inlining any included KTF files.
+// The combined script is stored in out_ctx
+// recursive include is flagged 
+static bool extract_ktf_scripts_from_file(const std::string& filename, honeybee::KTFScriptContext& out_ctx) {
+    std::ifstream ifs(filename);
+    if (!ifs.is_open()) {
+        std::cerr << "ERROR: Cannot open KTF file for script extraction: " << filename << std::endl;
+        return false;
     }
-}
 
-// Nobel: Basic function signature validation
-// Checks that return type and name are not empty
-void honeybee::validate_function_signature(const string& return_type, const string& name, const vector<string>& args) {
-    if (return_type.empty() || name.empty()) {
-        throw runtime_error("Invalid function signature");
-    }
-}
-
-// Nobel: Extract user-defined calibration functions from KTF file with kebap parsing(multi-line)
-static void extract_user_functions_from_file(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "ERROR: Cannot open KTF file for UDF extraction: " << filename << std::endl;
-        return;
-    }
-    
-    // Nobel: Read entire file for multi-line function support
-    std::string content((std::istreambuf_iterator<char>(file)), 
-                        std::istreambuf_iterator<char>());
-    file.close();
-
-    // Nobel: regex for multi-line functions with nested braces
-    regex udf_regex(R"(#%\s*(\w+)\s+(\w+)\s*\(([^)]*)\)\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\})");
-    
-    // Nobel: Find all function matches in the file content
-    std::sregex_iterator iter(content.begin(), content.end(), udf_regex);
-    std::sregex_iterator end;
-    
-    // Nobel: Process each function definition found in the file
-    // Loop through all regex matches and parse each function
-    int function_count = 0;
-    for (; iter != end; ++iter) {
-        const std::smatch& match = *iter;
-        function_count++;
-        
-        try {
-            UserCalibrateFunction udf;
-            udf.return_type = match[1].str();
-            udf.name = match[2].str();
-            udf.body_expr = match[4].str();
-            
-            // Nobel: Parse to extract type and name pairs
-            // like "float x, int count"
-            string args_str = match[3].str();
-            if (!args_str.empty()) {
-                stringstream ss(args_str);
-                string param;
-                while (getline(ss, param, ',')) {
-                    regex param_regex(R"(\s*(\w+)\s+(\w+)\s*)");
-                    smatch param_match;
-                    if (regex_match(param, param_match, param_regex)) {
-                        string param_type = param_match[1].str();
-                        string param_name = param_match[2].str();
-                        udf.arg_names.push_back(param_name);
-                        // Nobel: Parameter type info stored, could be used for future validation
-                    }
-                }
-            }
-            
-            // Nobel: Check if function needs complex parsing or simple expression handling
-            udf.f_is_complex_function = is_complex_function_syntax(udf.body_expr);
-            
-            if (udf.f_is_complex_function) {
-                // Nobel: Store original body and create KPFunction for complex functions
-                udf.f_original_body = udf.body_expr;
-                udf.f_kebap_function = parse_function_body(udf.body_expr);
-                if (!udf.f_kebap_function) {
-                    cerr << "ERROR: Failed to parse complex function: " << udf.name << endl;
-                    continue;
-                }
-                cerr << "INFO: Registered complex UDF: " << udf.name << endl;
-            } else {
-                // Nobel: Simple function - extract return expression for variable substitution
-                string body = udf.body_expr;
-
-                
-                // Use regex to extract return expression, handling multiline and whitespace
-                // First replace newlines with spaces to make it single line
-                string single_line_body = body;
-                replace(single_line_body.begin(), single_line_body.end(), '\n', ' ');
-                regex return_regex(R"(.*return\s+([^;]+);?.*)");
-                smatch body_match;
-                if (regex_match(single_line_body, body_match, return_regex)) {
-                    string return_expr = body_match[1].str();
-                    // Trim whitespace and newlines
-                    return_expr.erase(0, return_expr.find_first_not_of(" \t\n\r"));
-                    return_expr.erase(return_expr.find_last_not_of(" \t\n\r") + 1);
-                    udf.body_expr = return_expr;
-                } else {
-                    cerr << "WARNING: Could not extract return expression from: " << body << endl;
-                }
-                cerr << "INFO: Registered simple UDF: " << udf.name << endl;
-            }
-            
-            // Nobel: Validate signature before registering
-            validate_function_signature(udf.return_type, udf.name, udf.arg_names);
-            g_user_calibrate_functions[udf.name] = std::move(udf);
-            
-        } catch (const exception& e) {
-            cerr << "ERROR: Function parsing failed for " << match[2].str() << ": " << e.what() << endl;
+    // collect lines that start with "#%" (after optional whitespace)
+    std::vector<std::string> collected;
+    std::string line;
+    while (std::getline(ifs, line)) {
+        size_t pos = line.find_first_not_of(" \t");
+        if (pos != std::string::npos && pos + 1 < line.size() && line[pos] == '#' && line[pos+1] == '%') {
+            size_t start = pos + 2;
+            if (start < line.size() && line[start] == ' ') start++;
+            collected.push_back(line.substr(start));
         }
     }
-    
-    std::cerr << "INFO: UDF extraction complete. Found " << g_user_calibrate_functions.size() << " UDFs" << std::endl;
+    ifs.close();
+
+    // recursive include processing using std::set for visited files
+    std::function<void(const std::string&, std::string&, std::set<std::string>&)> process_file;
+    process_file = [&](const std::string& file, std::string& out_script, std::set<std::string>& visited) {
+        if (visited.find(file) != visited.end()) {
+            std::cerr << "WARNING: recursive include skipped: " << file << std::endl;
+            return;
+        }
+        visited.insert(file);
+
+        std::ifstream s(file);
+        if (!s.is_open()) {
+            std::cerr << "ERROR: include: cannot open " << file << std::endl;
+            return;
+        }
+
+        std::string ln;
+        std::vector<std::string> local_collected;
+        while (std::getline(s, ln)) {
+            size_t pos = ln.find_first_not_of(" \t");
+            if (pos != std::string::npos && pos + 1 < ln.size() && ln[pos] == '#' && ln[pos+1] == '%') {
+                size_t start = pos + 2;
+                if (start < ln.size() && ln[start] == ' ') start++;
+                local_collected.push_back(ln.substr(start));
+            }
+        }
+        s.close();
+
+        std::regex include_regex(R"(^\s*include\s*\"([^\"]+)\"\s*$)");
+        for (const auto& l : local_collected) {
+            std::smatch m;
+            if (std::regex_match(l, m, include_regex)) {
+                std::string incfile = m[1].str();
+                std::string resolved = incfile;
+                if (!incfile.empty() && incfile[0] != '/' && file.find('/') != std::string::npos) {
+                    std::string dir = file.substr(0, file.find_last_of('/'));
+                    resolved = dir + "/" + incfile;
+                }
+                process_file(resolved, out_script, visited);
+            } else {
+                out_script += l;
+                out_script += "\n";
+            }
+        }
+    };
+
+    // build combined script starting from the main file (and inline includes found in that file)
+    std::string combined;
+    std::set<std::string> visited;
+    std::regex include_regex(R"(^\s*include\s*\"([^\"]+)\"\s*$)");
+    for (const auto& l : collected) {
+        std::smatch m;
+        if (std::regex_match(l, m, include_regex)) {
+            std::string incfile = m[1].str();
+            std::string resolved = incfile;
+            if (!incfile.empty() && incfile[0] != '/' && filename.find('/') != std::string::npos) {
+                std::string dir = filename.substr(0, filename.find_last_of('/'));
+                resolved = dir + "/" + incfile;
+            }
+            process_file(resolved, combined, visited);
+        } else {
+            combined += l;
+            combined += "\n";
+        }
+    }
+
+    out_ctx.filename = filename;
+    out_ctx.combined_script = combined;
+    out_ctx.parsed = false;
+    // parser will be created on demand by evaluator::parse_script
+    return true;
 }
 
 string sensor::to_json(vector<string> a_field_list, const std::string& a_delimiter) const
@@ -278,10 +218,27 @@ void sensor_config_by_file::set_variables(const sensor_config_by_file::variables
 }
 
 void sensor_config_by_file::load(sensor_table& a_table, const string& a_filename)
-{
-    // Nobel: Extract user-defined calibration functions first, before KTF parsing
-    extract_user_functions_from_file(a_filename);
-    
+{   
+    // record the source filename for sensors added by this loader
+    f_source_filename = a_filename;
+
+    // Register KTF script context for this file
+    extract_ktf_scripts_from_file(a_filename, g_ktf_script_contexts[a_filename]);
+
+    // Parse the combined KTF script immediately so top-level parser contains UDFs/vars/imports.
+    try {
+        auto &ctx = g_ktf_script_contexts[a_filename];
+        if (!ctx.combined_script.empty()) {
+            if (!parse_script(ctx)) {
+                std::cerr << "WARNING: failed to parse KTF script for " << a_filename << std::endl;
+            } else {
+                hINFO(cerr << "Parsed KTF script: " << a_filename << endl);
+            }
+        }
+    } catch (const std::exception &e) {
+        cerr << "WARNING: failed to parse KTF script for " << a_filename << ": " << e.what() << endl;
+    }
+
     tabree::KTree t_tree;
     try {
         tabree::KTreeFile(a_filename).Read(t_tree);
@@ -333,7 +290,7 @@ void sensor_config_by_file::load_layer(sensor_table& a_table, const tabree::KTre
                     f[var.first] = var.second;
                 }
                 try {
-                    if (! f(0)) {  //... TODO: implement evaluator with no parameter
+                    if (! f(0)) {
                         continue;
                     }
                 }
@@ -387,6 +344,10 @@ void sensor_config_by_file::add_sensor(sensor_table& a_table, const tabree::KTre
     // this step is to allow overriding //
     for (auto& t_opt: a_context.f_opts) {
         t_options[t_opt.first] = t_opt.second;
+    }
+    // tag sensor with the KTF source filename so calibration code can find script context
+    if (! f_source_filename.empty()) {
+        t_options["ktf_source"] = f_source_filename;
     }
     for (auto& t_opt: t_options) {
         t_sensor.set_option(t_opt.first, t_opt.second);

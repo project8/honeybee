@@ -53,10 +53,10 @@ void honeybee_app::set_delimiter(const std::string& input_delimiters, const std:
     }
 }
 
-//added for calibration
+// Set the value column used for reads (calibrated or raw)
 void honeybee_app::set_value_col(const bool& use_calibrated)
 {
-   f_value_column = use_calibrated ? "value_cal" : "value_raw";
+    f_value_column = use_calibrated ? "value_cal" : "value_raw";
 }
 
 shared_ptr<sensor_table> honeybee_app::get_sensor_table()

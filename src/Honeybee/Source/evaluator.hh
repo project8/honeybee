@@ -12,12 +12,12 @@
 #include <vector>
 #include <map>
 #include <kebap/Kebap.h>
+#include "ktf_script.hh" // full KTFScriptContext type
 
-// Nobel: Forward declaration for UserCalibrateFunction
-// issue of circular includes(ask) with data_source file
-namespace honeybee {
-    struct UserCalibrateFunction;
-}
+// helpers for script-level parsing/execution
+// Ensure these prototypes are visible to other translation units 
+bool parse_script(honeybee::KTFScriptContext& ctx);
+bool execute_script_call(honeybee::KTFScriptContext& ctx, const std::string& call_expression, const std::vector<double>& args, double& out_value);
 
 namespace kebap {
 
@@ -52,39 +52,15 @@ namespace kebap {
         }
     };
 
-    //Nobel: To register the parsed user-def function as callable function using kebap logic
-    //Has dual execution paths, simple or complex functions
-    class KPUserDefinedFunctionObject: public KPObjectPrototype {
-    public:
-        KPUserDefinedFunctionObject();
-        ~KPUserDefinedFunctionObject() override {}
-        KPObjectPrototype* Clone() override { return new KPUserDefinedFunctionObject(); }
-        int MethodIdOf(const std::string& MethodName) override;
-        int InvokeMethod(int MethodId, std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue) override;
-        
-    private:
-        // Nobel: Helper methods for dual execution paths
-        std::string find_function_by_method_id(int MethodId);
-        int execute_simple_function(const honeybee::UserCalibrateFunction& udf, 
-                                   std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue);
-        int execute_complex_function(const honeybee::UserCalibrateFunction& udf, 
-                                    std::vector<KPValue*>& ArgumentList, KPValue& ReturnValue);
-        
-    private:
-        int f_next_method_id;  // Still used for base calculation
-    };
 }
-
 
 namespace honeybee {
     class evaluator: public kebap::KPEvaluator {
     public:
         evaluator(const std::string& Expression): kebap::KPEvaluator(Expression) {
             fBuiltinFunctionTable->RegisterStaticObject(new kebap::KPHoneybeeObject());
-            fBuiltinFunctionTable->RegisterStaticObject(new kebap::KPUserDefinedFunctionObject()); // Nobel: register udf with evaluator, globally available to all endpoints
         }
     };
 }
-
 
 #endif
