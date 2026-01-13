@@ -29,6 +29,7 @@ namespace honeybee {
         void load(sensor_table& a_table, const string& a_filename) override;
         
       private:
+        
         shared_ptr<kebap::KPParser> f_parser;
         string f_ktf_path;
         // honeybee likely passes runtime variables to do validation guard checks for all sensor loaders
