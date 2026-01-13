@@ -8,6 +8,7 @@
 
 #include <tabree/KTreeFile.h>
 #include "honeybee.hh"
+#include "sensor_config_by_ktf.hh"
 
 using namespace std;
 using namespace honeybee;
@@ -98,9 +99,10 @@ void honeybee_app::construct()
 
     if (! f_config_file_path.empty()) {
         hINFO(cerr << "loading " << f_config_file_path << endl);
-        sensor_config_by_file t_sensor_config;
-        t_sensor_config.set_variables(f_variables);
-        t_sensor_config.load(*f_sensor_table, f_config_file_path);
+        auto t_loader = make_shared<sensor_config_by_ktf>();
+        t_loader->set_variables(f_variables);
+        t_loader->load(*f_sensor_table, f_config_file_path);
+        f_loaders[f_config_file_path] = t_loader;
         hINFO(cerr << f_sensor_table->find_like({{}}).size() << " sensors defined" << endl);
     }
 

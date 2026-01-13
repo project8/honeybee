@@ -24,6 +24,7 @@ namespace honeybee {
     
     // Forward declaration
     class sensor_config;
+    class sensor_config_by_ktf;
 
     class honeybee_app {
       public:
@@ -50,6 +51,7 @@ namespace honeybee {
         std::shared_ptr<sensor_table> f_sensor_table;
         std::shared_ptr<data_source> f_data_source;
         sensor_config_by_file::variables f_variables;
+        std::map<std::string, std::shared_ptr<sensor_config>> f_loaders;
     };
     
 }
