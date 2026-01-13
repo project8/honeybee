@@ -10,6 +10,7 @@
 
 #include <string>
 #include <memory>
+#include <map>
 #include <tabree/KVariant.h>
 #include "utils.hh"
 #include "series.hh"
@@ -19,6 +20,10 @@
 
 
 namespace honeybee {
+    using namespace std;
+    
+    // Forward declaration
+    class sensor_config;
 
     class honeybee_app {
       public:

@@ -13,11 +13,14 @@
 #include <deque>
 #include <map>
 #include <unordered_map>
+#include <memory>
 #include <tabree/KTree.h>
 
 
 namespace honeybee {
     using namespace std;
+    
+    class calibration;  // forward declaration
     
     class name_chain {
       public:
@@ -90,12 +93,25 @@ namespace honeybee {
         // used by sensor_config
         void set_calibration(const string& calibration) { f_calibration = calibration; }
         void set_option(const string& name, const string& value) { f_options[name] = value; }
+        void set_calibration_object(shared_ptr<calibration> a_calibration) { f_calibration_obj = a_calibration; }
+        double apply_calibration(double raw_value) const {
+            if (!f_calibration_obj) {  // either raw or apply calibration
+                return raw_value;
+            }
+            return (*f_calibration_obj)(raw_value); 
+        }
+        // provenance: set/get originating KTF file path
+        // void set_ktf_source(const string& a_path) { f_ktf_source = a_path; }
+        // const string& get_ktf_source() const { return f_ktf_source; }
       protected:
         int f_number;
         name_chain f_name;
         name_chain f_label;
         string f_calibration;
         map<string, string> f_options;
+        shared_ptr<calibration> f_calibration_obj;
+        // provenance: which KTF (file) this sensor was created from
+        //
     };
 
     

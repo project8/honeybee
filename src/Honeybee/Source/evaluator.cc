@@ -7,8 +7,12 @@
 
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include <kebap/Kebap.h>
 #include "evaluator.hh"
+
+using namespace std;
+using namespace honeybee;
 
 
 template<typename T> static inline T sqr(const T& x) { return x*x; };
@@ -35,3 +39,32 @@ int kebap::KPHoneybeeObject::pt100(std::vector<KPValue*>& ArgumentList, kebap::K
     ReturnValue = kebap::KPValue(y);
     return 1;
 }
+
+
+evaluator::evaluator(kebap::KPExpression* a_expression, kebap::KPSymbolTable* a_symbol_table)
+    : f_expression(a_expression), f_symbol_table(a_symbol_table)
+{
+}
+
+evaluator::~evaluator()
+{
+    delete f_expression;
+}
+
+double evaluator::operator()(double x)
+{
+    if (!f_expression || !f_symbol_table) {
+        throw runtime_error("evaluator: expression or symbol table not initialized");
+    }
+    
+    f_symbol_table->SetVariable("x", x);
+    
+    try {
+        kebap::KPValue result = f_expression->Evaluate(f_symbol_table);
+        return result.AsDouble();
+    }
+    catch (kebap::KPException& e) {
+        throw runtime_error(string("evaluator: ") + e.what());
+    }
+}
+

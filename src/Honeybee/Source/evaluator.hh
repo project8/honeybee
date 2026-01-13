@@ -49,11 +49,16 @@ namespace kebap {
 
 
 namespace honeybee {
-    class evaluator: public kebap::KPEvaluator {
-    public:
-        evaluator(const std::string& Expression): kebap::KPEvaluator(Expression) {
-            fBuiltinFunctionTable->RegisterStaticObject(new kebap::KPHoneybeeObject());
-        }
+    class evaluator {
+      public:
+        evaluator(kebap::KPExpression* a_expression, kebap::KPSymbolTable* a_symbol_table);
+        ~evaluator();
+        
+        double operator()(double x);
+        
+      private:
+        kebap::KPExpression* f_expression;
+        kebap::KPSymbolTable* f_symbol_table;
     };
 }
 

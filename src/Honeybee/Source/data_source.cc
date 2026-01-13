@@ -194,7 +194,7 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
     }
 }
 
-/before: 6 parameter into , added for calibration 
+//before: 6 parameter into , added for calibration 
 //added another paramter for the string, need to do the same for the .hh framework design 
 void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {

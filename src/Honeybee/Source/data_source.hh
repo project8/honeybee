@@ -10,12 +10,21 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <map>
 #include "utils.hh"
 #include "series.hh"
 #include "sensor_table.hh"
 #include "calibration.hh"
 #include "pgsql.hh"
+#include "ktf_script.hh"   // moved KTFScriptContext and g_ktf_script_contexts here
 
+// Forward declarations for Kebap integration
+namespace kebap {
+    class KPStatement;
+    class KPFunction;
+    class KPStandardParser;
+}
 
 namespace honeybee {
     using namespace std;
@@ -26,11 +35,11 @@ namespace honeybee {
         virtual ~data_source() {}
         virtual vector<string> get_data_names() = 0;
         virtual void bind(sensor_table& a_sensor_table);
-        virtual vector<series> read(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval=-1, const std::string& a_reducer="");
+        virtual vector<series> read(const vector<int>& a_sensor_list, const std::string& value_column, double a_from, double a_to, double a_resampling_interval=-1, const std::string& a_reducer="");
       protected:
         virtual void bind_inputs(sensor_table& sensor_table) = 0;
-        virtual vector<series> fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer);
-        virtual void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer) = 0;
+        virtual vector<series> fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column);
+        virtual void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column) = 0;
       protected:
         int find_input(int);
         void apply_calibration(int a_sensor, series& a_series);
@@ -44,7 +53,7 @@ namespace honeybee {
         vector<string> get_data_names() override { return vector<string>(); }
       protected:
         void bind_inputs(sensor_table& sensor_table) override {}
-        void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer) override {}
+        void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column) override {}
     };
 
     
@@ -54,16 +63,16 @@ namespace honeybee {
         vector<string> get_data_names() override;
       protected:
         void bind_inputs(sensor_table& a_sensor_table) override;
-        vector<series> fetch(const vector<int>& a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer) override;
-        void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer) override;
+  vector<series> fetch(const vector<int>& a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column) override; // support selecting raw or calibrated values
+        void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column) override;
       protected:
         string f_db_uri;
         vector<string> f_basename;
         string f_input_delimiters, f_output_delimiter;
       protected:
-        pgsql f_pgsql;
-        //Nobel: mapping of sensor_id to (endpoint, field)
-        map<int, pair<string, string>> f_endpoint_n_field_table; 
+  pgsql f_pgsql;
+  map<int, pair<string, string>> f_endpoint_n_field_table; // mapping of sensor_id to (endpoint, field)
+  //map<int, string> f_field_table; // sensor_id -> field preference ("raw" or "calibrated")
         vector<string> f_data_names;
       protected:
         bool f_has_idmap;
@@ -75,7 +84,7 @@ namespace honeybee {
       public:
         vector<string> get_data_names() override;
       protected:
-        void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer) override;
+        void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column) override;
       protected:
         map<int, unsigned> f_column_map;
     };
