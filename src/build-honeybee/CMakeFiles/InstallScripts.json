@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/cmake_install.cmake",
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source/cmake_install.cmake",
+		"/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Applications/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

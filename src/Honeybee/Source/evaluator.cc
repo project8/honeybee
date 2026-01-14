@@ -57,10 +57,23 @@ double evaluator::operator()(double x)
         throw runtime_error("evaluator: expression or symbol table not initialized");
     }
     
-    f_symbol_table->SetVariable("x", x);
-    
     try {
-        kebap::KPValue result = f_expression->Evaluate(f_symbol_table);
+        // Set x variable in the symbol table before evaluating
+        // using id for "x" to modify the KPValue object
+        long x_var_id = f_symbol_table->NameToId("x");
+        kebap::KPValue* x_var = f_symbol_table->GetVariable(x_var_id);
+        if (!x_var) {
+            // If x doesn't exist, register it
+            x_var_id = f_symbol_table->RegisterVariable("x", kebap::KPValue(x));
+            x_var = f_symbol_table->GetVariable(x_var_id);
+        } else {
+            // Modify the existing x variable in the symbol table
+            x_var->AssignDouble(x);
+        }
+        
+        // Evaluate the expression using the symbol table with updated x
+        // now should have times5(x) -> times5(4)
+        kebap::KPValue& result = f_expression->Evaluate(f_symbol_table);
         return result.AsDouble();
     }
     catch (kebap::KPException& e) {

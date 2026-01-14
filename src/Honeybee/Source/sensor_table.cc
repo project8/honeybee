@@ -16,11 +16,20 @@
 #include <tabree/KTreeFile.h>
 #include "utils.hh"
 #include "sensor_table.hh"
+#include "calibration.hh"
 
 using namespace std;
 using namespace honeybee;
 
 int sensor_table::f_unique_sequence = 0;
+
+double sensor::apply_calibration(double raw_value) const
+{
+    if (!f_calibration_obj) {  // either raw or apply calibration
+        return raw_value;
+    }
+    return (*f_calibration_obj)(raw_value);
+}
 
 string sensor::to_json(vector<string> a_field_list, const std::string& a_delimiter) const
 {

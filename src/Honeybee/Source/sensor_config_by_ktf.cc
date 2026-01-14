@@ -16,12 +16,6 @@
 using namespace std;
 using namespace honeybee;
 
-// Helper struct for load_layer recursion
-struct load_context {
-    deque<string> f_name, f_label;
-    deque<pair<string, string>> f_opts;
-};
-
 // static helper for load layer
 static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KVariant& a_node, 
                             sensor_table& a_table, load_context& a_context);
@@ -43,6 +37,7 @@ void sensor_config_by_ktf::set_variables(const sensor_config_by_ktf::variables& 
 void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
 {
     f_ktf_path = a_filename;
+    cout << "Loading KTF file: " << a_filename << endl;
     
     // Read KTF file
     tabree::KTree t_tree;
@@ -57,28 +52,35 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
     // Extract and compile scripts
     string t_scripts = extract_scripts();
     if (!t_scripts.empty()) {
+        cout << "Extracted Kebap scripts (" << t_scripts.length() << " bytes)" << endl;
         try {
             f_parser = make_shared<kebap::KPParser>();
             kebap::KPTokenizer t_tokenizer;
             kebap::KPInputBuffer t_input(t_scripts);
             t_tokenizer.Scan(t_input);
             f_parser->Parse(&t_tokenizer);
+            cout << "Successfully compiled Kebap parser" << endl;
         }
         catch (kebap::KPException &e) {
             cerr << "ERROR: Failed to parse Kebap scripts: " << e.what() << endl;
             f_parser = nullptr;
             return;
         }
+    } else {
+        cout << "No Kebap scripts found in ktf header" << endl;
     }
     
     // Load sensor hierarchy
+    cout << "Starting sensor hierarchy traversal..." << endl;
     load_layer(t_tree["sensor_table"], a_table);
+    cout << "Completed loading ktf file" << endl;
 }
 
 string sensor_config_by_ktf::extract_scripts()
 {
     ifstream t_file(f_ktf_path);
     if (!t_file.is_open()) {
+        cout << "Could not open ktf file for script extraction" << endl;
         return "";  // File read error, cont without scripts
     }
     
@@ -116,7 +118,7 @@ string sensor_config_by_ktf::extract_scripts()
 void sensor_config_by_ktf::load_layer(const tabree::KVariant& a_node, sensor_table& a_table)
 {
     load_context t_context;
-    load_layer_impl(this, a_node, a_table, t_context);
+    load_layer_implement(this, a_node, a_table, t_context);
 }
 
 static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KVariant& a_node, 
@@ -139,6 +141,13 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
     
     // Check if this is a channel node
     if (a_node.NodeName() == "channel") {
+        // hierarchical name for debug output , not used yet
+        // string t_hier_path;
+        // for (const auto& name: a_context.f_name) {
+        //     if (!t_hier_path.empty()) t_hier_path += ".";
+        //     t_hier_path += name;
+        // }
+        cout << "Processing channel: " << t_hier_path << endl;
         add_sensor(a_node, a_table, a_context, a_node.LineOffset());
         return;
     }
@@ -203,7 +212,7 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
         
         for (const char* t_subnode_type: t_subnode_types) {
             for (unsigned i = 0; i < a_node[t_subnode_type].Length(); i++) {
-                load_layer_impl(a_loader, a_node[t_subnode_type][i], a_table, t_context);
+                load_layer_implement(a_loader, a_node[t_subnode_type][i], a_table, t_context);
             }
         }
     }
@@ -224,15 +233,23 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KVari
     
     // Create kebap_calibration if calibration string exists and parser is valid
     if (!t_calibration.empty() && f_parser) {
+        cout << "Attaching calibration to " << t_name_chain.front() 
+             << ": \"" << t_calibration << "\"" << endl;
         try {
             auto t_calib = make_shared<kebap_calibration>(t_sensor, a_table, f_parser.get(), 
                                                           f_ktf_path, a_line_offset);
             t_sensor.set_calibration_object(t_calib);
+            cout << "Successfully compiled calibration expression" << endl;
         }
         catch (exception &e) {
             cerr << "WARNING: Could not create calibration for " 
                  << t_name_chain.front() << ": " << e.what() << endl;
         }
+    } else if (!t_calibration.empty() && !f_parser) {
+        cout << "Calibration string exists but no Kebap parser available: " 
+             << t_calibration << endl;
+    } else {
+        cout << "No calibration for sensor: " << t_name_chain.front() << endl;
     }
     
     // Extract and set options

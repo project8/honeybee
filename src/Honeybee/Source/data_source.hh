@@ -17,7 +17,6 @@
 #include "sensor_table.hh"
 #include "calibration.hh"
 #include "pgsql.hh"
-#include "ktf_script.hh"   // moved KTFScriptContext and g_ktf_script_contexts here
 
 // Forward declarations for Kebap integration
 namespace kebap {
@@ -44,7 +43,7 @@ namespace honeybee {
         int find_input(int);
         void apply_calibration(int a_sensor, series& a_series);
       protected:
-        map<int, calibration> f_calibration_table;
+        map<int, shared_ptr<calibration>> f_calibration_table;
     };
 
     

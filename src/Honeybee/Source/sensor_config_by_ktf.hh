@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <memory>
 #include <tabree/KVariant.h>
 #include "sensor_config.hh"
@@ -17,6 +18,12 @@ namespace kebap {
 
 namespace honeybee {
     using namespace std;
+    
+    // Context for recursive load_layer traversal
+    struct load_context {
+        deque<string> f_name, f_label;
+        deque<pair<string, string>> f_opts;
+    };
     
     class sensor_config_by_ktf : public sensor_config {
       public:

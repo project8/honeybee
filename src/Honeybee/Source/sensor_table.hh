@@ -94,12 +94,7 @@ namespace honeybee {
         void set_calibration(const string& calibration) { f_calibration = calibration; }
         void set_option(const string& name, const string& value) { f_options[name] = value; }
         void set_calibration_object(shared_ptr<calibration> a_calibration) { f_calibration_obj = a_calibration; }
-        double apply_calibration(double raw_value) const {
-            if (!f_calibration_obj) {  // either raw or apply calibration
-                return raw_value;
-            }
-            return (*f_calibration_obj)(raw_value); 
-        }
+        double apply_calibration(double raw_value) const;
         // provenance: set/get originating KTF file path
         // void set_ktf_source(const string& a_path) { f_ktf_source = a_path; }
         // const string& get_ktf_source() const { return f_ktf_source; }

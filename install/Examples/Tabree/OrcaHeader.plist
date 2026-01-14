@@ -1,0 +1,1805 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Document Info</key>
+	<dict>
+		<key>OrcaVersion</key>
+		<string>10.0h</string>
+		<key>dataVersion</key>
+		<integer>3</integer>
+		<key>date</key>
+		<string>2012-05-10 01:45:25 +0200</string>
+		<key>documentName</key>
+		<string>/Users/katrin/2012/04/IPE4-iron-bird-test1-norman.Orca</string>
+		<key>macAddress</key>
+		<string>00:17:f2:0d:34:60</string>
+		<key>svnModVersion</key>
+		<string>6810M</string>
+	</dict>
+	<key>Header Length</key>
+	<integer>45076</integer>
+	<key>ObjectInfo</key>
+	<dict>
+		<key>Crates</key>
+		<array>
+			<dict>
+				<key>Cards</key>
+				<array>
+					<dict>
+						<key>Card</key>
+						<integer>2</integer>
+						<key>Class Name</key>
+						<string>ORKatrinV4FLTModel</string>
+						<key>analogOffset</key>
+						<integer>0</integer>
+						<key>fifoBehaviour</key>
+						<integer>0</integer>
+						<key>filterLength</key>
+						<integer>7</integer>
+						<key>filterShapingLength</key>
+						<integer>7</integer>
+						<key>gains</key>
+						<array>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+						</array>
+						<key>gapLength</key>
+						<integer>4</integer>
+						<key>histClrMode</key>
+						<integer>0</integer>
+						<key>histEBin</key>
+						<integer>0</integer>
+						<key>histEMin</key>
+						<integer>0</integer>
+						<key>histMeasTime</key>
+						<integer>5</integer>
+						<key>histMode</key>
+						<integer>0</integer>
+						<key>hitRateEnabledMask</key>
+						<integer>16777215</integer>
+						<key>hitRateLength</key>
+						<integer>0</integer>
+						<key>nfoldCoincidence</key>
+						<integer>0</integer>
+						<key>postTriggerTime</key>
+						<integer>1024</integer>
+						<key>runMode</key>
+						<integer>0</integer>
+						<key>shipSumHistogram</key>
+						<integer>0</integer>
+						<key>thresholds</key>
+						<array>
+							<integer>9197</integer>
+							<integer>10558</integer>
+							<integer>10922</integer>
+							<integer>12198</integer>
+							<integer>11776</integer>
+							<integer>11647</integer>
+							<integer>9896</integer>
+							<integer>10147</integer>
+							<integer>11812</integer>
+							<integer>7795</integer>
+							<integer>10672</integer>
+							<integer>11801</integer>
+							<integer>11186</integer>
+							<integer>10746</integer>
+							<integer>7509</integer>
+							<integer>11711</integer>
+							<integer>11705</integer>
+							<integer>10596</integer>
+							<integer>10568</integer>
+							<integer>327</integer>
+							<integer>340</integer>
+							<integer>334</integer>
+							<integer>327</integer>
+							<integer>338</integer>
+						</array>
+						<key>triggerEnabledMask</key>
+						<integer>16777215</integer>
+						<key>vetoOverlapTime</key>
+						<integer>0</integer>
+					</dict>
+					<dict>
+						<key>Card</key>
+						<integer>3</integer>
+						<key>Class Name</key>
+						<string>ORKatrinV4FLTModel</string>
+						<key>analogOffset</key>
+						<integer>0</integer>
+						<key>fifoBehaviour</key>
+						<integer>0</integer>
+						<key>filterLength</key>
+						<integer>7</integer>
+						<key>filterShapingLength</key>
+						<integer>7</integer>
+						<key>gains</key>
+						<array>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+						</array>
+						<key>gapLength</key>
+						<integer>4</integer>
+						<key>histClrMode</key>
+						<integer>0</integer>
+						<key>histEBin</key>
+						<integer>0</integer>
+						<key>histEMin</key>
+						<integer>0</integer>
+						<key>histMeasTime</key>
+						<integer>5</integer>
+						<key>histMode</key>
+						<integer>0</integer>
+						<key>hitRateEnabledMask</key>
+						<integer>16777215</integer>
+						<key>hitRateLength</key>
+						<integer>0</integer>
+						<key>nfoldCoincidence</key>
+						<integer>0</integer>
+						<key>postTriggerTime</key>
+						<integer>1024</integer>
+						<key>runMode</key>
+						<integer>0</integer>
+						<key>shipSumHistogram</key>
+						<integer>0</integer>
+						<key>thresholds</key>
+						<array>
+							<integer>9410</integer>
+							<integer>10345</integer>
+							<integer>11191</integer>
+							<integer>11632</integer>
+							<integer>9814</integer>
+							<integer>11072</integer>
+							<integer>11797</integer>
+							<integer>12072</integer>
+							<integer>11229</integer>
+							<integer>12502</integer>
+							<integer>11478</integer>
+							<integer>10024</integer>
+							<integer>11038</integer>
+							<integer>11925</integer>
+							<integer>8990</integer>
+							<integer>11303</integer>
+							<integer>10006</integer>
+							<integer>11405</integer>
+							<integer>333</integer>
+							<integer>328</integer>
+							<integer>320</integer>
+							<integer>368</integer>
+							<integer>342</integer>
+							<integer>330</integer>
+						</array>
+						<key>triggerEnabledMask</key>
+						<integer>16777215</integer>
+						<key>vetoOverlapTime</key>
+						<integer>0</integer>
+					</dict>
+					<dict>
+						<key>Card</key>
+						<integer>4</integer>
+						<key>Class Name</key>
+						<string>ORKatrinV4FLTModel</string>
+						<key>analogOffset</key>
+						<integer>0</integer>
+						<key>fifoBehaviour</key>
+						<integer>0</integer>
+						<key>filterLength</key>
+						<integer>7</integer>
+						<key>filterShapingLength</key>
+						<integer>7</integer>
+						<key>gains</key>
+						<array>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+						</array>
+						<key>gapLength</key>
+						<integer>4</integer>
+						<key>histClrMode</key>
+						<integer>0</integer>
+						<key>histEBin</key>
+						<integer>0</integer>
+						<key>histEMin</key>
+						<integer>0</integer>
+						<key>histMeasTime</key>
+						<integer>5</integer>
+						<key>histMode</key>
+						<integer>0</integer>
+						<key>hitRateEnabledMask</key>
+						<integer>16777215</integer>
+						<key>hitRateLength</key>
+						<integer>0</integer>
+						<key>nfoldCoincidence</key>
+						<integer>0</integer>
+						<key>postTriggerTime</key>
+						<integer>1024</integer>
+						<key>runMode</key>
+						<integer>0</integer>
+						<key>shipSumHistogram</key>
+						<integer>0</integer>
+						<key>thresholds</key>
+						<array>
+							<integer>9569</integer>
+							<integer>9557</integer>
+							<integer>12263</integer>
+							<integer>13190</integer>
+							<integer>11481</integer>
+							<integer>13266</integer>
+							<integer>19302</integer>
+							<integer>12098</integer>
+							<integer>9861</integer>
+							<integer>11068</integer>
+							<integer>13257</integer>
+							<integer>11723</integer>
+							<integer>13015</integer>
+							<integer>12990</integer>
+							<integer>11854</integer>
+							<integer>9902</integer>
+							<integer>10681</integer>
+							<integer>10580</integer>
+							<integer>12313</integer>
+							<integer>318</integer>
+							<integer>324</integer>
+							<integer>338</integer>
+							<integer>328</integer>
+							<integer>316</integer>
+						</array>
+						<key>triggerEnabledMask</key>
+						<integer>16777215</integer>
+						<key>vetoOverlapTime</key>
+						<integer>0</integer>
+					</dict>
+					<dict>
+						<key>Card</key>
+						<integer>5</integer>
+						<key>Class Name</key>
+						<string>ORKatrinV4FLTModel</string>
+						<key>analogOffset</key>
+						<integer>0</integer>
+						<key>fifoBehaviour</key>
+						<integer>0</integer>
+						<key>filterLength</key>
+						<integer>7</integer>
+						<key>filterShapingLength</key>
+						<integer>7</integer>
+						<key>gains</key>
+						<array>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+						</array>
+						<key>gapLength</key>
+						<integer>4</integer>
+						<key>histClrMode</key>
+						<integer>0</integer>
+						<key>histEBin</key>
+						<integer>0</integer>
+						<key>histEMin</key>
+						<integer>0</integer>
+						<key>histMeasTime</key>
+						<integer>5</integer>
+						<key>histMode</key>
+						<integer>0</integer>
+						<key>hitRateEnabledMask</key>
+						<integer>16777215</integer>
+						<key>hitRateLength</key>
+						<integer>0</integer>
+						<key>nfoldCoincidence</key>
+						<integer>0</integer>
+						<key>postTriggerTime</key>
+						<integer>1024</integer>
+						<key>runMode</key>
+						<integer>0</integer>
+						<key>shipSumHistogram</key>
+						<integer>0</integer>
+						<key>thresholds</key>
+						<array>
+							<integer>9243</integer>
+							<integer>10008</integer>
+							<integer>9477</integer>
+							<integer>10729</integer>
+							<integer>9415</integer>
+							<integer>8385</integer>
+							<integer>10745</integer>
+							<integer>11738</integer>
+							<integer>11355</integer>
+							<integer>7939</integer>
+							<integer>11299</integer>
+							<integer>11776</integer>
+							<integer>11203</integer>
+							<integer>11090</integer>
+							<integer>10796</integer>
+							<integer>10082</integer>
+							<integer>11849</integer>
+							<integer>12364</integer>
+							<integer>340</integer>
+							<integer>318</integer>
+							<integer>333</integer>
+							<integer>323</integer>
+							<integer>338</integer>
+							<integer>330</integer>
+						</array>
+						<key>triggerEnabledMask</key>
+						<integer>16777215</integer>
+						<key>vetoOverlapTime</key>
+						<integer>0</integer>
+					</dict>
+					<dict>
+						<key>Card</key>
+						<integer>6</integer>
+						<key>Class Name</key>
+						<string>ORKatrinV4FLTModel</string>
+						<key>analogOffset</key>
+						<integer>0</integer>
+						<key>fifoBehaviour</key>
+						<integer>0</integer>
+						<key>filterLength</key>
+						<integer>7</integer>
+						<key>filterShapingLength</key>
+						<integer>7</integer>
+						<key>gains</key>
+						<array>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+						</array>
+						<key>gapLength</key>
+						<integer>4</integer>
+						<key>histClrMode</key>
+						<integer>0</integer>
+						<key>histEBin</key>
+						<integer>0</integer>
+						<key>histEMin</key>
+						<integer>0</integer>
+						<key>histMeasTime</key>
+						<integer>5</integer>
+						<key>histMode</key>
+						<integer>0</integer>
+						<key>hitRateEnabledMask</key>
+						<integer>16777215</integer>
+						<key>hitRateLength</key>
+						<integer>0</integer>
+						<key>nfoldCoincidence</key>
+						<integer>0</integer>
+						<key>postTriggerTime</key>
+						<integer>1024</integer>
+						<key>runMode</key>
+						<integer>0</integer>
+						<key>shipSumHistogram</key>
+						<integer>0</integer>
+						<key>thresholds</key>
+						<array>
+							<integer>7648</integer>
+							<integer>8472</integer>
+							<integer>6188</integer>
+							<integer>7777</integer>
+							<integer>4969</integer>
+							<integer>7245</integer>
+							<integer>10620</integer>
+							<integer>7650</integer>
+							<integer>7207</integer>
+							<integer>10279</integer>
+							<integer>9420</integer>
+							<integer>9955</integer>
+							<integer>8608</integer>
+							<integer>8527</integer>
+							<integer>9420</integer>
+							<integer>8398</integer>
+							<integer>9072</integer>
+							<integer>8075</integer>
+							<integer>9415</integer>
+							<integer>308</integer>
+							<integer>335</integer>
+							<integer>323</integer>
+							<integer>317</integer>
+							<integer>335</integer>
+						</array>
+						<key>triggerEnabledMask</key>
+						<integer>16777215</integer>
+						<key>vetoOverlapTime</key>
+						<integer>0</integer>
+					</dict>
+					<dict>
+						<key>Card</key>
+						<integer>7</integer>
+						<key>Class Name</key>
+						<string>ORKatrinV4FLTModel</string>
+						<key>analogOffset</key>
+						<integer>0</integer>
+						<key>fifoBehaviour</key>
+						<integer>0</integer>
+						<key>filterLength</key>
+						<integer>7</integer>
+						<key>filterShapingLength</key>
+						<integer>7</integer>
+						<key>gains</key>
+						<array>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+						</array>
+						<key>gapLength</key>
+						<integer>4</integer>
+						<key>histClrMode</key>
+						<integer>0</integer>
+						<key>histEBin</key>
+						<integer>0</integer>
+						<key>histEMin</key>
+						<integer>0</integer>
+						<key>histMeasTime</key>
+						<integer>5</integer>
+						<key>histMode</key>
+						<integer>0</integer>
+						<key>hitRateEnabledMask</key>
+						<integer>16777215</integer>
+						<key>hitRateLength</key>
+						<integer>0</integer>
+						<key>nfoldCoincidence</key>
+						<integer>0</integer>
+						<key>postTriggerTime</key>
+						<integer>1024</integer>
+						<key>runMode</key>
+						<integer>0</integer>
+						<key>shipSumHistogram</key>
+						<integer>0</integer>
+						<key>thresholds</key>
+						<array>
+							<integer>8018</integer>
+							<integer>7356</integer>
+							<integer>8339</integer>
+							<integer>7801</integer>
+							<integer>11628</integer>
+							<integer>8265</integer>
+							<integer>10597</integer>
+							<integer>10739</integer>
+							<integer>10277</integer>
+							<integer>10892</integer>
+							<integer>9333</integer>
+							<integer>12675</integer>
+							<integer>12953</integer>
+							<integer>9846</integer>
+							<integer>10607</integer>
+							<integer>9237</integer>
+							<integer>9062</integer>
+							<integer>9420</integer>
+							<integer>325</integer>
+							<integer>368</integer>
+							<integer>319</integer>
+							<integer>332</integer>
+							<integer>324</integer>
+							<integer>325</integer>
+						</array>
+						<key>triggerEnabledMask</key>
+						<integer>16777215</integer>
+						<key>vetoOverlapTime</key>
+						<integer>0</integer>
+					</dict>
+					<dict>
+						<key>Card</key>
+						<integer>8</integer>
+						<key>Class Name</key>
+						<string>ORKatrinV4FLTModel</string>
+						<key>analogOffset</key>
+						<integer>0</integer>
+						<key>fifoBehaviour</key>
+						<integer>0</integer>
+						<key>filterLength</key>
+						<integer>7</integer>
+						<key>filterShapingLength</key>
+						<integer>7</integer>
+						<key>gains</key>
+						<array>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+						</array>
+						<key>gapLength</key>
+						<integer>4</integer>
+						<key>histClrMode</key>
+						<integer>0</integer>
+						<key>histEBin</key>
+						<integer>0</integer>
+						<key>histEMin</key>
+						<integer>0</integer>
+						<key>histMeasTime</key>
+						<integer>5</integer>
+						<key>histMode</key>
+						<integer>0</integer>
+						<key>hitRateEnabledMask</key>
+						<integer>16777215</integer>
+						<key>hitRateLength</key>
+						<integer>0</integer>
+						<key>nfoldCoincidence</key>
+						<integer>0</integer>
+						<key>postTriggerTime</key>
+						<integer>1024</integer>
+						<key>runMode</key>
+						<integer>0</integer>
+						<key>shipSumHistogram</key>
+						<integer>0</integer>
+						<key>thresholds</key>
+						<array>
+							<integer>9088</integer>
+							<integer>6495</integer>
+							<integer>8469</integer>
+							<integer>7254</integer>
+							<integer>9802</integer>
+							<integer>9236</integer>
+							<integer>11201</integer>
+							<integer>6707</integer>
+							<integer>7027</integer>
+							<integer>8524</integer>
+							<integer>6327</integer>
+							<integer>8370</integer>
+							<integer>8859</integer>
+							<integer>7843</integer>
+							<integer>8650</integer>
+							<integer>9236</integer>
+							<integer>9463</integer>
+							<integer>8001</integer>
+							<integer>11052</integer>
+							<integer>316</integer>
+							<integer>320</integer>
+							<integer>377</integer>
+							<integer>311</integer>
+							<integer>349</integer>
+						</array>
+						<key>triggerEnabledMask</key>
+						<integer>16777215</integer>
+						<key>vetoOverlapTime</key>
+						<integer>0</integer>
+					</dict>
+					<dict>
+						<key>Card</key>
+						<integer>9</integer>
+						<key>Class Name</key>
+						<string>ORKatrinV4FLTModel</string>
+						<key>analogOffset</key>
+						<integer>0</integer>
+						<key>fifoBehaviour</key>
+						<integer>0</integer>
+						<key>filterLength</key>
+						<integer>7</integer>
+						<key>filterShapingLength</key>
+						<integer>7</integer>
+						<key>gains</key>
+						<array>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+							<integer>1200</integer>
+						</array>
+						<key>gapLength</key>
+						<integer>4</integer>
+						<key>histClrMode</key>
+						<integer>0</integer>
+						<key>histEBin</key>
+						<integer>0</integer>
+						<key>histEMin</key>
+						<integer>0</integer>
+						<key>histMeasTime</key>
+						<integer>5</integer>
+						<key>histMode</key>
+						<integer>0</integer>
+						<key>hitRateEnabledMask</key>
+						<integer>16777215</integer>
+						<key>hitRateLength</key>
+						<integer>0</integer>
+						<key>nfoldCoincidence</key>
+						<integer>0</integer>
+						<key>postTriggerTime</key>
+						<integer>1024</integer>
+						<key>runMode</key>
+						<integer>0</integer>
+						<key>shipSumHistogram</key>
+						<integer>0</integer>
+						<key>thresholds</key>
+						<array>
+							<integer>7417</integer>
+							<integer>8573</integer>
+							<integer>8280</integer>
+							<integer>8267</integer>
+							<integer>8872</integer>
+							<integer>7235</integer>
+							<integer>9829</integer>
+							<integer>8572</integer>
+							<integer>8259</integer>
+							<integer>9417</integer>
+							<integer>7653</integer>
+							<integer>8196</integer>
+							<integer>7104</integer>
+							<integer>7496</integer>
+							<integer>6318</integer>
+							<integer>9439</integer>
+							<integer>9588</integer>
+							<integer>10129</integer>
+							<integer>335</integer>
+							<integer>330</integer>
+							<integer>320</integer>
+							<integer>182675</integer>
+							<integer>320</integer>
+							<integer>349</integer>
+						</array>
+						<key>triggerEnabledMask</key>
+						<integer>16777215</integer>
+						<key>vetoOverlapTime</key>
+						<integer>0</integer>
+					</dict>
+					<dict>
+						<key>Card</key>
+						<integer>11</integer>
+						<key>Class Name</key>
+						<string>ORIpeV4SLTModel</string>
+					</dict>
+				</array>
+				<key>ClassName</key>
+				<string>ORIpeV4CrateModel</string>
+				<key>CrateNumber</key>
+				<integer>0</integer>
+				<key>FirstSlot</key>
+				<integer>0</integer>
+			</dict>
+		</array>
+		<key>DataChain</key>
+		<array>
+			<dict>
+				<key>Run Control</key>
+				<dict>
+					<key>Class Name</key>
+					<string>ORRunModel</string>
+					<key>RunNumber</key>
+					<integer>31</integer>
+					<key>SubRunNumber</key>
+					<integer>0</integer>
+					<key>quickStart</key>
+					<false/>
+					<key>refTime</key>
+					<real>358299936</real>
+					<key>remoteControl</key>
+					<false/>
+					<key>runType</key>
+					<integer>1</integer>
+					<key>startTime</key>
+					<integer>1336607125</integer>
+				</dict>
+			</dict>
+			<dict>
+				<key>Data File</key>
+				<dict>
+					<key>ConfigFolder</key>
+					<dict>
+						<key>CopyEnabled</key>
+						<integer>0</integer>
+						<key>DeleteWhenCopied</key>
+						<integer>0</integer>
+						<key>DirectoryName</key>
+						<string>~</string>
+						<key>RemoteHost</key>
+						<string></string>
+						<key>RemoteUserName</key>
+						<string></string>
+						<key>TransferType</key>
+						<integer>0</integer>
+						<key>Verbose</key>
+						<integer>0</integer>
+					</dict>
+					<key>DataFolder</key>
+					<dict>
+						<key>CopyEnabled</key>
+						<integer>0</integer>
+						<key>DeleteWhenCopied</key>
+						<integer>0</integer>
+						<key>DirectoryName</key>
+						<string>~</string>
+						<key>RemoteHost</key>
+						<string></string>
+						<key>RemoteUserName</key>
+						<string></string>
+						<key>TransferType</key>
+						<integer>0</integer>
+						<key>Verbose</key>
+						<integer>0</integer>
+					</dict>
+					<key>SaveConfiguration</key>
+					<integer>0</integer>
+					<key>StatusFolder</key>
+					<dict>
+						<key>CopyEnabled</key>
+						<integer>0</integer>
+						<key>DeleteWhenCopied</key>
+						<integer>0</integer>
+						<key>DirectoryName</key>
+						<string>~</string>
+						<key>RemoteHost</key>
+						<string></string>
+						<key>RemoteUserName</key>
+						<string></string>
+						<key>TransferType</key>
+						<integer>0</integer>
+						<key>Verbose</key>
+						<integer>0</integer>
+					</dict>
+				</dict>
+			</dict>
+			<dict>
+				<key>Listener</key>
+				<dict>
+					<key>CheckAllowed</key>
+					<integer>0</integer>
+					<key>CheckRefused</key>
+					<integer>0</integer>
+					<key>PortNumber</key>
+					<integer>44666</integer>
+				</dict>
+			</dict>
+		</array>
+		<key>Gpib</key>
+		<array>
+			<dict>
+				<key>GPIB 0</key>
+				<dict>
+					<key>Class Name</key>
+					<string>ORPulser33220Model</string>
+					<key>burstCycles</key>
+					<integer>1</integer>
+					<key>burstPhase</key>
+					<integer>0</integer>
+					<key>burstRate</key>
+					<real>100</real>
+					<key>enableRandom</key>
+					<false/>
+					<key>frequency</key>
+					<real>1000</real>
+					<key>maxTime</key>
+					<real>0.0</real>
+					<key>minTime</key>
+					<real>0.0</real>
+					<key>primaryAddress</key>
+					<integer>0</integer>
+					<key>secondaryAddress</key>
+					<integer>0</integer>
+					<key>selectedWaveform</key>
+					<integer>23</integer>
+					<key>triggerMode</key>
+					<integer>0</integer>
+					<key>voltage</key>
+					<real>4500</real>
+					<key>voltageOffset</key>
+					<real>0.0</real>
+				</dict>
+			</dict>
+		</array>
+		<key>KatrinModel</key>
+		<dict>
+			<key>FPDGeometry</key>
+			<string>kSegmentNumber,kSlot,kChannel,kPreampModule,kPreampChannel,kOSBSlot,kOSBChannel
+0,2,6,0,6,0,6
+1,8,6,18,6,3,6
+2,7,10,12,6,2,29
+3,4,6,6,6,1,6
+4,2,18,2,5,0,18
+5,2,5,0,5,0,5
+6,9,11,22,5,3,30
+7,8,18,20,5,3,18
+8,8,5,18,5,3,5
+9,7,4,16,5,2,23
+10,6,16,14,5,2,16
+11,7,11,12,5,2,30
+12,5,11,10,5,1,30
+13,4,18,8,5,1,18
+14,4,5,6,5,1,5
+15,3,11,4,5,0,30
+16,2,12,1,5,0,12
+17,9,17,23,5,3,36
+18,9,5,21,5,3,24
+19,8,12,19,5,3,12
+20,6,11,17,5,2,11
+21,6,18,15,5,2,18
+22,6,5,13,5,2,5
+23,5,17,11,5,1,36
+24,5,5,9,5,1,24
+25,4,12,7,5,1,12
+26,3,17,5,5,0,36
+27,3,5,3,5,0,24
+28,2,17,2,4,0,17
+29,2,4,0,4,0,4
+30,9,10,22,4,3,29
+31,8,17,20,4,3,17
+32,8,4,18,4,3,4
+33,7,5,16,4,2,24
+34,6,0,14,4,2,0
+35,7,12,12,4,2,31
+36,5,10,10,4,1,29
+37,4,17,8,4,1,17
+38,4,4,6,4,1,4
+39,3,10,4,4,0,29
+40,2,11,1,4,0,11
+41,9,16,23,4,3,35
+42,9,4,21,4,3,23
+43,8,11,19,4,3,11
+44,6,12,17,4,2,12
+45,7,0,15,4,2,19
+46,6,6,13,4,2,6
+47,5,16,11,4,1,35
+48,5,4,9,4,1,23
+49,4,11,7,4,1,11
+50,3,16,5,4,0,35
+51,3,4,3,4,0,23
+52,2,16,2,3,0,16
+53,2,3,0,3,0,3
+54,9,9,22,3,3,28
+55,8,16,20,3,3,16
+56,8,3,18,3,3,3
+57,7,6,16,3,2,25
+58,6,1,14,3,2,1
+59,7,13,12,3,2,32
+60,5,9,10,3,1,28
+61,4,16,8,3,1,16
+62,4,3,6,3,1,3
+63,3,9,4,3,0,28
+64,2,10,1,3,0,10
+65,9,15,23,3,3,34
+66,9,3,21,3,3,22
+67,8,10,19,3,3,10
+68,6,13,17,3,2,13
+69,7,17,15,3,2,36
+70,6,7,13,3,2,7
+71,5,15,11,3,1,34
+72,5,3,9,3,1,22
+73,4,10,7,3,1,10
+74,3,15,5,3,0,34
+75,3,3,3,3,0,22
+76,2,15,2,2,0,15
+77,2,2,0,2,0,2
+78,9,8,22,2,3,27
+79,8,15,20,2,3,15
+80,8,2,18,2,3,2
+81,7,7,16,2,2,26
+82,6,2,14,2,2,2
+83,7,14,12,2,2,33
+84,5,8,10,2,1,27
+85,4,15,8,2,1,15
+86,4,2,6,2,1,2
+87,3,8,4,2,0,27
+88,2,9,1,2,0,9
+89,9,14,23,2,3,33
+90,9,2,21,2,3,21
+91,8,9,19,2,3,9
+92,6,14,17,2,2,14
+93,7,1,15,2,2,20
+94,6,8,13,2,2,8
+95,5,14,11,2,1,33
+96,5,2,9,2,1,21
+97,4,9,7,2,1,9
+98,3,14,5,2,0,33
+99,3,2,3,2,0,21
+100,2,14,2,1,0,14
+101,2,1,0,1,0,1
+102,9,7,22,1,3,26
+103,8,14,20,1,3,14
+104,8,1,18,1,3,1
+105,7,8,16,1,2,27
+106,6,3,14,1,2,3
+107,7,15,12,1,2,34
+108,5,7,10,1,1,26
+109,4,14,8,1,1,14
+110,4,1,6,1,1,1
+111,3,7,4,1,0,26
+112,2,8,1,1,0,8
+113,9,13,23,1,3,32
+114,9,1,21,1,3,20
+115,8,8,19,1,3,8
+116,6,15,17,1,2,15
+117,7,2,15,1,2,21
+118,6,9,13,1,2,9
+119,5,13,11,1,1,32
+120,5,1,9,1,1,20
+121,4,8,7,1,1,8
+122,3,13,5,1,0,32
+123,3,1,3,1,0,20
+124,2,13,2,0,0,13
+125,2,0,0,0,0,0
+126,9,6,22,0,3,25
+127,8,13,20,0,3,13
+128,8,0,18,0,3,0
+129,7,9,16,0,2,28
+130,6,4,14,0,2,4
+131,7,16,12,0,2,35
+132,5,6,10,0,1,25
+133,4,13,8,0,1,13
+134,4,0,6,0,1,0
+135,3,6,4,0,0,25
+136,2,7,1,0,0,7
+137,9,12,23,0,3,31
+138,9,0,21,0,3,19
+139,8,7,19,0,3,7
+140,6,17,17,0,2,17
+141,7,3,15,0,2,22
+142,6,10,13,0,2,10
+143,5,12,11,0,1,31
+144,5,0,9,0,1,19
+145,4,7,7,0,1,7
+146,3,12,5,0,0,31
+147,3,0,3,0,0,19
+</string>
+			<key>FltOrbSNs</key>
+			<string>kFltSlot,kFltSN,kORBSN
+2,-,-
+3,-,-
+4,-,-
+5,-,-
+6,-,-
+7,-,-
+8,-,-
+9,-,-
+</string>
+			<key>Focal Plane</key>
+			<dict>
+				<key>Geometry</key>
+				<string>0,2,6,,0,1,0,6,,0,6,2,6
+1,8,6,,3,19,18,6,,3,6,8,6
+2,7,10,,2,13,12,6,,2,29,7,10
+3,4,6,,1,7,6,6,,1,6,4,6
+4,2,18,,0,3,2,5,,0,18,2,18
+5,2,5,,0,1,0,5,,0,5,2,5
+6,9,11,,3,23,22,5,,3,30,9,11
+7,8,18,,3,21,20,5,,3,18,8,18
+8,8,5,,3,19,18,5,,3,5,8,5
+9,7,4,,2,17,16,5,,2,23,7,4
+10,6,16,,2,15,14,5,,2,16,6,16
+11,7,11,,2,13,12,5,,2,30,7,11
+12,5,11,,1,11,10,5,,1,30,5,11
+13,4,18,,1,9,8,5,,1,18,4,18
+14,4,5,,1,7,6,5,,1,5,4,5
+15,3,11,,0,5,4,5,,0,30,3,11
+16,2,12,,0,2,1,5,,0,12,2,12
+17,9,17,,3,24,23,5,,3,36,9,17
+18,9,5,,3,22,21,5,,3,24,9,5
+19,8,12,,3,20,19,5,,3,12,8,12
+20,6,11,,2,18,17,5,,2,11,6,11
+21,6,18,,2,16,15,5,,2,18,6,18
+22,6,5,,2,14,13,5,,2,5,6,5
+23,5,17,,1,12,11,5,,1,36,5,17
+24,5,5,,1,10,9,5,,1,24,5,5
+25,4,12,,1,8,7,5,,1,12,4,12
+26,3,17,,0,6,5,5,,0,36,3,17
+27,3,5,,0,4,3,5,,0,24,3,5
+28,2,17,,0,3,2,4,,0,17,2,17
+29,2,4,,0,1,0,4,,0,4,2,4
+30,9,10,,3,23,22,4,,3,29,9,10
+31,8,17,,3,21,20,4,,3,17,8,17
+32,8,4,,3,19,18,4,,3,4,8,4
+33,7,5,,2,17,16,4,,2,24,7,5
+34,6,0,,2,15,14,4,,2,0,6,0
+35,7,12,,2,13,12,4,,2,31,7,12
+36,5,10,,1,11,10,4,,1,29,5,10
+37,4,17,,1,9,8,4,,1,17,4,17
+38,4,4,,1,7,6,4,,1,4,4,4
+39,3,10,,0,5,4,4,,0,29,3,10
+40,2,11,,0,2,1,4,,0,11,2,11
+41,9,16,,3,24,23,4,,3,35,9,16
+42,9,4,,3,22,21,4,,3,23,9,4
+43,8,11,,3,20,19,4,,3,11,8,11
+44,6,12,,2,18,17,4,,2,12,6,12
+45,7,0,,2,16,15,4,,2,19,7,0
+46,6,6,,2,14,13,4,,2,6,6,6
+47,5,16,,1,12,11,4,,1,35,5,16
+48,5,4,,1,10,9,4,,1,23,5,4
+49,4,11,,1,8,7,4,,1,11,4,11
+50,3,16,,0,6,5,4,,0,35,3,16
+51,3,4,,0,4,3,4,,0,23,3,4
+52,2,16,,0,3,2,3,,0,16,2,16
+53,2,3,,0,1,0,3,,0,3,2,3
+54,9,9,,3,23,22,3,,3,28,9,9
+55,8,16,,3,21,20,3,,3,16,8,16
+56,8,3,,3,19,18,3,,3,3,8,3
+57,7,6,,2,17,16,3,,2,25,7,6
+58,6,1,,2,15,14,3,,2,1,6,1
+59,7,13,,2,13,12,3,,2,32,7,13
+60,5,9,,1,11,10,3,,1,28,5,9
+61,4,16,,1,9,8,3,,1,16,4,16
+62,4,3,,1,7,6,3,,1,3,4,3
+63,3,9,,0,5,4,3,,0,28,3,9
+64,2,10,,0,2,1,3,,0,10,2,10
+65,9,15,,3,24,23,3,,3,34,9,15
+66,9,3,,3,22,21,3,,3,22,9,3
+67,8,10,,3,20,19,3,,3,10,8,10
+68,6,13,,2,18,17,3,,2,13,6,13
+69,7,17,,2,16,15,3,,2,36,7,17
+70,6,7,,2,14,13,3,,2,7,6,7
+71,5,15,,1,12,11,3,,1,34,5,15
+72,5,3,,1,10,9,3,,1,22,5,3
+73,4,10,,1,8,7,3,,1,10,4,10
+74,3,15,,0,6,5,3,,0,34,3,15
+75,3,3,,0,4,3,3,,0,22,3,3
+76,2,15,,0,3,2,2,,0,15,2,15
+77,2,2,,0,1,0,2,,0,2,2,2
+78,9,8,,3,23,22,2,,3,27,9,8
+79,8,15,,3,21,20,2,,3,15,8,15
+80,8,2,,3,19,18,2,,3,2,8,2
+81,7,7,,2,17,16,2,,2,26,7,7
+82,6,2,,2,15,14,2,,2,2,6,2
+83,7,14,,2,13,12,2,,2,33,7,14
+84,5,8,,1,11,10,2,,1,27,5,8
+85,4,15,,1,9,8,2,,1,15,4,15
+86,4,2,,1,7,6,2,,1,2,4,2
+87,3,8,,0,5,4,2,,0,27,3,8
+88,2,9,,0,2,1,2,,0,9,2,9
+89,9,14,,3,24,23,2,,3,33,9,14
+90,9,2,,3,22,21,2,,3,21,9,2
+91,8,9,,3,20,19,2,,3,9,8,9
+92,6,14,,2,18,17,2,,2,14,6,14
+93,7,1,,2,16,15,2,,2,20,7,1
+94,6,8,,2,14,13,2,,2,8,6,8
+95,5,14,,1,12,11,2,,1,33,5,14
+96,5,2,,1,10,9,2,,1,21,5,2
+97,4,9,,1,8,7,2,,1,9,4,9
+98,3,14,,0,6,5,2,,0,33,3,14
+99,3,2,,0,4,3,2,,0,21,3,2
+100,2,14,,0,3,2,1,,0,14,2,14
+101,2,1,,0,1,0,1,,0,1,2,1
+102,9,7,,3,23,22,1,,3,26,9,7
+103,8,14,,3,21,20,1,,3,14,8,14
+104,8,1,,3,19,18,1,,3,1,8,1
+105,7,8,,2,17,16,1,,2,27,7,8
+106,6,3,,2,15,14,1,,2,3,6,3
+107,7,15,,2,13,12,1,,2,34,7,15
+108,5,7,,1,11,10,1,,1,26,5,7
+109,4,14,,1,9,8,1,,1,14,4,14
+110,4,1,,1,7,6,1,,1,1,4,1
+111,3,7,,0,5,4,1,,0,26,3,7
+112,2,8,,0,2,1,1,,0,8,2,8
+113,9,13,,3,24,23,1,,3,32,9,13
+114,9,1,,3,22,21,1,,3,20,9,1
+115,8,8,,3,20,19,1,,3,8,8,8
+116,6,15,,2,18,17,1,,2,15,6,15
+117,7,2,,2,16,15,1,,2,21,7,2
+118,6,9,,2,14,13,1,,2,9,6,9
+119,5,13,,1,12,11,1,,1,32,5,13
+120,5,1,,1,10,9,1,,1,20,5,1
+121,4,8,,1,8,7,1,,1,8,4,8
+122,3,13,,0,6,5,1,,0,32,3,13
+123,3,1,,0,4,3,1,,0,20,3,1
+124,2,13,,0,3,2,0,,0,13,2,13
+125,2,0,,0,1,0,0,,0,0,2,0
+126,9,6,,3,23,22,0,,3,25,9,6
+127,8,13,,3,21,20,0,,3,13,8,13
+128,8,0,,3,19,18,0,,3,0,8,0
+129,7,9,,2,17,16,0,,2,28,7,9
+130,6,4,,2,15,14,0,,2,4,6,4
+131,7,16,,2,13,12,0,,2,35,7,16
+132,5,6,,1,11,10,0,,1,25,5,6
+133,4,13,,1,9,8,0,,1,13,4,13
+134,4,0,,1,7,6,0,,1,0,4,0
+135,3,6,,0,5,4,0,,0,25,3,6
+136,2,7,,0,2,1,0,,0,7,2,7
+137,9,12,,3,24,23,0,,3,31,9,12
+138,9,0,,3,22,21,0,,3,19,9,0
+139,8,7,,3,20,19,0,,3,7,8,7
+140,6,17,,2,18,17,0,,2,17,6,17
+141,7,3,,2,16,15,0,,2,22,7,3
+142,6,10,,2,14,13,0,,2,10,6,10
+143,5,12,,1,12,11,0,,1,31,5,12
+144,5,0,,1,10,9,0,,1,19,5,0
+145,4,7,,1,8,7,0,,1,7,4,7
+146,3,12,,0,6,5,0,,0,31,3,12
+147,3,0,,0,4,3,0,,0,19,3,0
+</string>
+			</dict>
+			<key>OsbSNs</key>
+			<string>kOSBSlot,kOSBSN
+0,-
+1,-
+2,-
+3,-
+</string>
+			<key>PreampSNs</key>
+			<string>kPreAmpMod,kPreAmpSN
+0,-
+1,-
+2,-
+3,-
+4,-
+5,-
+6,-
+7,-
+8,-
+9,-
+10,-
+11,-
+12,-
+13,-
+14,-
+15,-
+16,-
+17,-
+18,-
+19,-
+20,-
+21,-
+22,-
+23,-
+</string>
+			<key>SltWaferSNs</key>
+			<string>-,-
+</string>
+			<key>Veto</key>
+			<dict>
+				<key>Geometry</key>
+				<string>--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+--,--,--,-
+</string>
+			</dict>
+			<key>VetoGeometry</key>
+			<string>kSegmentNumber,kSlot,kChannel
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+--,--,--
+</string>
+		</dict>
+		<key>Serial</key>
+		<array>
+			<dict>
+				<key>Pac,1</key>
+				<dict>
+					<key>Class Name</key>
+					<string>ORPacModel</string>
+					<key>RDAC File</key>
+					<string>/Users/katrin/Desktop/Orca setting for detector/RDAC_14Feb2012</string>
+					<key>gain</key>
+					<array>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+						<integer>45</integer>
+					</array>
+				</dict>
+			</dict>
+		</array>
+	</dict>
+	<key>ReadoutDescription</key>
+	<array>
+		<dict>
+			<key>children</key>
+			<array>
+				<dict>
+					<key>crate</key>
+					<integer>0</integer>
+					<key>name</key>
+					<string>ORKatrinV4FLTModel</string>
+					<key>station</key>
+					<integer>9</integer>
+				</dict>
+				<dict>
+					<key>crate</key>
+					<integer>0</integer>
+					<key>name</key>
+					<string>ORKatrinV4FLTModel</string>
+					<key>station</key>
+					<integer>2</integer>
+				</dict>
+				<dict>
+					<key>crate</key>
+					<integer>0</integer>
+					<key>name</key>
+					<string>ORKatrinV4FLTModel</string>
+					<key>station</key>
+					<integer>3</integer>
+				</dict>
+				<dict>
+					<key>crate</key>
+					<integer>0</integer>
+					<key>name</key>
+					<string>ORKatrinV4FLTModel</string>
+					<key>station</key>
+					<integer>4</integer>
+				</dict>
+				<dict>
+					<key>crate</key>
+					<integer>0</integer>
+					<key>name</key>
+					<string>ORKatrinV4FLTModel</string>
+					<key>station</key>
+					<integer>5</integer>
+				</dict>
+				<dict>
+					<key>crate</key>
+					<integer>0</integer>
+					<key>name</key>
+					<string>ORKatrinV4FLTModel</string>
+					<key>station</key>
+					<integer>6</integer>
+				</dict>
+				<dict>
+					<key>crate</key>
+					<integer>0</integer>
+					<key>name</key>
+					<string>ORKatrinV4FLTModel</string>
+					<key>station</key>
+					<integer>7</integer>
+				</dict>
+				<dict>
+					<key>crate</key>
+					<integer>0</integer>
+					<key>name</key>
+					<string>ORKatrinV4FLTModel</string>
+					<key>station</key>
+					<integer>8</integer>
+				</dict>
+			</array>
+			<key>crate</key>
+			<integer>0</integer>
+			<key>name</key>
+			<string>ORIpeV4SLTModel</string>
+			<key>station</key>
+			<integer>11</integer>
+		</dict>
+	</array>
+	<key>dataDescription</key>
+	<dict>
+		<key>1DHisto</key>
+		<dict>
+			<key>Histograms</key>
+			<dict>
+				<key>dataId</key>
+				<integer>3145728</integer>
+				<key>decoder</key>
+				<string>OR1DHistoDecoder</string>
+				<key>length</key>
+				<integer>-1</integer>
+				<key>variable</key>
+				<true/>
+			</dict>
+		</dict>
+		<key>2DHisto</key>
+		<dict>
+			<key>Histograms</key>
+			<dict>
+				<key>dataId</key>
+				<integer>3407872</integer>
+				<key>decoder</key>
+				<string>OR2DHistoDecoder</string>
+				<key>length</key>
+				<integer>-1</integer>
+				<key>variable</key>
+				<true/>
+			</dict>
+		</dict>
+		<key>ORCAScript</key>
+		<dict>
+			<key>Record</key>
+			<dict>
+				<key>dataId</key>
+				<integer>524288</integer>
+				<key>decoder</key>
+				<string>ORScriptDecoderForRecord</string>
+				<key>length</key>
+				<integer>-1</integer>
+				<key>variable</key>
+				<true/>
+			</dict>
+			<key>State</key>
+			<dict>
+				<key>dataId</key>
+				<integer>262144</integer>
+				<key>decoder</key>
+				<string>ORScriptDecoderForState</string>
+				<key>length</key>
+				<integer>4</integer>
+				<key>variable</key>
+				<false/>
+			</dict>
+		</dict>
+		<key>ORHPPulserModel</key>
+		<dict>
+			<key>PulserSettings</key>
+			<dict>
+				<key>dataId</key>
+				<integer>786432</integer>
+				<key>decoder</key>
+				<string>ORHPPulserDecoderForPulserSettings</string>
+				<key>length</key>
+				<integer>5</integer>
+				<key>variable</key>
+				<false/>
+			</dict>
+		</dict>
+		<key>ORIpeV4SLTModel</key>
+		<dict>
+			<key>IpeV4SLTEvent</key>
+			<dict>
+				<key>dataId</key>
+				<integer>1310720</integer>
+				<key>decoder</key>
+				<string>ORIpeV4SLTDecoderForEvent</string>
+				<key>length</key>
+				<integer>5</integer>
+				<key>variable</key>
+				<false/>
+			</dict>
+			<key>IpeV4SLTMultiplicity</key>
+			<dict>
+				<key>dataId</key>
+				<integer>1572864</integer>
+				<key>decoder</key>
+				<string>ORIpeV4SLTDecoderForMultiplicity</string>
+				<key>length</key>
+				<integer>2003</integer>
+				<key>variable</key>
+				<false/>
+			</dict>
+		</dict>
+		<key>ORKatrinV4FLTModel</key>
+		<dict>
+			<key>KatrinV4FLTEnergy</key>
+			<dict>
+				<key>dataId</key>
+				<integer>1835008</integer>
+				<key>decoder</key>
+				<string>ORKatrinV4FLTDecoderForEnergy</string>
+				<key>length</key>
+				<integer>7</integer>
+				<key>variable</key>
+				<false/>
+			</dict>
+			<key>KatrinV4FLTEnergyTrace</key>
+			<dict>
+				<key>dataId</key>
+				<integer>2883584</integer>
+				<key>decoder</key>
+				<string>ORKatrinV4FLTDecoderForEnergyTrace</string>
+				<key>length</key>
+				<integer>-1</integer>
+				<key>variable</key>
+				<true/>
+			</dict>
+			<key>KatrinV4FLTHistogram</key>
+			<dict>
+				<key>dataId</key>
+				<integer>2621440</integer>
+				<key>decoder</key>
+				<string>ORKatrinV4FLTDecoderForHistogram</string>
+				<key>length</key>
+				<integer>-1</integer>
+				<key>variable</key>
+				<true/>
+			</dict>
+			<key>KatrinV4FLTHitRate</key>
+			<dict>
+				<key>dataId</key>
+				<integer>2097152</integer>
+				<key>decoder</key>
+				<string>ORKatrinV4FLTDecoderForHitRate</string>
+				<key>length</key>
+				<integer>-1</integer>
+				<key>variable</key>
+				<true/>
+			</dict>
+			<key>KatrinV4FLTWaveForm</key>
+			<dict>
+				<key>dataId</key>
+				<integer>2359296</integer>
+				<key>decoder</key>
+				<string>ORKatrinV4FLTDecoderForWaveForm</string>
+				<key>length</key>
+				<integer>-1</integer>
+				<key>variable</key>
+				<true/>
+			</dict>
+		</dict>
+		<key>ORRunModel</key>
+		<dict>
+			<key>Run</key>
+			<dict>
+				<key>dataId</key>
+				<integer>3670016</integer>
+				<key>decoder</key>
+				<string>ORRunDecoderForRun</string>
+				<key>length</key>
+				<integer>4</integer>
+				<key>variable</key>
+				<false/>
+			</dict>
+		</dict>
+		<key>PacModel</key>
+		<dict>
+			<key>Adcs</key>
+			<dict>
+				<key>dataId</key>
+				<integer>1048576</integer>
+				<key>decoder</key>
+				<string>ORPacDecoderForAdc</string>
+				<key>length</key>
+				<integer>8</integer>
+				<key>variable</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>
+

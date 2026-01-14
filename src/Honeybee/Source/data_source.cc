@@ -38,39 +38,32 @@ static string sanitize(const string& text, const string& pattern=R"([a-zA-Z0-9_]
 
 void data_source::bind(sensor_table& a_sensor_table)
 {
-    hINFO(cerr << "Calibration Chain:" << endl);
+    // NOTE: Calibration objects are now created and attached directly when loading KTF files
+    // via sensor_config_by_ktf and kebap_calibration.
+    hINFO(cerr << "Calibration Chain (from sensor attached objects):" << endl);
     for (int t_sensor_number: a_sensor_table.find_like({{}})) {
         auto& t_sensor = a_sensor_table[t_sensor_number];
         if (t_sensor.get_calibration().empty()) {
             continue;
         }
-        f_calibration_table[t_sensor_number] = calibration(t_sensor, a_sensor_table);
         hINFO(cerr
-              << "    " << t_sensor.get_name().join(".") << " <= "
-              << a_sensor_table[f_calibration_table[t_sensor_number].get_input_sensor()].get_name().join(".") << " : "
-              << f_calibration_table[t_sensor_number].get_description() << endl
+              << "    " << t_sensor.get_name().join(".") << " : "
+              << t_sensor.get_calibration() << endl
         );
     }
     
     this->bind_inputs(a_sensor_table);
 }
 
-vector<series> data_source::read(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+vector<series> data_source::read(const vector<int>& a_sensor_list, const std::string& value_column, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
-    vector<int> t_input_sensor_list;
-    for (unsigned i = 0; i < a_sensor_list.size(); i++) {
-        t_input_sensor_list.emplace_back(find_input(a_sensor_list[i]));
-    }
-
-    vector<series> t_series_list = this->fetch(t_input_sensor_list, a_from, a_to, a_resampling_interval, a_reducer);
-    
-    for (unsigned i = 0; i < a_sensor_list.size(); i++) {
-        apply_calibration(a_sensor_list[i], t_series_list[i]);
-    }
-
+    // update: calib is applied directly via sensor.apply_calib within fetch stage, so no separate apply_calib needed
+    vector<series> t_series_list = this->fetch(a_sensor_list, a_from, a_to, a_resampling_interval, a_reducer, value_column);
     return t_series_list;
 }
 
+// update: calibration chains are resolved via kebap_calibration evaluator when sensor.apply_calibration() is called
+/*
 int data_source::find_input(int a_sensor)
 {
     auto iter = f_calibration_table.find(a_sensor);
@@ -81,32 +74,26 @@ int data_source::find_input(int a_sensor)
     const auto& t_calib = iter->second;
     return this->find_input(t_calib.get_input_sensor());
 }
+*/
 
+// update: sensors apply their own calibrations via the sensor.apply_calibration() method during data fetch
+/*
 void data_source::apply_calibration(int a_sensor, series& a_series)
 {
-    auto iter = f_calibration_table.find(a_sensor);
-    if (iter == f_calibration_table.end()) {
-        return;
-    }
-    const auto& t_calib = iter->second;
-    
-    this->apply_calibration(t_calib.get_input_sensor(), a_series);
-    
-    for (auto& xk: a_series.x()) {
-        xk = t_calib(xk);
-    }
-    hINFO(cerr << "Calibration: " << endl);
-    hINFO(cerr << "    " << t_calib.get_description() << endl);
+    // Older version, cleanup: In the new design, calibration objects are attached directly to sensors
+    // via apply_calibration() method.
+    return;
 }
+*/
 
-vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     // default implemantation, might be overriden as needed //
     
     vector<series> t_series_list;
     for (auto& t_sensor: a_sensor_list) {
         t_series_list.emplace_back(a_from, a_to);
-        fetch_single(t_series_list.back(), t_sensor, a_from, a_to, a_resampling_interval, a_reducer);
+        fetch_single(t_series_list.back(), t_sensor, a_from, a_to, a_resampling_interval, a_reducer, value_column);
     }
 
     return t_series_list;

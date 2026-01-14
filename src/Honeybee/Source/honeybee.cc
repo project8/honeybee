@@ -206,7 +206,7 @@ series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, doubl
     hINFO(cerr << t_sensor_number_list.size() << " sensors)..." << flush);
     datetime start = datetime::now();
     vector<series> t_series_list = f_data_source->read(
-        t_sensor_number_list, datetime(a_from), datetime(a_to),
+        t_sensor_number_list, "value_raw", a_from, a_to,
         a_resampling_interval, a_reducer
     );
     datetime stop = datetime::now();
