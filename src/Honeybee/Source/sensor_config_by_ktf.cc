@@ -22,7 +22,7 @@ struct load_context {
     deque<pair<string, string>> f_opts;
 };
 
-// Forward declaration of static helper
+// static helper for load layer
 static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KVariant& a_node, 
                             sensor_table& a_table, load_context& a_context);
 
@@ -139,7 +139,7 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
     
     // Check if this is a channel node
     if (a_node.NodeName() == "channel") {
-        add_sensor(a_node, a_table, a_node.LineOffset());
+        add_sensor(a_node, a_table, a_context, a_node.LineOffset());
         return;
     }
     
@@ -190,7 +190,7 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
                         t_context.f_opts.emplace_back("dripline_endpoint_field", field);
                     }
                 }
-            }
+            }  
         }
         
         // Recursively traverse subnodes
@@ -209,7 +209,62 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
     }
 }
 
-void sensor_config_by_ktf::add_sensor(const tabree::KVariant& a_node, sensor_table& a_table, int a_line_offset)
+void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KVariant& a_node, 
+                                      const load_context& a_context, int a_line_offset)
 {
-    // TODO: Parse <channel> node, create sensor with kebap_calibration if f_parser available
+    int t_number = sensor_table::create_unique_number();
+    vector<string> t_name_chain(a_context.f_name.begin(), a_context.f_name.end());
+    vector<string> t_label_chain(a_context.f_label.begin(), a_context.f_label.end());
+    
+    sensor t_sensor(t_number, t_name_chain, t_label_chain);
+    
+    // Set calibration string
+    string t_calibration = a_node["default_calibration"].Or("");
+    t_sensor.set_calibration(t_calibration);
+    
+    // Create kebap_calibration if calibration string exists and parser is valid
+    if (!t_calibration.empty() && f_parser) {
+        try {
+            auto t_calib = make_shared<kebap_calibration>(t_sensor, a_table, f_parser.get(), 
+                                                          f_ktf_path, a_line_offset);
+            t_sensor.set_calibration_object(t_calib);
+        }
+        catch (exception &e) {
+            cerr << "WARNING: Could not create calibration for " 
+                 << t_name_chain.front() << ": " << e.what() << endl;
+        }
+    }
+    
+    // Extract and set options
+    map<string, string> t_options;
+    for (const auto& t_opt: a_context.f_opts) {
+        t_options[t_opt.first] = t_opt.second;
+    }
+    
+    for (const auto& t_key: a_node.KeyList()) {
+        if ((t_key.substr(0, 2) == "x_") || (t_key.substr(0, 2) == "x-")) {
+            string t_opt_name = t_key.substr(2);
+            
+            if (a_node[t_key].IsLeaf()) {
+                string t_opt_value = a_node[t_key].As<string>();
+                if (!t_opt_name.empty()) {
+                    t_options[t_opt_name] = t_opt_value;
+                }
+            } else {
+                // Handle dripline_endpoint format
+                if (t_opt_name == "dripline_endpoint") {
+                    string tag = a_node[t_key]["tag"].As<string>();
+                    string field = a_node[t_key]["field"].Or("raw");
+                    t_options["dripline_endpoint"] = tag;
+                    t_options["dripline_endpoint_field"] = field;
+                }
+            }
+        }
+    }
+    
+    for (auto& t_opt: t_options) {
+        t_sensor.set_option(t_opt.first, t_opt.second);
+    }
+    
+    a_table.add(t_sensor);
 }

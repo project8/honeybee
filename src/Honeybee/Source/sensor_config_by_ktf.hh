@@ -38,7 +38,8 @@ namespace honeybee {
         
         string extract_scripts();
         void load_layer(const tabree::KVariant& a_node, sensor_table& a_table);
-        void add_sensor(const tabree::KVariant& a_node, sensor_table& a_table, int a_line_offset);
+        void add_sensor(sensor_table& a_table, const tabree::KVariant& a_node,
+                       const load_context& a_context, int a_line_offset);
     };
 }
 
