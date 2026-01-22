@@ -55,10 +55,8 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
         cout << "Extracted Kebap scripts (" << t_scripts.length() << " bytes)" << endl;
         try {
             f_parser = make_shared<kebap::KPParser>();
-            kebap::KPTokenizer t_tokenizer;
-            kebap::KPInputBuffer t_input(t_scripts);
-            t_tokenizer.Scan(t_input);
-            f_parser->Parse(&t_tokenizer);
+            std::istringstream script_stream(t_scripts);
+            f_parser->Parse(script_stream);
             cout << "Successfully compiled Kebap parser" << endl;
         }
         catch (kebap::KPException &e) {
@@ -115,13 +113,13 @@ string sensor_config_by_ktf::extract_scripts()
     return t_scripts;
 }
 
-void sensor_config_by_ktf::load_layer(const tabree::KVariant& a_node, sensor_table& a_table)
+void sensor_config_by_ktf::load_layer(const tabree::KTree& a_node, sensor_table& a_table)
 {
     load_context t_context;
     load_layer_implement(this, a_node, a_table, t_context);
 }
 
-static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KVariant& a_node, 
+void sensor_config_by_ktf::load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KTree& a_node, 
                             sensor_table& a_table, load_context& a_context)
 {
     // Helper for array index formatting
@@ -141,14 +139,14 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
     
     // Check if this is a channel node
     if (a_node.NodeName() == "channel") {
-        // hierarchical name for debug output , not used yet
-        // string t_hier_path;
-        // for (const auto& name: a_context.f_name) {
-        //     if (!t_hier_path.empty()) t_hier_path += ".";
-        //     t_hier_path += name;
-        // }
+        // hierarchical name for debug output
+        string t_hier_path;
+        for (const auto& name: a_context.f_name) {
+            if (!t_hier_path.empty()) t_hier_path += ".";
+            t_hier_path += name;
+        }
         cout << "Processing channel: " << t_hier_path << endl;
-        add_sensor(a_node, a_table, a_context, a_node.LineOffset());
+        a_loader->add_sensor(a_table, a_node, a_context);
         return;
     }
     
@@ -160,7 +158,7 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
     // Check guard conditions
     if (! t_condition.empty()) {
         kebap::KPEvaluator f(t_condition);
-        for (const auto& var: a_loader->f_variables) {
+        for (const auto& var: a_loader->get_variables()) {
             f[var.first] = var.second;
         }
         try {
@@ -170,7 +168,7 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
         }
         catch (kebap::KPException &e) {
             cerr << "ERROR: " << e.what() << ": " << a_node.NodePath() << endl;
-        }l
+        }
     }
     
     // Handle array expansion
@@ -218,8 +216,8 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
     }
 }
 
-void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KVariant& a_node, 
-                                      const load_context& a_context, int a_line_offset)
+void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree& a_node, 
+                                      const load_context& a_context)
 {
     int t_number = sensor_table::create_unique_number();
     vector<string> t_name_chain(a_context.f_name.begin(), a_context.f_name.end());
@@ -236,8 +234,7 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KVari
         cout << "Attaching calibration to " << t_name_chain.front() 
              << ": \"" << t_calibration << "\"" << endl;
         try {
-            auto t_calib = make_shared<kebap_calibration>(t_sensor, a_table, f_parser.get(), 
-                                                          f_ktf_path, a_line_offset);
+            auto t_calib = make_shared<kebap_calibration>(t_sensor, a_table, f_parser.get(), f_ktf_path);
             t_sensor.set_calibration_object(t_calib);
             cout << "Successfully compiled calibration expression" << endl;
         }

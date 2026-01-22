@@ -53,12 +53,14 @@ namespace honeybee {
       public:
         evaluator(kebap::KPExpression* a_expression, kebap::KPSymbolTable* a_symbol_table);
         ~evaluator();
-        
+    
         double operator()(double x);
         
+        // template<typename T> T&& operator()(const T& x); for the future, and using std::move to avoid expensive copy 
       private:
         kebap::KPExpression* f_expression;
         kebap::KPSymbolTable* f_symbol_table;
+        
     };
 }
 

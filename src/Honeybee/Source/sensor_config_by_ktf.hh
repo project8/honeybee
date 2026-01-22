@@ -33,6 +33,7 @@ namespace honeybee {
         virtual ~sensor_config_by_ktf();
         
         void set_variables(const variables& a_variables);
+        const variables& get_variables() const { return f_variables; }
         void load(sensor_table& a_table, const string& a_filename) override;
         
       private:
@@ -44,9 +45,11 @@ namespace honeybee {
         variables f_variables;
         
         string extract_scripts();
-        void load_layer(const tabree::KVariant& a_node, sensor_table& a_table);
-        void add_sensor(sensor_table& a_table, const tabree::KVariant& a_node,
-                       const load_context& a_context, int a_line_offset);
+        void load_layer(const tabree::KTree& a_node, sensor_table& a_table);
+        void add_sensor(sensor_table& a_table, const tabree::KTree& a_node,
+                       const load_context& a_context);
+        static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KTree& a_node, 
+                                    sensor_table& a_table, load_context& a_context);
     };
 }
 

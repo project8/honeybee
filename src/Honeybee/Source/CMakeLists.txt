@@ -5,6 +5,7 @@ add_library(HoneybeeLib STATIC
   pgsql.cc
   sensor_table.cc
   sensor_config_by_ktf.cc
+  kebap_calibration.cc
   series.cc
   utils.cc
   evaluator.cc
@@ -17,6 +18,7 @@ set(MyPublicHeaders
   pgsql.hh
   sensor_table.hh
   sensor_config_by_ktf.hh
+  kebap_calibration.hh
   series.hh
   utils.hh
   evaluator.hh

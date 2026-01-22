@@ -16,8 +16,8 @@ using namespace honeybee;
 
 
 kebap_calibration::kebap_calibration(const sensor& a_sensor, const sensor_table& a_sensor_table,
-                                     kebap::KPParser* a_parser, const string& a_ktf_path, int a_line_offset)
-    : f_ktf_path(a_ktf_path), f_line_offset(a_line_offset)
+                                     kebap::KPParser* a_parser, const string& a_ktf_path)
+    : f_ktf_path(a_ktf_path)
 {
     auto strip = [](const string& a_text)->string {
         string::size_type t_begin = 0, t_length = a_text.size();
@@ -94,11 +94,9 @@ kebap_calibration::kebap_calibration(const sensor& a_sensor, const sensor_table&
     // Compile expression using provided parser
     try {
         kebap::KPExpressionParser* t_expr_parser = a_parser->GetExpressionParser();
-        kebap::KPTokenizer t_tokenizer;
-        kebap::KPInputBuffer t_input(t_exp_text);
-        t_tokenizer.Scan(t_input);
+        std::istringstream expr_stream(t_exp_text);
         
-        kebap::KPExpression* t_expression = t_expr_parser->Parse(&t_tokenizer, a_parser->GetSymbolTable());
+        kebap::KPExpression* t_expression = t_expr_parser->Parse(expr_stream, a_parser->GetSymbolTable());
         kebap::KPSymbolTable* t_symbol_table = a_parser->GetSymbolTable();
         
         f_evaluator = make_shared<evaluator>(t_expression, t_symbol_table);
@@ -125,6 +123,5 @@ double kebap_calibration::operator()(double x)
 
 string kebap_calibration::get_error_context() const
 {
-    return f_ktf_path + ":" + to_string(f_line_offset) + 
-           " in expression '" + f_expression_text + "'";
+    return f_ktf_path + " in expression '" + f_expression_text + "'";
 }

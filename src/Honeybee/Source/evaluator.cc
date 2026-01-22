@@ -56,7 +56,6 @@ double evaluator::operator()(double x)
     if (!f_expression || !f_symbol_table) {
         throw runtime_error("evaluator: expression or symbol table not initialized");
     }
-    
     try {
         // Set x variable in the symbol table before evaluating
         // using id for "x" to modify the KPValue object
@@ -66,11 +65,10 @@ double evaluator::operator()(double x)
             // If x doesn't exist, register it
             x_var_id = f_symbol_table->RegisterVariable("x", kebap::KPValue(x));
             x_var = f_symbol_table->GetVariable(x_var_id);
-        } else {
-            // Modify the existing x variable in the symbol table
-            x_var->AssignDouble(x);
-        }
-        
+        } 
+
+        x_var->AssignDouble(x); // values can change, hence outside the else
+
         // Evaluate the expression using the symbol table with updated x
         // now should have times5(x) -> times5(4)
         kebap::KPValue& result = f_expression->Evaluate(f_symbol_table);

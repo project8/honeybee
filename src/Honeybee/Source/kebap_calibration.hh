@@ -21,7 +21,7 @@ namespace honeybee {
     class kebap_calibration : public calibration {
       public:
         kebap_calibration(const sensor& a_sensor, const sensor_table& a_sensor_table,
-                         kebap::KPParser* a_parser, const string& a_ktf_path, int a_line_offset);
+                         kebap::KPParser* a_parser, const string& a_ktf_path);
         ~kebap_calibration() override = default;
         
         double operator()(double x) override;
@@ -29,7 +29,6 @@ namespace honeybee {
         
       private:
         string f_ktf_path;
-        int f_line_offset;
         string f_expression_text;
         shared_ptr<evaluator> f_evaluator;
     };
