@@ -94,9 +94,10 @@ kebap_calibration::kebap_calibration(const sensor& a_sensor, const sensor_table&
     // Compile expression using provided parser
     try {
         kebap::KPExpressionParser* t_expr_parser = a_parser->GetExpressionParser();
-        std::istringstream expr_stream(t_exp_text);
+        istringstream expr_stream(t_exp_text);
         
-        kebap::KPExpression* t_expression = t_expr_parser->Parse(expr_stream, a_parser->GetSymbolTable());
+        kebap::KPTokenizer t_tokenizer(expr_stream, a_parser->GetTokenTable());
+        kebap::KPExpression* t_expression = t_expr_parser->Parse(&t_tokenizer, a_parser->GetSymbolTable());
         kebap::KPSymbolTable* t_symbol_table = a_parser->GetSymbolTable();
         
         f_evaluator = make_shared<evaluator>(t_expression, t_symbol_table);

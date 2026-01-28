@@ -53,6 +53,7 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
     string t_scripts = extract_scripts();
     if (!t_scripts.empty()) {
         cout << "Extracted Kebap scripts (" << t_scripts.length() << " bytes)" << endl;
+        cout << "DEBUG: Scripts content:\n---BEGIN---\n" << t_scripts << "\n---END---" << endl;
         try {
             f_parser = make_shared<kebap::KPParser>();
             std::istringstream script_stream(t_scripts);
