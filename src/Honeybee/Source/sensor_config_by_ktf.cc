@@ -21,7 +21,7 @@ static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::K
                             sensor_table& a_table, load_context& a_context);
 
 sensor_config_by_ktf::sensor_config_by_ktf()
-    : f_parser(nullptr)
+    : f_standard_parser(nullptr)
 {
 }
 
@@ -55,14 +55,14 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
         cout << "Extracted Kebap scripts (" << t_scripts.length() << " bytes)" << endl;
         cout << "DEBUG: Scripts content:\n---BEGIN---\n" << t_scripts << "\n---END---" << endl;
         try {
-            f_parser = make_shared<kebap::KPParser>();
+            f_standard_parser = make_shared<kebap::KPStandardParser>();
             std::istringstream script_stream(t_scripts);
-            f_parser->Parse(script_stream);
+            f_standard_parser->Parse(script_stream);  // failing here
             cout << "Successfully compiled Kebap parser" << endl;
         }
         catch (kebap::KPException &e) {
             cerr << "ERROR: Failed to parse Kebap scripts: " << e.what() << endl;
-            f_parser = nullptr;
+            f_standard_parser = nullptr;
             return;
         }
     } else {
@@ -123,7 +123,7 @@ void sensor_config_by_ktf::load_layer(const tabree::KTree& a_node, sensor_table&
 void sensor_config_by_ktf::load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KTree& a_node, 
                             sensor_table& a_table, load_context& a_context)
 {
-    // Helper for array index formatting
+    // Helper for array index formatting // REVIEW 
     auto append_index = [](const string& text, int length, unsigned index)->string {
         if (length < 0) {
             return text;
@@ -231,11 +231,11 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree
     t_sensor.set_calibration(t_calibration);
     
     // Create kebap_calibration if calibration string exists and parser is valid
-    if (!t_calibration.empty() && f_parser) {
+    if (!t_calibration.empty() && f_standard_parser) {
         cout << "Attaching calibration to " << t_name_chain.front() 
              << ": \"" << t_calibration << "\"" << endl;
         try {
-            auto t_calib = make_shared<kebap_calibration>(t_sensor, a_table, f_parser.get(), f_ktf_path);
+            auto t_calib = make_shared<kebap_calibration>(t_sensor, a_table, f_standard_parser.get(), f_ktf_path);
             t_sensor.set_calibration_object(t_calib);
             cout << "Successfully compiled calibration expression" << endl;
         }
@@ -243,7 +243,7 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree
             cerr << "WARNING: Could not create calibration for " 
                  << t_name_chain.front() << ": " << e.what() << endl;
         }
-    } else if (!t_calibration.empty() && !f_parser) {
+    } else if (!t_calibration.empty() && !f_standard_parser) {
         cout << "Calibration string exists but no Kebap parser available: " 
              << t_calibration << endl;
     } else {

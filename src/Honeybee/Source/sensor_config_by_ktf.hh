@@ -13,7 +13,7 @@
 #include "sensor_config.hh"
 
 namespace kebap {
-    class KPParser;
+    class KPStandardParser;
 }
 
 namespace honeybee {
@@ -38,7 +38,8 @@ namespace honeybee {
         
       private:
         
-        shared_ptr<kebap::KPParser> f_parser;
+        // shared_ptr<kebap::KPParser> f_parser;
+        shared_ptr<kebap::KPStandardParser> f_standard_parser;
         string f_ktf_path;
         // honeybee likely passes runtime variables to do validation guard checks for all sensor loaders
         // was part of older design
