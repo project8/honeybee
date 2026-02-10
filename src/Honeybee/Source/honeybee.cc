@@ -6,6 +6,8 @@
  */
 
 
+#include <functional>
+#include <set>
 #include <tabree/KTreeFile.h>
 #include "honeybee.hh"
 #include "sensor_config_by_ktf.hh"
@@ -44,7 +46,7 @@ void honeybee_app::add_variable(const string& key, const tabree::KVariant& value
     f_variables.emplace_back(key, value);
 }
 
-void honeybee_app::set_delimiter(const std::string& input_delimiters, const std::string& output_delimiter)
+void honeybee_app::set_delimiter(const string& input_delimiters, const string& output_delimiter)
 {
     if (! input_delimiters.empty()) {
         f_input_delimiters = input_delimiters;
@@ -88,7 +90,7 @@ void honeybee_app::construct()
         try {
             tabree::KTreeFile(f_config_file_path).Read(t_config);
         }
-        catch (std::exception &e) {
+        catch (exception &e) {
             hERROR(cerr << e.what());
             return;
         }
@@ -151,7 +153,7 @@ void honeybee_app::construct()
     f_data_source->bind(*f_sensor_table);
 }
 
-std::vector<std::string> honeybee_app::find_like(const std::string a_name)
+vector<string> honeybee_app::find_like(const string a_name)
 {
     vector<string> t_name_list;
     
@@ -170,8 +172,10 @@ std::vector<std::string> honeybee_app::find_like(const std::string a_name)
     return t_name_list;
 }
 
-series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
+
+series_bundle honeybee_app::read(const vector<string>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const string& a_reducer)
 {
+    cerr << "DEBUG: read() called with " << a_sensor_list.size() << " sensors" << endl;
     if (! f_is_constructed) {
         construct();
     }
@@ -202,9 +206,9 @@ series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, doubl
     }
 
     hINFO(cerr << "getting data ");
-    hINFO(cerr << "(" << datetime(a_from).as_string() << " to " << datetime(a_to).as_string() << ", ");
-    hINFO(cerr << t_sensor_number_list.size() << " sensors)..." << flush);
+    hINFO(cerr << "(" << datetime(a_from).as_string() << " to " << datetime(a_to).as_string() << ")..." << flush);
     datetime start = datetime::now();
+    
     vector<series> t_series_list = f_data_source->read(
         t_sensor_number_list, "value_raw", a_from, a_to,
         a_resampling_interval, a_reducer
@@ -212,9 +216,11 @@ series_bundle honeybee_app::read(const vector<std::string>& a_sensor_list, doubl
     datetime stop = datetime::now();
     hINFO(cerr << "done. (" << (stop-start) << " s)" << endl);
 
+    
     // Resampling might have be done on the server-side, might not.
     // We will perform resampling on the returned result here; server-side resampling is to reduce the data size.
-    return hb::zip(std::move(t_sensor_name_list), std::move(t_series_list));
+    // combine sensor name w/ its data 
+    return hb::zip(move(t_sensor_name_list), move(t_series_list));
 }
 
 

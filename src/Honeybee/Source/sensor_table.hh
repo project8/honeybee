@@ -88,6 +88,7 @@ namespace honeybee {
             auto iter = f_options.find(name);
             return (iter == f_options.end()) ? default_value : iter->second;
         }
+        inline shared_ptr<calibration> get_calibration_object() const { return f_calibration_obj; }
         string to_json(vector<string> a_field_list = {{}}, const std::string& a_delimiter=".") const;
       public:
         // used by sensor_config

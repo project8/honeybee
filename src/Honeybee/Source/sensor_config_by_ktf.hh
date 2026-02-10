@@ -46,11 +46,9 @@ namespace honeybee {
         variables f_variables;
         
         string extract_scripts();
-        void load_layer(const tabree::KTree& a_node, sensor_table& a_table);
+        void load_layer(sensor_table& a_table, const tabree::KTree& a_node, load_context& a_context);
         void add_sensor(sensor_table& a_table, const tabree::KTree& a_node,
                        const load_context& a_context);
-        static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KTree& a_node, 
-                                    sensor_table& a_table, load_context& a_context);
     };
 }
 

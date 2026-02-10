@@ -57,6 +57,20 @@ double evaluator::operator()(double x)
         throw runtime_error("evaluator: expression or symbol table not initialized");
     }
     try {
+        // DEBUG: Check if pi is in symbol table
+        long pi_id = f_symbol_table->NameToId("pi");
+        cerr << "debug [evaluator] for global var" << pi_id << endl;
+        if (pi_id >= 0) {
+            kebap::KPValue* pi_val = f_symbol_table->GetVariable(pi_id);
+            if (pi_val) {
+                cerr << "debug [evaluator]: pi found, value=" << pi_val->AsDouble() << endl;
+            } else {
+                cerr << "debug [evaluator]: pi id exists but returning nullptr" << endl;
+            }
+        } else {
+            cerr << "debug [evaluator]:   pi not in symbol table" << endl;
+        }
+        
         // Set x variable in the symbol table before evaluating
         // using id for "x" to modify the KPValue object
         long x_var_id = f_symbol_table->NameToId("x");

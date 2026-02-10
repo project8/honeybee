@@ -16,10 +16,6 @@
 using namespace std;
 using namespace honeybee;
 
-// static helper for load layer
-static void load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KVariant& a_node, 
-                            sensor_table& a_table, load_context& a_context);
-
 sensor_config_by_ktf::sensor_config_by_ktf()
     : f_standard_parser(nullptr)
 {
@@ -58,6 +54,24 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
             f_standard_parser = make_shared<kebap::KPStandardParser>();
             std::istringstream script_stream(t_scripts);
             f_standard_parser->Parse(script_stream);  // failing here
+            
+            // make sure the varibles values are registered in symbol table 
+            f_standard_parser->GetModule()->ExecuteBareStatements(f_standard_parser->GetSymbolTable());
+            
+            // DEBUG: Check what variables are now in the symbol table
+            kebap::KPSymbolTable* sym_table = f_standard_parser->GetSymbolTable();
+            long pie_id = sym_table->NameToId("pie");
+            cout << "DEBUG: After ExecuteBareStatements:" << endl;
+            cout << "  pie id from NameToId: " << pie_id << endl;
+            if (pie_id >= 0) {
+                kebap::KPValue* pie_val = sym_table->GetVariable(pie_id);
+                if (pie_val) {
+                    cout << "  pie variable found in symbol table, value=" << pie_val->AsDouble() << endl;
+                } else {
+                    cout << "  pie id exists but GetVariable returned nullptr" << endl;
+                }
+            }
+            
             cout << "Successfully compiled Kebap parser" << endl;
         }
         catch (kebap::KPException &e) {
@@ -71,7 +85,14 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
     
     // Load sensor hierarchy
     cout << "Starting sensor hierarchy traversal..." << endl;
-    load_layer(t_tree["sensor_table"], a_table);
+    cout << "DEBUG: sensor_table node keys: ";
+    for (const auto& key : t_tree["sensor_table"].KeyList()) {
+        cout << key << " ";
+    }
+    cout << endl;
+    cout << "DEBUG: sensor_table node has " << t_tree["sensor_table"].Length() << " children" << endl;
+    load_context t_context;
+    load_layer(a_table, t_tree["sensor_table"], t_context);
     cout << "Completed loading ktf file" << endl;
 }
 
@@ -114,16 +135,9 @@ string sensor_config_by_ktf::extract_scripts()
     return t_scripts;
 }
 
-void sensor_config_by_ktf::load_layer(const tabree::KTree& a_node, sensor_table& a_table)
+void sensor_config_by_ktf::load_layer(sensor_table& a_table, const tabree::KTree& a_node, load_context& a_context)
 {
-    load_context t_context;
-    load_layer_implement(this, a_node, a_table, t_context);
-}
-
-void sensor_config_by_ktf::load_layer_implement(sensor_config_by_ktf* a_loader, const tabree::KTree& a_node, 
-                            sensor_table& a_table, load_context& a_context)
-{
-    // Helper for array index formatting // REVIEW 
+    // Helper for array index formatting
     auto append_index = [](const string& text, int length, unsigned index)->string {
         if (length < 0) {
             return text;
@@ -134,84 +148,81 @@ void sensor_config_by_ktf::load_layer_implement(sensor_config_by_ktf* a_loader, 
         return os.str();
     };
     
-    if (a_node["id"]["name"].IsVoid()) {
-        return;
-    }
-    
     // Check if this is a channel node
     if (a_node.NodeName() == "channel") {
-        // hierarchical name for debug output
+        // debugging: hierarchical name for debug output
         string t_hier_path;
         for (const auto& name: a_context.f_name) {
             if (!t_hier_path.empty()) t_hier_path += ".";
             t_hier_path += name;
         }
         cout << "Processing channel: " << t_hier_path << endl;
-        a_loader->add_sensor(a_table, a_node, a_context);
+        add_sensor(a_table, a_node, a_context);
         return;
     }
     
-    string t_name = a_node["id"]["name"].As<string>();
-    string t_label = a_node["id"]["label"].Or(t_name);
-    int t_array_length = a_node["array_length"].Or(-1);
-    string t_condition = a_node["valid_if"].Or("");
+    static const char* t_subnode_types[] = {
+        "experiment", "setup", "teststand", "system",
+        "section", "subsection", "division", "segment", "crate",
+        "module", "device", "card", "board",
+        "channel", "endpoint", "metric"
+    };
     
-    // Check guard conditions
-    if (! t_condition.empty()) {
-        kebap::KPEvaluator f(t_condition);
-        for (const auto& var: a_loader->get_variables()) {
-            f[var.first] = var.second;
-        }
-        try {
-            if (! f(0)) {
-                return;
-            }
-        }
-        catch (kebap::KPException &e) {
-            cerr << "ERROR: " << e.what() << ": " << a_node.NodePath() << endl;
-        }
-    }
-    
-    // Handle array expansion
-    for (int j = 0; j < std::max<int>(1, t_array_length); j++) {
-        auto t_context = a_context;
-        t_context.f_name.push_front(append_index(t_name, t_array_length, j));
-        t_context.f_label.push_front(append_index(t_label, t_array_length, j));
-        
-        // Extract options (x- prefixed keys)
-        for (const auto& t_key: a_node.KeyList()) {
-            if ((t_key.substr(0, 2) == "x_") || (t_key.substr(0, 2) == "x-")) {
-                string t_opt_name = t_key.substr(2);
-                
-                if (a_node[t_key].IsLeaf()) {
-                    // Simple string format
-                    string t_opt_value = a_node[t_key].As<string>();
-                    if (! t_opt_name.empty()) {
-                        t_context.f_opts.emplace_back(t_opt_name, t_opt_value);
-                    }
-                } else {
-                    // Object format: x-dripline_endpoint
-                    if (t_opt_name == "dripline_endpoint") {
-                        string tag = a_node[t_key]["tag"].As<string>();
-                        string field = a_node[t_key]["field"].Or("raw");
-                        t_context.f_opts.emplace_back("dripline_endpoint", tag);
-                        t_context.f_opts.emplace_back("dripline_endpoint_field", field);
+    for (const char* t_subnode_type: t_subnode_types) {
+        for (unsigned i = 0; i < a_node[t_subnode_type].Length(); i++) {
+            const auto& t_node = a_node[t_subnode_type][i];
+            string t_name = t_node["id"]["name"].As<string>();
+            string t_label = t_node["id"]["label"].Or(t_name);
+            int t_array_length = t_node["array_length"].Or(-1);
+            string t_condition = t_node["valid_if"].Or("");
+            
+            // Check guard conditions
+            if (! t_condition.empty()) {
+                kebap::KPEvaluator f(t_condition);
+                for (const auto& var: get_variables()) {
+                    f[var.first] = var.second;
+                }
+                try {
+                    if (! f(0)) {
+                        continue;
                     }
                 }
-            }  
-        }
-        
-        // Recursively traverse subnodes
-        static const char* t_subnode_types[] = {
-            "experiment", "setup", "teststand", "system",
-            "section", "subsection", "division", "segment", "crate",
-            "module", "device", "card", "board",
-            "channel", "endpoint", "metric"
-        };
-        
-        for (const char* t_subnode_type: t_subnode_types) {
-            for (unsigned i = 0; i < a_node[t_subnode_type].Length(); i++) {
-                load_layer_implement(a_loader, a_node[t_subnode_type][i], a_table, t_context);
+                catch (kebap::KPException &e) {
+                    cerr << "ERROR: " << e.what() << ": " << t_node.NodePath() << endl;
+                }
+            }
+            
+            // Handle array expansion
+            for (int j = 0; j < std::max<int>(1, t_array_length); j++) {
+                auto t_context = a_context;
+                t_context.f_name.push_front(append_index(t_name, t_array_length, j));
+                t_context.f_label.push_front(append_index(t_label, t_array_length, j));
+                
+                // Extract options (x- prefixed keys)
+                for (const auto& t_key: t_node.KeyList()) {
+                    if ((t_key.substr(0, 2) == "x_") || (t_key.substr(0, 2) == "x-")) {
+                        string t_opt_name = t_key.substr(2);
+                        
+                        if (t_node[t_key].IsLeaf()) {
+                            // Simple string format
+                            string t_opt_value = t_node[t_key].As<string>();
+                            if (! t_opt_name.empty()) {
+                                t_context.f_opts.emplace_back(t_opt_name, t_opt_value);
+                            }
+                        } else {
+                            // Object format: x-dripline_endpoint
+                            if (t_opt_name == "dripline_endpoint") {
+                                string tag = t_node[t_key]["tag"].As<string>();
+                                string field = t_node[t_key]["field"].Or("raw");
+                                t_context.f_opts.emplace_back("dripline_endpoint", tag);
+                                t_context.f_opts.emplace_back("dripline_endpoint_field", field);
+                            }
+                        }
+                    }
+                }
+                
+                // Recurse on the child node
+                load_layer(a_table, t_node, t_context);
             }
         }
     }
@@ -254,6 +265,10 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree
     map<string, string> t_options;
     for (const auto& t_opt: a_context.f_opts) {
         t_options[t_opt.first] = t_opt.second;
+    }
+    
+    if(!f_ktf_path.empty()) {
+        t_options["ktf_source"] = f_ktf_path;
     }
     
     for (const auto& t_key: a_node.KeyList()) {

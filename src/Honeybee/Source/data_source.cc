@@ -50,6 +50,12 @@ void data_source::bind(sensor_table& a_sensor_table)
               << "    " << t_sensor.get_name().join(".") << " : "
               << t_sensor.get_calibration() << endl
         );
+        
+        // Store calibration object in f_calibration_table for orchestration
+        auto t_calib_obj = t_sensor.get_calibration_object();
+        if (t_calib_obj) {
+            f_calibration_table[t_sensor_number] = t_calib_obj;
+        }
     }
     
     this->bind_inputs(a_sensor_table);
@@ -57,13 +63,26 @@ void data_source::bind(sensor_table& a_sensor_table)
 
 vector<series> data_source::read(const vector<int>& a_sensor_list, const std::string& value_column, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
-    // update: calib is applied directly via sensor.apply_calib within fetch stage, so no separate apply_calib needed
-    vector<series> t_series_list = this->fetch(a_sensor_list, a_from, a_to, a_resampling_interval, a_reducer, value_column);
+
+    
+    // Find the base (input) sensors for each requested sensor, resolve dependencies
+    vector<int> t_input_sensor_list;
+    for (unsigned i = 0; i < a_sensor_list.size(); i++) {
+        t_input_sensor_list.emplace_back(find_input(a_sensor_list[i]));
+    }
+
+    // Fetch data from base sensors
+    vector<series> t_series_list = this->fetch(t_input_sensor_list, a_from, a_to, a_resampling_interval, a_reducer, value_column);
+    
+    // Apply calibrations for each requested sensor
+    for (unsigned i = 0; i < a_sensor_list.size(); i++) {
+        apply_calibration(a_sensor_list[i], t_series_list[i]);
+    }
+
     return t_series_list;
 }
 
-// update: calibration chains are resolved via kebap_calibration evaluator when sensor.apply_calibration() is called
-/*
+
 int data_source::find_input(int a_sensor)
 {
     auto iter = f_calibration_table.find(a_sensor);
@@ -72,19 +91,30 @@ int data_source::find_input(int a_sensor)
     }
     
     const auto& t_calib = iter->second;
-    return this->find_input(t_calib.get_input_sensor());
+    return this->find_input(t_calib->get_input_sensor());
 }
-*/
 
-// update: sensors apply their own calibrations via the sensor.apply_calibration() method during data fetch
-/*
+
 void data_source::apply_calibration(int a_sensor, series& a_series)
 {
-    // Older version, cleanup: In the new design, calibration objects are attached directly to sensors
-    // via apply_calibration() method.
-    return;
+    // Recursive orchestration: applies calibrations from input sensor up through the dependency chain
+    auto iter = f_calibration_table.find(a_sensor);
+    if (iter == f_calibration_table.end()) {
+        return;  // Base sensor - no calibration
+    }
+    
+    const auto& t_calib = iter->second;
+    
+    // Recursively apply calibration to input sensor first
+    this->apply_calibration(t_calib->get_input_sensor(), a_series);
+    
+    // Then apply this sensor's calibration to all values
+    for (auto& xk: a_series.x()) {
+        xk = t_calib->operator()(xk);
+    }
+    hINFO(cerr << "Calibration: " << t_calib->get_description() << endl);
 }
-*/
+
 
 vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {

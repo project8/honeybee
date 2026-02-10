@@ -69,8 +69,8 @@ namespace honeybee {
         vector<string> f_basename;
         string f_input_delimiters, f_output_delimiter;
       protected:
-  pgsql f_pgsql;
-  map<int, pair<string, string>> f_endpoint_n_field_table; // mapping of sensor_id to (endpoint, field)
+    pgsql f_pgsql;
+    map<int, pair<string, string>> f_endpoint_n_field_table; // mapping of sensor_id to (endpoint, field)
   //map<int, string> f_field_table; // sensor_id -> field preference ("raw" or "calibrated")
         vector<string> f_data_names;
       protected:
