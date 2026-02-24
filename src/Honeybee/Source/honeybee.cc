@@ -175,7 +175,6 @@ vector<string> honeybee_app::find_like(const string a_name)
 
 series_bundle honeybee_app::read(const vector<string>& a_sensor_list, double a_from, double a_to, double a_resampling_interval, const string& a_reducer)
 {
-    cerr << "DEBUG: read() called with " << a_sensor_list.size() << " sensors" << endl;
     if (! f_is_constructed) {
         construct();
     }
@@ -209,10 +208,18 @@ series_bundle honeybee_app::read(const vector<string>& a_sensor_list, double a_f
     hINFO(cerr << "(" << datetime(a_from).as_string() << " to " << datetime(a_to).as_string() << ")..." << flush);
     datetime start = datetime::now();
     
-    vector<series> t_series_list = f_data_source->read(
-        t_sensor_number_list, "value_raw", a_from, a_to,
-        a_resampling_interval, a_reducer
-    );
+    vector<series> t_series_list;
+    try {
+        t_series_list = f_data_source->read(
+            t_sensor_number_list, "value_raw", a_from, a_to,
+            a_resampling_interval, a_reducer
+        );
+    }
+    catch (exception& e) {
+        hERROR(cerr << "Error reading data: " << e.what() << endl);
+        return series_bundle();
+    }
+    
     datetime stop = datetime::now();
     hINFO(cerr << "done. (" << (stop-start) << " s)" << endl);
 

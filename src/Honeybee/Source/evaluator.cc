@@ -57,34 +57,19 @@ double evaluator::operator()(double x)
         throw runtime_error("evaluator: expression or symbol table not initialized");
     }
     try {
-        // DEBUG: Check if pi is in symbol table
-        long pi_id = f_symbol_table->NameToId("pi");
-        cerr << "debug [evaluator] for global var" << pi_id << endl;
-        if (pi_id >= 0) {
-            kebap::KPValue* pi_val = f_symbol_table->GetVariable(pi_id);
-            if (pi_val) {
-                cerr << "debug [evaluator]: pi found, value=" << pi_val->AsDouble() << endl;
-            } else {
-                cerr << "debug [evaluator]: pi id exists but returning nullptr" << endl;
-            }
-        } else {
-            cerr << "debug [evaluator]:   pi not in symbol table" << endl;
-        }
-        
-        // Set x variable in the symbol table before evaluating
-        // using id for "x" to modify the KPValue object
+        // Register or update the input variable 'x' in the symbol table for expression evaluation
         long x_var_id = f_symbol_table->NameToId("x");
         kebap::KPValue* x_var = f_symbol_table->GetVariable(x_var_id);
         if (!x_var) {
-            // If x doesn't exist, register it
+            // If x doesn't exist, register it as a new variable
             x_var_id = f_symbol_table->RegisterVariable("x", kebap::KPValue(x));
             x_var = f_symbol_table->GetVariable(x_var_id);
         } 
 
-        x_var->AssignDouble(x); // values can change, hence outside the else
+        x_var->AssignDouble(x);
 
-        // Evaluate the expression using the symbol table with updated x
-        // now should have times5(x) -> times5(4)
+        // Evaluate the calibration expression with updated x value and any global variables/constants
+        // going from times5(x) -> times5(10)
         kebap::KPValue& result = f_expression->Evaluate(f_symbol_table);
         return result.AsDouble();
     }

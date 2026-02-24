@@ -42,9 +42,6 @@ namespace honeybee {
       protected:
         void construct();
         void find_default_config();
-        // applying Calibration helpers
-        // std::vector<int> resolve_dependencies(const std::vector<int>& a_sensor_list);
-        // std::vector<series> apply_calibrations(const std::vector<series>& a_raw_series, const std::vector<int>& a_requested_sensors, const std::vector<int>& a_input_sensors);
       protected:
         std::string f_config_file_path;
         std::string f_dripline_db_uri;

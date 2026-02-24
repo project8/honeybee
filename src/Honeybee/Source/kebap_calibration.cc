@@ -4,7 +4,9 @@
 
 #include <string>
 #include <memory>
+#include <sstream>
 #include <regex>
+#include <cctype>
 #include <stdexcept>
 #include <kebap/Kebap.h>
 #include "sensor_table.hh"
@@ -14,10 +16,28 @@
 using namespace std;
 using namespace honeybee;
 
+// Helper function to fix Kebap 0-indexed line numbers
+static string normalize_line_numbers(const string& error_msg)
+{
+    string result = error_msg;
+    size_t pos = 0;
+    while ((pos = result.find("line ", pos)) != string::npos) {
+        pos += 5;  // skip past "line "
+        if (pos < result.length() && isdigit(result[pos])) {
+            int line_num = stoi(result.substr(pos));
+            string old_num = to_string(line_num);
+            string new_num = to_string(line_num + 1);
+            result.replace(pos, old_num.length(), new_num);
+            pos += new_num.length();
+        }
+    }
+    return result;
+}
+
 
 kebap_calibration::kebap_calibration(const sensor& a_sensor, const sensor_table& a_sensor_table,
-                                     kebap::KPParser* a_parser, const string& a_ktf_path)
-    : f_ktf_path(a_ktf_path)
+                                     kebap::KPParser* a_parser, const string& a_ktf_path, int a_line_number)
+    : f_ktf_path(a_ktf_path), f_line_number(a_line_number)
 {
     auto strip = [](const string& a_text)->string {
         string::size_type t_begin = 0, t_length = a_text.size();
@@ -106,7 +126,15 @@ kebap_calibration::kebap_calibration(const sensor& a_sensor, const sensor_table&
         (*f_evaluator)(0);
     }
     catch (exception &e) {
-        cerr << "ERROR: bad calibration expression: " << e.what() << endl;
+        string error_msg = normalize_line_numbers(e.what());
+        // Extract just the error part after "evaluator: "
+        size_t eval_pos = error_msg.find("evaluator: ");
+        if (eval_pos != string::npos) {
+            error_msg = error_msg.substr(eval_pos + 11);  // Skip "evaluator: "
+        }
+        cerr << "ERROR: " << f_ktf_path << " - calibration: '" << f_expression_text << "'" << endl;
+        cerr << endl;
+        cerr << "(ISSUE) " << error_msg << endl;
         f_evaluator = 0;
     }
 }
@@ -119,10 +147,22 @@ double kebap_calibration::operator()(double x)
     if (!f_evaluator) {
         return numeric_limits<double>::quiet_NaN();
     }
-    return (*f_evaluator)(x);
+    
+    try {
+        return (*f_evaluator)(x);
+    }
+    catch (exception& e) {
+        throw runtime_error(get_error_context() + " - " + normalize_line_numbers(e.what()));
+    }
 }
 
 string kebap_calibration::get_error_context() const
 {
-    return f_ktf_path + " in expression '" + f_expression_text + "'";
+    ostringstream oss;
+    oss << f_ktf_path;
+    if (f_line_number > 0) {
+        oss << ":" << (f_line_number + 1);  // Convert to 1-indexed for user display
+    }
+    oss << " in expression: '" << f_expression_text << "'";
+    return oss.str();
 }

@@ -96,9 +96,7 @@ namespace honeybee {
         void set_option(const string& name, const string& value) { f_options[name] = value; }
         void set_calibration_object(shared_ptr<calibration> a_calibration) { f_calibration_obj = a_calibration; }
         double apply_calibration(double raw_value) const;
-        // provenance: set/get originating KTF file path
-        // void set_ktf_source(const string& a_path) { f_ktf_source = a_path; }
-        // const string& get_ktf_source() const { return f_ktf_source; }
+        
       protected:
         int f_number;
         name_chain f_name;
@@ -168,16 +166,7 @@ namespace honeybee {
 
 
 
-    class sensor_config_by_names {
-      public:
-        sensor_config_by_names(const string& a_name_space=""): f_name_space(a_name_space), f_input_delimiters("/.-_"), f_output_delimiter(".") {}
-        void set_delimiters(const string& a_delimiters, const string& f_output_delimiter);
-        void load(sensor_table& a_table, const vector<string>& a_name_list, name_chain a_basename=name_chain());
-      protected:
-        string f_name_space;  // "dripline_endpoint" etc
-        vector<string> f_basenames;
-        string f_input_delimiters, f_output_delimiter;
-    };
+    
     
 }
 #endif

@@ -11,6 +11,7 @@
 #include <set>
 #include <regex>
 #include "sensor_table.hh"
+#include "sensor_config.hh"
 #include "pgsql.hh"
 #include "data_source.hh"
 
@@ -109,8 +110,13 @@ void data_source::apply_calibration(int a_sensor, series& a_series)
     this->apply_calibration(t_calib->get_input_sensor(), a_series);
     
     // Then apply this sensor's calibration to all values
-    for (auto& xk: a_series.x()) {
-        xk = t_calib->operator()(xk);
+    try {
+        for (auto& xk: a_series.x()) {
+            xk = t_calib->operator()(xk);
+        }
+    }
+    catch (exception& e) {
+        throw runtime_error(string("Sensor ID ") + to_string(a_sensor) + ": " + e.what());
     }
     hINFO(cerr << "Calibration: " << t_calib->get_description() << endl);
 }
@@ -211,8 +217,6 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
     }
 }
 
-//before: 6 parameter into , added for calibration 
-//added another paramter for the string, need to do the same for the .hh framework design 
 void dripline_pgsql::fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column)
 {
     try {

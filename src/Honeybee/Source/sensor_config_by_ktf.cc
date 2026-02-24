@@ -49,28 +49,14 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
     string t_scripts = extract_scripts();
     if (!t_scripts.empty()) {
         cout << "Extracted Kebap scripts (" << t_scripts.length() << " bytes)" << endl;
-        cout << "DEBUG: Scripts content:\n---BEGIN---\n" << t_scripts << "\n---END---" << endl;
         try {
             f_standard_parser = make_shared<kebap::KPStandardParser>();
             std::istringstream script_stream(t_scripts);
-            f_standard_parser->Parse(script_stream);  // failing here
+            f_standard_parser->Parse(script_stream);
             
-            // make sure the varibles values are registered in symbol table 
+            // Ensure global variables from ktf script are registered in symbol table
+            // Executing bare statements immediately after parsing
             f_standard_parser->GetModule()->ExecuteBareStatements(f_standard_parser->GetSymbolTable());
-            
-            // DEBUG: Check what variables are now in the symbol table
-            kebap::KPSymbolTable* sym_table = f_standard_parser->GetSymbolTable();
-            long pie_id = sym_table->NameToId("pie");
-            cout << "DEBUG: After ExecuteBareStatements:" << endl;
-            cout << "  pie id from NameToId: " << pie_id << endl;
-            if (pie_id >= 0) {
-                kebap::KPValue* pie_val = sym_table->GetVariable(pie_id);
-                if (pie_val) {
-                    cout << "  pie variable found in symbol table, value=" << pie_val->AsDouble() << endl;
-                } else {
-                    cout << "  pie id exists but GetVariable returned nullptr" << endl;
-                }
-            }
             
             cout << "Successfully compiled Kebap parser" << endl;
         }
@@ -83,14 +69,7 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
         cout << "No Kebap scripts found in ktf header" << endl;
     }
     
-    // Load sensor hierarchy
-    cout << "Starting sensor hierarchy traversal..." << endl;
-    cout << "DEBUG: sensor_table node keys: ";
-    for (const auto& key : t_tree["sensor_table"].KeyList()) {
-        cout << key << " ";
-    }
-    cout << endl;
-    cout << "DEBUG: sensor_table node has " << t_tree["sensor_table"].Length() << " children" << endl;
+    // Recursively load and configure sensors from hierarchical KTF structure
     load_context t_context;
     load_layer(a_table, t_tree["sensor_table"], t_context);
     cout << "Completed loading ktf file" << endl;
@@ -123,7 +102,7 @@ string sensor_config_by_ktf::extract_scripts()
                 t_scripts += t_line.substr(3) + "\n";
             } else if (t_line.size() > 2) {
                 t_scripts += t_line.substr(2) + "\n";
-            }
+            } 
         }
         else if (!t_line.empty()) {
             // end of script section
@@ -150,13 +129,6 @@ void sensor_config_by_ktf::load_layer(sensor_table& a_table, const tabree::KTree
     
     // Check if this is a channel node
     if (a_node.NodeName() == "channel") {
-        // debugging: hierarchical name for debug output
-        string t_hier_path;
-        for (const auto& name: a_context.f_name) {
-            if (!t_hier_path.empty()) t_hier_path += ".";
-            t_hier_path += name;
-        }
-        cout << "Processing channel: " << t_hier_path << endl;
         add_sensor(a_table, a_node, a_context);
         return;
     }
