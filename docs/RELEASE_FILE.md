@@ -10,7 +10,7 @@ to have it one, image, look at ordering of the class and redorder to make it loo
 ![Architecture Diagram](./images/classDiagram.svg)
 
 
-![Sequence Diagram](./images/classDiagram.svg)
+![Sequence Diagram](./images/sequenceDiagram.svg)
 
 
 
@@ -56,32 +56,35 @@ sensor: signifies a single measurement point
         -  raw calibration formula text, reference to the calibration computer
 
 sensor_table: Manage collection of all sensors
+    
     Holds: Complete registry of all sensors (indexed by unique ID and searchable by hierarchical name)
-
     Does: Store/retrieve sensors by ID or name chain. Provides lookup helpers for finding sensors by partial name match. Read-only after configuration
 
 data_source: calibration applied here, fetch data and apply calibration
+    
     Holds: connection to DB, query and ect
     Does: binds to sensor table, use each sensor's calibration object to apply and return the tranformed series 
 
 calibration: Define calibration interface(Abstract)
-    holds: what the calibration does and sensor input is coming from 
+    
+    Holds: what the calibration does and sensor input is coming from 
 
 kebap_calibration: Evaluate Kebap calibration expression during runtime
-    - Holds:  Expression + it's evaluator, ktf source and the line for error sending
-
+    
+    Holds:  Expression + it's evaluator, ktf source and the line for error sending
     Does: parse expression ad create evaluator when constructing, then use evaluator to tranform values durng runtime
 
 
 evaluator: runtime calculator for calibration expression 
+    
     Holds: Compiled expression tree, reference to the global symbol table with all defined functions and constants
-
     Does: evaluate expression using the referenced value and return result 
 
 
 **Main Kebap engines(external)**
 
 KPParser: Compile Kebap scripts into executable
+    
     Holds: Global symbol table with all functions and constants, parsed module with variable definitions
     Does: compiles script block and gives parser for expressions
 
@@ -134,7 +137,7 @@ All lines you wish to be recognized and extracted as calibration script **must s
 
 use this converstion graph for guidence on why our function are the way they are for this instance
 
-![alt text](refImage.png)
+![Calibration Reference](./images/refImage.png)
 
 This is what our function script section would look like above the channel definitions
 
@@ -174,21 +177,26 @@ This is what our function script section would look like above the channel defin
 ```
 
 Channels and what they represent: 
+
     1. torr: Initial guage pressure held in our database (Torr)
     2. mbar: Initial pressure coverted(Mbar)
     3. mbarHe, Helium corrected pressure (Mbar). **Notice** it's dependant on two previous chained calibration
 
 This shows: 
+    
     1. Utilizing User Function: 
+        
         Channels can reference and call on user defined functions without compling the function script. The function script is extracted and parsed into Kebap before any channel calls. So each function is mapped and prepped before and can then be used for calibration, similar to a function call in programming. 
         notice the input parameter must be defined and pointed out before being use
-            ex: 
+            
+            ```ex: 
                 @channel 'mbarHe'
                     Notice  ---> { **mbar**: mbar_He(**mbar**) }
-
+            ```
 
 
             The channel id, which has a name, would indentify the output(calibrated or not) of the channel it's dependant on
+                
                 - part of resolving and referecing dependencies in chain calling 
 
     2. Chaining:
@@ -312,6 +320,7 @@ float mbar_He (float mbar) { return torr_He(mbar / conversion_f) * conversion_f;
 
 
 - User defined function and global varibles can be used within the function script just like a regular programming langauge
+    
     --> function calling functions
     --> Variables being called within function 
 
