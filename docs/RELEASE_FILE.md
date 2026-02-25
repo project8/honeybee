@@ -16,12 +16,12 @@ to have it one, image, look at ordering of the class and redorder to make it loo
 
 
 - Key components and relationships
-The current desing is language agnostic so that in the future, other calibration engines from a Rust/python/... source would easiliy be able to be integrated into the sytem 
+The current design is language agnostic so that in the future, other calibration engines from a Rust/python/... source would easily be able to be integrated into the system 
 
-- abstration point: 
+- abstraction point: 
     the sensor_config is abstract so that we can sensor_config that tailor to specific calibration engine
 
-    Ex: derived class specifc for..
+    Ex: derived class specific for..
         sensor_config_by_ktf
         sensor_config_by_rust
         sensor_config_by_py
@@ -32,7 +32,7 @@ The current desing is language agnostic so that in the future, other calibration
 
 
 
-#### Class responsiblites: 
+#### Class responsibilities: 
 
 honeybee: main orchestrator of application, lifetime of running
     
@@ -51,7 +51,7 @@ sensor_config_by_ktf: Parse KTF files and populate sensor table
 
 sensor: signifies a single measurement point
 
-    Holds: (also some metadeta about a sensor)
+    Holds: (also some metadata about a sensor)
         -  Sensor's unique ID, full hierarchical name path (e.g., "ATDS.Gas.Inj.Alicat.sccm") and display label
         -  raw calibration formula text, reference to the calibration computer
 
@@ -62,8 +62,8 @@ sensor_table: Manage collection of all sensors
 
 data_source: calibration applied here, fetch data and apply calibration
     
-    Holds: connection to DB, query and ect
-    Does: binds to sensor table, use each sensor's calibration object to apply and return the tranformed series 
+    Holds: connection to DB, query and etc.
+    Does: binds to sensor table, use each sensor's calibration object to apply and return the transformed series 
 
 calibration: Define calibration interface(Abstract)
     
@@ -72,7 +72,7 @@ calibration: Define calibration interface(Abstract)
 kebap_calibration: Evaluate Kebap calibration expression during runtime
     
     Holds:  Expression + it's evaluator, ktf source and the line for error sending
-    Does: parse expression ad create evaluator when constructing, then use evaluator to tranform values durng runtime
+    Does: parse expression and create evaluator when constructing, then use evaluator to transform values during runtime
 
 
 evaluator: runtime calculator for calibration expression 
@@ -90,7 +90,7 @@ KPParser: Compile Kebap scripts into executable
 
 KPSymbolTable: Central namespace for all Kebap definitions
 
-    Holds all functions and varibles, and maps names to value 
+    Holds all functions and variables, and maps names to value 
 
 
 
@@ -99,12 +99,12 @@ KPSymbolTable: Central namespace for all Kebap definitions
 - **Multi-stage calibration pipelines**: 
     Chain calibrations where output of one feeds into another
 - **Dependency-aware processing**: 
-    Automatically resolves sensor dependencies(layered dependecy)
-- **User-defined functions and Global Varibles**: 
+    Automatically resolves sensor dependencies(layered dependency)
+- **User-defined functions and Global Variables**: 
     Write calibration logic in Kebap(light embedded script) without recompiling
-    Inlcuding: 
+    Including: 
         - Functions of any-type
-        - global varibles 
+        - global variables 
 
 - **Modular calibration design**: 
     Import calibration scripts across configs
@@ -120,7 +120,7 @@ KPSymbolTable: Central namespace for all Kebap definitions
 
 #### 3.1.1 Unimported script
 
-All lines you wish to be recognized and extracted as calibration script **must start with #% and must come before the the channel defintions**
+All lines you wish to be recognized and extracted as calibration script **must start with #% and must come before the the channel definitions**
 
     Here is a simple example: 
 
@@ -131,11 +131,11 @@ All lines you wish to be recognized and extracted as calibration script **must s
 **Practical Example**: 
     
     Assumptions: 
-    - you are using a digital Pirani gauge model giving original indicated pressure (not accounting for specific type of gass in system) 
-    - We have a gas system that has helium, but becuase our pirani may under or over report pressure without that awareness, 
+    - you are using a digital Pirani gauge model giving original indicated pressure (not accounting for specific type of gas in system) 
+    - We have a gas system that has helium, but because our pirani may under or over report pressure without that awareness, 
         we will calibrate readout out before any further analytical steps
 
-use this converstion graph for guidence on why our function are the way they are for this instance
+use this conversion graph for guidance on why our function are the way they are for this instance
 
 ![Calibration Reference](./images/refImage.png)
 
@@ -160,7 +160,7 @@ This is what our function script section would look like above the channel defin
 
 {this is a simplied channel structure starting at channel definition, please reference README.md file to see an example of how a full channel structure looks like}
 
-**Channel defintion section** 
+**Channel definition section** 
 #       Module: 
 #           id: { name: prg, label: Pirani gauge }
 #           channel:
@@ -178,15 +178,15 @@ This is what our function script section would look like above the channel defin
 
 Channels and what they represent: 
 
-    1. torr: Initial guage pressure held in our database (Torr)
-    2. mbar: Initial pressure coverted(Mbar)
+    1. torr: Initial gauge pressure held in our database (Torr)
+    2. mbar: Initial pressure converted(Mbar)
     3. mbarHe, Helium corrected pressure (Mbar). **Notice** it's dependant on two previous chained calibration
 
 This shows: 
     
     1. Utilizing User Function: 
         
-        Channels can reference and call on user defined functions without compling the function script. The function script is extracted and parsed into Kebap before any channel calls. So each function is mapped and prepped before and can then be used for calibration, similar to a function call in programming. 
+        Channels can reference and call on user defined functions without compiling the function script. The function script is extracted and parsed into Kebap before any channel calls. So each function is mapped and prepped before and can then be used for calibration, similar to a function call in programming. 
         notice the input parameter must be defined and pointed out before being use
             
             ```ex: 
@@ -195,13 +195,13 @@ This shows:
             ```
 
 
-            The channel id, which has a name, would indentify the output(calibrated or not) of the channel it's dependant on
+            The channel id, which has a name, would identify the output(calibrated or not) of the channel it's dependant on
                 
-                - part of resolving and referecing dependencies in chain calling 
+                - part of resolving and referencing dependencies in chain calling 
 
     2. Chaining:
-        Using the result/ouput of a channel as calibration input for another 
-            honeybee + Kebap: resolve the dependecy of channels before runtime to make this happen 
+        Using the result/output of a channel as calibration input for another 
+            honeybee + Kebap: resolve the dependency of channels before runtime to make this happen 
 
             The example channels: **mbarHe** --(uses)->  **mbar**  --(uses)->  **torr** (change)
 
@@ -276,7 +276,7 @@ Instead of keeping all function definitions and global constants in the same fil
 - Includes are processed at parse time (during config load), not at runtime. Included functions will be immediately available to all subsequent calibration definitions.
 - symbol used for lines of function script(#%) **IS NOT** needed when in an exterior file but the import statement in main file must start with (#%)  
 
-**(RECOMMNEDED)**
+**(RECOMMENDED)**
 **Example - Extracting from 3.1.1:**
 
 **File 1: Functions.ktfs** (extracted calibration logic)
@@ -316,10 +316,10 @@ float mbar_He (float mbar) { return torr_He(mbar / conversion_f) * conversion_f;
 
 
 
-### 3.2 Addititonal Notes: 
+### 3.2 Additional Notes: 
 
 
-- User defined function and global varibles can be used within the function script just like a regular programming langauge
+- User defined function and global variables can be used within the function script just like a regular programming language
     
     --> function calling functions
     --> Variables being called within function 
@@ -331,12 +331,12 @@ Resolving bugs:
 Things to check when running into issue:
 
 - Please make sure your Docker compose file is set up properly
-    matching port, access and ect...
+    matching port, access and etc.
 
 - Getting nan value readout: 
     - check the error output and see if its a post data extraction error(calibration stage or ...)
     
-    - if there is no error outputed in command line, please make sure your time window for db query data is correct 
+    - if there is no error output in command line, please make sure your time window for db query data is correct 
     To check, open up a session into your database and check 
             SELECT MIN(timestamp), MAX(timestamp) FROM {table_name};
 
