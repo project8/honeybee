@@ -2,7 +2,7 @@
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/usr/local")
+  set(CMAKE_INSTALL_PREFIX "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -52,7 +52,9 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/data_source.hh"
     "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/pgsql.hh"
     "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_table.hh"
+    "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config.hh"
     "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config_by_ktf.hh"
+    "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/kebap_calibration.hh"
     "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/series.hh"
     "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/utils.hh"
     "/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/evaluator.hh"

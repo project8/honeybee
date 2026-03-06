@@ -271,6 +271,30 @@ honeybee.cc.s:
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee && $(MAKE) $(MAKESILENT) -f Source/CMakeFiles/HoneybeeLib.dir/build.make Source/CMakeFiles/HoneybeeLib.dir/honeybee.cc.s
 .PHONY : honeybee.cc.s
 
+kebap_calibration.o: kebap_calibration.cc.o
+.PHONY : kebap_calibration.o
+
+# target to build an object file
+kebap_calibration.cc.o:
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee && $(MAKE) $(MAKESILENT) -f Source/CMakeFiles/HoneybeeLib.dir/build.make Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o
+.PHONY : kebap_calibration.cc.o
+
+kebap_calibration.i: kebap_calibration.cc.i
+.PHONY : kebap_calibration.i
+
+# target to preprocess a source file
+kebap_calibration.cc.i:
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee && $(MAKE) $(MAKESILENT) -f Source/CMakeFiles/HoneybeeLib.dir/build.make Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.i
+.PHONY : kebap_calibration.cc.i
+
+kebap_calibration.s: kebap_calibration.cc.s
+.PHONY : kebap_calibration.s
+
+# target to generate assembly for a file
+kebap_calibration.cc.s:
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee && $(MAKE) $(MAKESILENT) -f Source/CMakeFiles/HoneybeeLib.dir/build.make Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.s
+.PHONY : kebap_calibration.cc.s
+
 pgsql.o: pgsql.cc.o
 .PHONY : pgsql.o
 
@@ -294,6 +318,30 @@ pgsql.s: pgsql.cc.s
 pgsql.cc.s:
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee && $(MAKE) $(MAKESILENT) -f Source/CMakeFiles/HoneybeeLib.dir/build.make Source/CMakeFiles/HoneybeeLib.dir/pgsql.cc.s
 .PHONY : pgsql.cc.s
+
+sensor_config.o: sensor_config.cc.o
+.PHONY : sensor_config.o
+
+# target to build an object file
+sensor_config.cc.o:
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee && $(MAKE) $(MAKESILENT) -f Source/CMakeFiles/HoneybeeLib.dir/build.make Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o
+.PHONY : sensor_config.cc.o
+
+sensor_config.i: sensor_config.cc.i
+.PHONY : sensor_config.i
+
+# target to preprocess a source file
+sensor_config.cc.i:
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee && $(MAKE) $(MAKESILENT) -f Source/CMakeFiles/HoneybeeLib.dir/build.make Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.i
+.PHONY : sensor_config.cc.i
+
+sensor_config.s: sensor_config.cc.s
+.PHONY : sensor_config.s
+
+# target to generate assembly for a file
+sensor_config.cc.s:
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee && $(MAKE) $(MAKESILENT) -f Source/CMakeFiles/HoneybeeLib.dir/build.make Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.s
+.PHONY : sensor_config.cc.s
 
 sensor_config_by_ktf.o: sensor_config_by_ktf.cc.o
 .PHONY : sensor_config_by_ktf.o
@@ -416,9 +464,15 @@ help:
 	@echo "... honeybee.o"
 	@echo "... honeybee.i"
 	@echo "... honeybee.s"
+	@echo "... kebap_calibration.o"
+	@echo "... kebap_calibration.i"
+	@echo "... kebap_calibration.s"
 	@echo "... pgsql.o"
 	@echo "... pgsql.i"
 	@echo "... pgsql.s"
+	@echo "... sensor_config.o"
+	@echo "... sensor_config.i"
+	@echo "... sensor_config.s"
 	@echo "... sensor_config_by_ktf.o"
 	@echo "... sensor_config_by_ktf.i"
 	@echo "... sensor_config_by_ktf.s"

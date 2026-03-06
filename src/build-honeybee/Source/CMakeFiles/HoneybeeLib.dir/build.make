@@ -142,10 +142,24 @@ Source/CMakeFiles/HoneybeeLib.dir/sensor_table.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/HoneybeeLib.dir/sensor_table.cc.s"
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_table.cc -o CMakeFiles/HoneybeeLib.dir/sensor_table.cc.s
 
+Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o: Source/CMakeFiles/HoneybeeLib.dir/flags.make
+Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o: /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config.cc
+Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o: Source/CMakeFiles/HoneybeeLib.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o"
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o -MF CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o.d -o CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o -c /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config.cc
+
+Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/HoneybeeLib.dir/sensor_config.cc.i"
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config.cc > CMakeFiles/HoneybeeLib.dir/sensor_config.cc.i
+
+Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/HoneybeeLib.dir/sensor_config.cc.s"
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config.cc -o CMakeFiles/HoneybeeLib.dir/sensor_config.cc.s
+
 Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o: Source/CMakeFiles/HoneybeeLib.dir/flags.make
 Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o: /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config_by_ktf.cc
 Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o: Source/CMakeFiles/HoneybeeLib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o"
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o -MF CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o.d -o CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o -c /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config_by_ktf.cc
 
 Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.i: cmake_force
@@ -156,10 +170,24 @@ Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.s"
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/sensor_config_by_ktf.cc -o CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.s
 
+Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o: Source/CMakeFiles/HoneybeeLib.dir/flags.make
+Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o: /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/kebap_calibration.cc
+Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o: Source/CMakeFiles/HoneybeeLib.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o"
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o -MF CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o.d -o CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o -c /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/kebap_calibration.cc
+
+Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.i"
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/kebap_calibration.cc > CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.i
+
+Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.s"
+	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/kebap_calibration.cc -o CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.s
+
 Source/CMakeFiles/HoneybeeLib.dir/series.cc.o: Source/CMakeFiles/HoneybeeLib.dir/flags.make
 Source/CMakeFiles/HoneybeeLib.dir/series.cc.o: /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/series.cc
 Source/CMakeFiles/HoneybeeLib.dir/series.cc.o: Source/CMakeFiles/HoneybeeLib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/series.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/series.cc.o"
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT Source/CMakeFiles/HoneybeeLib.dir/series.cc.o -MF CMakeFiles/HoneybeeLib.dir/series.cc.o.d -o CMakeFiles/HoneybeeLib.dir/series.cc.o -c /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/series.cc
 
 Source/CMakeFiles/HoneybeeLib.dir/series.cc.i: cmake_force
@@ -173,7 +201,7 @@ Source/CMakeFiles/HoneybeeLib.dir/series.cc.s: cmake_force
 Source/CMakeFiles/HoneybeeLib.dir/utils.cc.o: Source/CMakeFiles/HoneybeeLib.dir/flags.make
 Source/CMakeFiles/HoneybeeLib.dir/utils.cc.o: /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/utils.cc
 Source/CMakeFiles/HoneybeeLib.dir/utils.cc.o: Source/CMakeFiles/HoneybeeLib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/utils.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/utils.cc.o"
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT Source/CMakeFiles/HoneybeeLib.dir/utils.cc.o -MF CMakeFiles/HoneybeeLib.dir/utils.cc.o.d -o CMakeFiles/HoneybeeLib.dir/utils.cc.o -c /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/utils.cc
 
 Source/CMakeFiles/HoneybeeLib.dir/utils.cc.i: cmake_force
@@ -187,7 +215,7 @@ Source/CMakeFiles/HoneybeeLib.dir/utils.cc.s: cmake_force
 Source/CMakeFiles/HoneybeeLib.dir/evaluator.cc.o: Source/CMakeFiles/HoneybeeLib.dir/flags.make
 Source/CMakeFiles/HoneybeeLib.dir/evaluator.cc.o: /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/evaluator.cc
 Source/CMakeFiles/HoneybeeLib.dir/evaluator.cc.o: Source/CMakeFiles/HoneybeeLib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/evaluator.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object Source/CMakeFiles/HoneybeeLib.dir/evaluator.cc.o"
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT Source/CMakeFiles/HoneybeeLib.dir/evaluator.cc.o -MF CMakeFiles/HoneybeeLib.dir/evaluator.cc.o.d -o CMakeFiles/HoneybeeLib.dir/evaluator.cc.o -c /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/Honeybee/Source/evaluator.cc
 
 Source/CMakeFiles/HoneybeeLib.dir/evaluator.cc.i: cmake_force
@@ -205,7 +233,9 @@ HoneybeeLib_OBJECTS = \
 "CMakeFiles/HoneybeeLib.dir/data_source.cc.o" \
 "CMakeFiles/HoneybeeLib.dir/pgsql.cc.o" \
 "CMakeFiles/HoneybeeLib.dir/sensor_table.cc.o" \
+"CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o" \
 "CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o" \
+"CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o" \
 "CMakeFiles/HoneybeeLib.dir/series.cc.o" \
 "CMakeFiles/HoneybeeLib.dir/utils.cc.o" \
 "CMakeFiles/HoneybeeLib.dir/evaluator.cc.o"
@@ -218,13 +248,15 @@ Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/calibration.cc.o
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/data_source.cc.o
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/pgsql.cc.o
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/sensor_table.cc.o
+Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o
+Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/series.cc.o
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/utils.cc.o
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/evaluator.cc.o
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/build.make
 Source/libHoneybeeLib.a: Source/CMakeFiles/HoneybeeLib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX static library libHoneybeeLib.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX static library libHoneybeeLib.a"
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && $(CMAKE_COMMAND) -P CMakeFiles/HoneybeeLib.dir/cmake_clean_target.cmake
 	cd /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/src/build-honeybee/Source && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/HoneybeeLib.dir/link.txt --verbose=$(VERBOSE)
 

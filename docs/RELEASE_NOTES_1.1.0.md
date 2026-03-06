@@ -96,10 +96,13 @@ KPSymbolTable: Central namespace for all Kebap definitions
 
 
 ### 2.2 Core Extension Capabilities
+**On top of these existing capabilities of Honeybees**
 - **Multi-stage calibration pipelines**: 
     Chain calibrations where output of one feeds into another
 - **Dependency-aware processing**: 
     Automatically resolves sensor dependencies(layered dependency)
+
+**The following are offered in the new release version 1.1**
 - **User-defined functions and Global Variables**: 
     Write calibration logic in Kebap(light embedded script) without recompiling
     Including: 
@@ -111,6 +114,29 @@ KPSymbolTable: Central namespace for all Kebap definitions
 - **Dual data streams**: 
     Access both raw and calibrated data simultaneously.
     Can can some end points be fetch calibrated and some raw
+
+Core extensions includes: (Please reference the release document for further details)
+
+
+- Multi-stage calibration pipelines:  
+	Chain calibrations where output of one feeds into another
+- Dependency-aware processing:  
+	Automatically resolves sensor dependencies(layered dependency)
+
+The following are offered in the new release version 1.1
+
+	User-defined functions and Global Variables:  
+	Write calibration logic in Kebap(light embedded script) without recompiling  
+	Including:  
+	- Functions of any-type  
+	- global variables
+	
+	- Modular calibration design:  
+	    Import calibration scripts across configs
+	    
+	- Dual data streams:  
+	    Access both raw and calibrated data simultaneously.  
+	    Can can some end points be fetch calibrated and some raw
 
 
 
@@ -314,6 +340,8 @@ float mbar_He (float mbar) { return torr_He(mbar / conversion_f) * conversion_f;
 
 ```
 
+**Dual data streams**: 
+- section describing how it works and the syntax 
 
 
 ### 3.2 Additional Notes: 

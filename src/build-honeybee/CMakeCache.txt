@@ -73,7 +73,7 @@ CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=/Users/nobeltsegai/Documents/CENPA/proje
 CMAKE_INSTALL_NAME_TOOL:FILEPATH=/usr/bin/install_name_tool
 
 //Install path prefix, prepended onto install directories.
-CMAKE_INSTALL_PREFIX:PATH=/usr/local
+CMAKE_INSTALL_PREFIX:PATH=/Users/nobeltsegai/Documents/CENPA/project-8/honeybee/install
 
 //Path to a program.
 CMAKE_LINKER:FILEPATH=/usr/bin/ld
