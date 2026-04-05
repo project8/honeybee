@@ -1,1 +1,0 @@
-/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names "CMakeFiles/hb-get-data.dir/hb-get-data.cxx.o" -o hb-get-data  ../Source/libHoneybeeLib.a /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/install/lib/libTabreeLib.a /Users/nobeltsegai/Documents/CENPA/project-8/honeybee/install/lib/libKebapLib.a /opt/homebrew/lib/postgresql@14/libpq.dylib

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libHoneybeeLib.a CMakeFiles/HoneybeeLib.dir/honeybee.cc.o CMakeFiles/HoneybeeLib.dir/calibration.cc.o CMakeFiles/HoneybeeLib.dir/data_source.cc.o CMakeFiles/HoneybeeLib.dir/pgsql.cc.o CMakeFiles/HoneybeeLib.dir/sensor_table.cc.o CMakeFiles/HoneybeeLib.dir/sensor_config.cc.o CMakeFiles/HoneybeeLib.dir/sensor_config_by_ktf.cc.o CMakeFiles/HoneybeeLib.dir/kebap_calibration.cc.o CMakeFiles/HoneybeeLib.dir/series.cc.o CMakeFiles/HoneybeeLib.dir/utils.cc.o CMakeFiles/HoneybeeLib.dir/evaluator.cc.o
-/usr/bin/ranlib libHoneybeeLib.a
