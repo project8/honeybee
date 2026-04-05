@@ -185,7 +185,7 @@ void sensor_config_by_ktf::load_layer(sensor_table& a_table, const tabree::KTree
                             // Object format: x-dripline_endpoint
                             if (t_opt_name == "dripline_endpoint") {
                                 string tag = t_node[t_key]["tag"].As<string>();
-                                string field = t_node[t_key]["field"].Or("raw");
+                                string field = t_node[t_key]["field"].Or("");
                                 t_context.f_opts.emplace_back("dripline_endpoint", tag);
                                 t_context.f_opts.emplace_back("dripline_endpoint_field", field);
                             }
@@ -256,7 +256,7 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree
                 // Handle dripline_endpoint format
                 if (t_opt_name == "dripline_endpoint") {
                     string tag = a_node[t_key]["tag"].As<string>();
-                    string field = a_node[t_key]["field"].Or("raw");
+                    string field = a_node[t_key]["field"].Or("");
                     t_options["dripline_endpoint"] = tag;
                     t_options["dripline_endpoint_field"] = field;
                 }

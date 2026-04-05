@@ -21,6 +21,7 @@ namespace honeybee {
 
     class calibration {
       public:
+        calibration() : f_input(0), f_is_identity(false) {}
         virtual ~calibration() = default;
         
         int get_input_sensor() const { return f_input; }

@@ -202,7 +202,7 @@ void sensor_config_by_file::load_layer(sensor_table& a_table, const tabree::KTre
                             // Object format: x-dripline_endpoint: { tag: ..., field: ... }
                             if (t_opt_name == "dripline_endpoint") {
                                 string tag = t_node[t_key]["tag"].As<string>();
-                                string field = t_node[t_key]["field"].Or("raw");
+                                string field = t_node[t_key]["field"].Or("");
                                 t_context.f_opts.emplace_back("dripline_endpoint", tag);
                                 t_context.f_opts.emplace_back("dripline_endpoint_field", field);
                             }

@@ -24,6 +24,7 @@ honeybee_app::honeybee_app()
     f_default_delimiters = "./:;-_";
     f_input_delimiters = "";
     f_output_delimiter = "";
+    f_value_column_default = "";
    
     f_sensor_table = make_shared<sensor_table>();
     f_data_source = make_shared<empty_data_source>();
@@ -54,6 +55,11 @@ void honeybee_app::set_delimiter(const string& input_delimiters, const string& o
     if (! output_delimiter.empty()) {
         f_output_delimiter = output_delimiter;
     }
+}
+
+void honeybee_app::set_value_column_default(const string& value_column)
+{
+    f_value_column_default = value_column;
 }
 
 shared_ptr<sensor_table> honeybee_app::get_sensor_table()
@@ -210,8 +216,12 @@ series_bundle honeybee_app::read(const vector<string>& a_sensor_list, double a_f
     
     vector<series> t_series_list;
     try {
+        string t_default_column = f_value_column_default;
+        if (t_default_column.empty()) {
+            t_default_column = "value_raw";
+        }
         t_series_list = f_data_source->read(
-            t_sensor_number_list, "value_raw", a_from, a_to,
+            t_sensor_number_list, t_default_column, a_from, a_to,
             a_resampling_interval, a_reducer
         );
     }

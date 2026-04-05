@@ -57,7 +57,6 @@ kebap_calibration::kebap_calibration(const sensor& a_sensor, const sensor_table&
     };
 
     f_description = strip(a_sensor.get_calibration());
-    f_is_identity = false;
     f_input = sensor{}.get_number();
     f_evaluator = 0;
     

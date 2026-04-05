@@ -62,9 +62,10 @@ namespace honeybee {
         vector<string> get_data_names() override;
       protected:
         void bind_inputs(sensor_table& a_sensor_table) override;
-  vector<series> fetch(const vector<int>& a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column) override; // support selecting raw or calibrated values
+        vector<series> fetch(const vector<int>& a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column) override; // support selecting raw or calibrated values
         void fetch_single(series& a_series, int a_sensor, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer, const std::string& value_column) override;
       protected:
+        void fetch_column(vector<series>& a_series_list, const map<string, vector<unsigned>>& a_endpoint_index_table, const string& a_targets, const string& a_column, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer);
         string f_db_uri;
         vector<string> f_basename;
         string f_input_delimiters, f_output_delimiter;

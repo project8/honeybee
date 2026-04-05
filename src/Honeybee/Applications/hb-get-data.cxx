@@ -31,6 +31,7 @@ int main(int argc, char** argv)
         std::cerr << "  --delimiter=VALUE        set channel name delimiter"<< std::endl;
         std::cerr << "  --delimiter-input=VALUE  set channel name delimiter in the data store"<< std::endl;
         std::cerr << "  --delimiter-output=VALUE set channel name delimiter for output"<< std::endl;
+        std::cerr << "  --value-column=NAME      default data column (value_raw/value_cal/etc)"<< std::endl;
         std::cerr << "  --verbose                make it verbose"<< std::endl;
         return -1;
     }
@@ -45,6 +46,7 @@ int main(int argc, char** argv)
     std::string t_delimiter = args["--delimiter"].Or("");
     std::string t_delimiter_input = args["--delimiter-input"].Or(t_delimiter);
     std::string t_delimiter_output = args["--delimiter-output"].Or(t_delimiter.substr(0,1));
+    std::string t_value_column = args["--value-column"].Or("");
     
     double t_to_ts = args["--to-ts"].Or(long(hb::datetime::now()));
     std::string t_to = args["--to"].Or(hb::datetime(t_to_ts).as_string());
@@ -93,6 +95,9 @@ int main(int argc, char** argv)
     t_honeybee_app.add_config_file(t_config_file);
     t_honeybee_app.add_dripline_db(t_dripline_db);
     t_honeybee_app.set_delimiter(t_delimiter_input, t_delimiter_output);
+    if (! t_value_column.empty()) {
+        t_honeybee_app.set_value_column_default(t_value_column);
+    }
     for (auto& variable: t_variables) {
         t_honeybee_app.add_variable(variable.first, variable.second);
     }

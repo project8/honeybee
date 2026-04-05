@@ -31,7 +31,8 @@
 *.out
 *.app
 
-/install
-/build*
-/vscode
+.vscode/
+install/
+src/build*/
+build*/
 

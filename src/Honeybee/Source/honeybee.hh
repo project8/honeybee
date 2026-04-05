@@ -34,6 +34,7 @@ namespace honeybee {
         void add_dripline_db(const std::string& db_uri);
         void add_variable(const std::string& key, const tabree::KVariant& value);
         void set_delimiter(const std::string& input_delimiters, const std::string& output_delimiter="");
+        void set_value_column_default(const std::string& value_column);
         std::shared_ptr<sensor_table> get_sensor_table();
         std::shared_ptr<data_source> get_data_source();
         std::vector<std::string> find_like(const std::string a_name);
@@ -46,6 +47,7 @@ namespace honeybee {
         std::string f_config_file_path;
         std::string f_dripline_db_uri;
         std::string f_default_delimiters, f_input_delimiters, f_output_delimiter;
+        std::string f_value_column_default;
       protected:
         bool f_is_constructed;
         std::shared_ptr<sensor_table> f_sensor_table;

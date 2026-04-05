@@ -4,24 +4,19 @@ Honeybee Upgraded Calibration Framework Release
 ## 1. Overview
 
 ### 2.1 Architecture Overview
-- class DG (png link or actual link)
-to have it one, image, look at ordering of the class and redorder to make it look better and less longgated 
 
 ![Architecture Diagram](./images/classDiagram.svg)
 
-
 ![Sequence Diagram](./images/sequenceDiagram.svg)
-
-
 
 
 - Key components and relationships
 The current design is language agnostic so that in the future, other calibration engines from a Rust/python/... source would easily be able to be integrated into the system 
 
 - abstraction point: 
-    the sensor_config is abstract so that we can sensor_config that tailor to specific calibration engine
+    sensor_config is abstract so that we can define sensor_config variants that tailor to a specific calibration engine.
 
-    Ex: derived class specific for..
+    Ex: derived classes specific to:
         sensor_config_by_ktf
         sensor_config_by_rust
         sensor_config_by_py
@@ -29,8 +24,6 @@ The current design is language agnostic so that in the future, other calibration
         .
         .
         .
-
-
 
 #### Class responsibilities: 
 
@@ -81,7 +74,7 @@ evaluator: runtime calculator for calibration expression
     Does: evaluate expression using the referenced value and return result 
 
 
-**Main Kebap engines(external)**
+**Main Kebap engines (external)**
 
 KPParser: Compile Kebap scripts into executable
     
@@ -96,13 +89,8 @@ KPSymbolTable: Central namespace for all Kebap definitions
 
 
 ### 2.2 Core Extension Capabilities
-**On top of these existing capabilities of Honeybees**
-- **Multi-stage calibration pipelines**: 
-    Chain calibrations where output of one feeds into another
-- **Dependency-aware processing**: 
-    Automatically resolves sensor dependencies(layered dependency)
 
-**The following are offered in the new release version 1.1**
+**The following are offered in the new release version 1.1.0**
 - **User-defined functions and Global Variables**: 
     Write calibration logic in Kebap(light embedded script) without recompiling
     Including: 
@@ -113,32 +101,7 @@ KPSymbolTable: Central namespace for all Kebap definitions
     Import calibration scripts across configs
 - **Dual data streams**: 
     Access both raw and calibrated data simultaneously.
-    Can can some end points be fetch calibrated and some raw
-
-Core extensions includes: (Please reference the release document for further details)
-
-
-- Multi-stage calibration pipelines:  
-	Chain calibrations where output of one feeds into another
-- Dependency-aware processing:  
-	Automatically resolves sensor dependencies(layered dependency)
-
-The following are offered in the new release version 1.1
-
-	User-defined functions and Global Variables:  
-	Write calibration logic in Kebap(light embedded script) without recompiling  
-	Including:  
-	- Functions of any-type  
-	- global variables
-	
-	- Modular calibration design:  
-	    Import calibration scripts across configs
-	    
-	- Dual data streams:  
-	    Access both raw and calibrated data simultaneously.  
-	    Can can some end points be fetch calibrated and some raw
-
-
+    Endpoints can be fetched as calibrated or raw in the same request.
 
 ## 3. Usage Guide
 
@@ -146,7 +109,7 @@ The following are offered in the new release version 1.1
 
 #### 3.1.1 Unimported script
 
-All lines you wish to be recognized and extracted as calibration script **must start with #% and must come before the the channel definitions**
+All lines you wish to be recognized and extracted as calibration script **must start with #% and must come before the channel definitions**.
 
     Here is a simple example: 
 
@@ -161,7 +124,7 @@ All lines you wish to be recognized and extracted as calibration script **must s
     - We have a gas system that has helium, but because our pirani may under or over report pressure without that awareness, 
         we will calibrate readout out before any further analytical steps
 
-use this conversion graph for guidance on why our function are the way they are for this instance
+Use this conversion graph for guidance on why our functions are the way they are for this example.
 
 ![Calibration Reference](./images/refImage.png)
 
@@ -184,7 +147,7 @@ This is what our function script section would look like above the channel defin
 #%
 #% float mbar_He (float mbar) { return torr_He(mbar / conversion_f) * conversion_f; }  /* Function using global constant conversion_f */
 
-{this is a simplied channel structure starting at channel definition, please reference README.md file to see an example of how a full channel structure looks like}
+{This is a simplified channel structure starting at channel definition. Please reference README.md to see an example of how a full channel structure looks.}
 
 **Channel definition section** 
 #       Module: 
@@ -206,14 +169,14 @@ Channels and what they represent:
 
     1. torr: Initial gauge pressure held in our database (Torr)
     2. mbar: Initial pressure converted(Mbar)
-    3. mbarHe, Helium corrected pressure (Mbar). **Notice** it's dependant on two previous chained calibration
+    3. mbarHe, Helium corrected pressure (Mbar). **Notice** it is dependent on two previous chained calibrations.
 
 This shows: 
     
     1. Utilizing User Function: 
         
-        Channels can reference and call on user defined functions without compiling the function script. The function script is extracted and parsed into Kebap before any channel calls. So each function is mapped and prepped before and can then be used for calibration, similar to a function call in programming. 
-        notice the input parameter must be defined and pointed out before being use
+        Channels can reference and call user-defined functions without compiling the function script. The function script is extracted and parsed into Kebap before any channel calls. So each function is mapped and prepared first and can then be used for calibration, similar to a function call in programming.
+        Notice the input parameter must be defined and pointed out before being used.
             
             ```ex: 
                 @channel 'mbarHe'
@@ -221,17 +184,15 @@ This shows:
             ```
 
 
-            The channel id, which has a name, would identify the output(calibrated or not) of the channel it's dependant on
+            The channel id, which has a name, identifies the output (calibrated or not) of the channel it is dependent on.
                 
-                - part of resolving and referencing dependencies in chain calling 
+                - part of resolving and referencing dependencies in chain calling
 
     2. Chaining:
         Using the result/output of a channel as calibration input for another 
             honeybee + Kebap: resolve the dependency of channels before runtime to make this happen 
 
             The example channels: **mbarHe** --(uses)->  **mbar**  --(uses)->  **torr** (change)
-
-
 
 
 #### 3.1.2 Global constants/variables
@@ -297,10 +258,10 @@ The difference: unimported scripts require `#%` prefix for all comments that are
 Instead of keeping all function definitions and global constants in the same file as channel definitions, you can organize them into separate calibration files and import them.
 
 **NOTES**
-- Imported files should have ending suffix of **".ktfs"**
+- Imported files should have the suffix **".ktfs"**.
 
 - Includes are processed at parse time (during config load), not at runtime. Included functions will be immediately available to all subsequent calibration definitions.
-- symbol used for lines of function script(#%) **IS NOT** needed when in an exterior file but the import statement in main file must start with (#%)  
+- The symbol used for function script lines (`#%`) **IS NOT** needed in an external file, but the import statement in the main file must start with `#%`.
 
 **(RECOMMENDED)**
 **Example - Extracting from 3.1.1:**
@@ -341,18 +302,69 @@ float mbar_He (float mbar) { return torr_He(mbar / conversion_f) * conversion_f;
 ```
 
 **Dual data streams**: 
-- section describing how it works and the syntax 
+
+Honeybee allows users to fetch multiple types of data from sensor endpoints in a single request. In our current database design, we are able to pull raw and calibrated values from the database, simultaneously fetching from the `value_raw` and `value_cal` columns.
+
+**Honeybee has a system-level default for what column value to extract, `value_raw`, which users are able to override using the CLI.**
+
+Syntax: add `--value-column=...` when running in the CLI.
+
+ex: ./install/bin/hb-get-data gass sccm **--value-column=value_cal** --config=/Users/nobeltsegai/Documents/CENPA/project-8/first-Mesh-Honeybee/SensorTable.ktf --from="2025-08-21T08:04:00Z" --to="2025-08-21T08:08:00Z"
+
+**Users are able to individually define the column level for each specified endpoint in the ktf file.**
+
+Examples: 
+Currently the system default is `value_raw`, which is raw values from the database. We will continue with this assumption for the examples below.
+
+In the example below, this endpoint is mapped to the system default since `field` is omitted.
+```
+#           channel:
+#             id: { name: torr, label: Vacuum pressure in Torr }
+#             x-dripline_endpoint: 
+#               tag: pirani
+```
+
+Example of pulling raw value for pirani readout:
+Note: in this instance, since the system default is `value_raw`, this is not necessary.
+```
+#           channel:
+#             id: { name: torr, label: Vacuum pressure in Torr }
+#             x-dripline_endpoint: 
+#               tag: pirani
+#               field: value_raw
+```
+
+Example of retrieving calibrated values for the pirani readout:
+```
+#           channel:
+#             id: { name: torr, label: Vacuum pressure in Torr }
+#             x-dripline_endpoint: 
+#               tag: pirani
+#               field: value_cal
+```
+
+You could also have multiple channels from the same endpoint (e.g., pirani) but with different field values.
+
+**Honeybee's Column selection hierarchy**: 
+The priority order is:
+Sensor-level explicit field (dripline_endpoint_field in KTF config)
+    Requested/overridden default column (--value-column=... from CLI)
+        Application fallback (current default behavior when no override is provided)
 
 
-### 3.2 Additional Notes: 
-
+### 3.2 Additional Notes:
 
 - User defined function and global variables can be used within the function script just like a regular programming language
     
     --> function calling functions
     --> Variables being called within function 
 
+- Current Issues:
 
+    - (Kebap) Lack of (true) line number propagation when encountering a bug from imported code
+        In the case of an error from code in the imported file, users get only the relative file line number. This is where the buggy function or variable is being called in the main KTF file.
+        - Currently Kebap lacks the functionality to carry sourcefile metadata for imports
+        - Temporary solution: user can still use their search command to find function/variable
 
 Resolving bugs: 
 
@@ -368,7 +380,4 @@ Things to check when running into issue:
     To check, open up a session into your database and check 
             SELECT MIN(timestamp), MAX(timestamp) FROM {table_name};
 
-- Ensure your binary is up-to-date and not lagged behind an older version, and follow readme instructions for proper build instructions 
-
-
-
+- Ensure your binary is up-to-date and not lagging behind an older version, and follow README instructions for proper build instructions.
