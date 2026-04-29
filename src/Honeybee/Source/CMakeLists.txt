@@ -10,6 +10,7 @@ add_library(HoneybeeLib STATIC
   series.cc
   utils.cc
   evaluator.cc
+  error_logger.cc
 )
 
 set(MyPublicHeaders
@@ -24,6 +25,7 @@ set(MyPublicHeaders
   series.hh
   utils.hh
   evaluator.hh
+  error_logger.hh
 )
 
 target_compile_features(HoneybeeLib PRIVATE cxx_std_14)

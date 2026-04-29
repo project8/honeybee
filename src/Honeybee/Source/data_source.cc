@@ -14,6 +14,7 @@
 #include "sensor_table.hh"
 #include "sensor_config.hh"
 #include "pgsql.hh"
+#include "error_logger.hh"
 #include "data_source.hh"
 
 using namespace std;
@@ -237,6 +238,7 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
     //seperating endpoints name based on their data type pref using the f_endpoint_n_field_table
 
     vector<series> t_series_list;
+    auto& t_logger = error_logger::instance();
 
     map<string, map<string, vector<unsigned>>> t_column_index_table;
     map<string, set<string>> t_column_target_sets;
@@ -259,9 +261,17 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
     // having a class to do all this pre-processing error logging, and use that in these situation , a global instance. 
     bool valid_col = find(t_valid_columns.begin(), t_valid_columns.end(), value_column) != t_valid_columns.end();
     if (!valid_col) { 
-        throw runtime_error(
-            string("invalid default data column '") + value_column + "'"
+        t_logger.warn(
+            "data_source",
+            "invalid_default_column",
+            string("invalid default data column '") + value_column + "'; returning NaN series"
         );
+
+        for (auto t_sensor: a_sensor_list) {
+            t_series_list.emplace_back(a_from, a_to);
+            t_series_list.back().emplace_back(a_from, numeric_limits<double>::quiet_NaN());
+        }
+        return t_series_list;
     }
     
     for (auto t_sensor: a_sensor_list) {
@@ -292,6 +302,8 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
 
 void dripline_pgsql::fetch_column(vector<series>& a_series_list, const map<string, vector<unsigned>>& a_endpoint_index_table, const string& a_targets, const string& a_column, double a_from, double a_to, double a_resampling_interval, const std::string& a_reducer)
 {
+    auto& t_logger = error_logger::instance();
+
     if (a_targets.empty()) {
         return;
     }
@@ -445,6 +457,11 @@ void dripline_pgsql::fetch_column(vector<series>& a_series_list, const map<strin
             }
         };
         if (f_pgsql.query(t_sql, t_handler) < 0) {
+            t_logger.error(
+                "db",
+                "db_query_error",
+                string("DB Query Error: SQL: ") + t_sql
+            );
             throw std::runtime_error("DB Query Error: SQL: " + t_sql);
         }
 #endif

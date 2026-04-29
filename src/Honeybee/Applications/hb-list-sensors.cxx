@@ -7,6 +7,7 @@
 #include <iostream>
 #include <tabree/KArgumentList.h>
 #include "honeybee.hh"
+#include "error_logger.hh"
 
 namespace hb = honeybee;
 
@@ -29,6 +30,9 @@ int main(int argc, char** argv)
         std::cerr << "  --delimiter-input=VALUE  set channel name delimiter in the data store"<< std::endl;
         std::cerr << "  --delimiter-output=VALUE set channel name delimiter for output"<< std::endl;
         std::cerr << "  --verbose                make it verbose"<< std::endl;
+        std::cerr << "  --log-mode=MODE          all|first|counted|summary"<< std::endl;
+        std::cerr << "  --log-metadata           enable metadata/stage logger output"<< std::endl;
+        std::cerr << "  --no-log-metadata        disable metadata/stage logger output"<< std::endl;
         return -1;
     }
 
@@ -69,6 +73,28 @@ int main(int argc, char** argv)
     if (! args["--verbose"].IsVoid()) {
         hb::g_log_level = hb::e_log_level_info;
     }
+
+    auto& t_logger = hb::error_logger::instance();
+    std::string t_log_mode = args["--log-mode"].Or("");
+    if (t_log_mode == "all") {
+        t_logger.set_message_mode(hb::error_logger::e_message_all);
+    }
+    else if (t_log_mode == "first") {
+        t_logger.set_message_mode(hb::error_logger::e_message_first_only);
+    }
+    else if (t_log_mode == "counted") {
+        t_logger.set_message_mode(hb::error_logger::e_message_first_with_count);
+    }
+    else if (t_log_mode == "summary") {
+        t_logger.set_message_mode(hb::error_logger::e_message_summary);
+    }
+
+    if (! args["--log-metadata"].IsVoid()) {
+        t_logger.set_metadata_enabled(true);
+    }
+    if (! args["--no-log-metadata"].IsVoid()) {
+        t_logger.set_metadata_enabled(false);
+    }
     
     
     //// Construction ////
@@ -104,6 +130,8 @@ int main(int argc, char** argv)
         delimiter = ",";
     }
     std::cout << std::endl << "]" << std::endl;
+
+    t_logger.create_summary();
 
     return 0;
 }
