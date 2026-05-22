@@ -31,8 +31,7 @@ int main(int argc, char** argv)
         std::cerr << "  --delimiter-output=VALUE set channel name delimiter for output"<< std::endl;
         std::cerr << "  --verbose                make it verbose"<< std::endl;
         std::cerr << "  --log-mode=MODE          all|first|counted|summary"<< std::endl;
-        std::cerr << "  --log-metadata           enable metadata/stage logger output"<< std::endl;
-        std::cerr << "  --no-log-metadata        disable metadata/stage logger output"<< std::endl;
+        std::cerr << "  --log-level=LEVEL        set minimum log level: panic,error,warn,info,debug or 1..5" << std::endl;
         return -1;
     }
 
@@ -70,10 +69,6 @@ int main(int argc, char** argv)
         }
     }
     
-    if (! args["--verbose"].IsVoid()) {
-        hb::g_log_level = hb::e_log_level_info;
-    }
-
     auto& t_logger = hb::error_logger::instance();
     std::string t_log_mode = args["--log-mode"].Or("");
     if (t_log_mode == "all") {
@@ -89,11 +84,36 @@ int main(int argc, char** argv)
         t_logger.set_message_mode(hb::error_logger::e_message_summary);
     }
 
-    if (! args["--log-metadata"].IsVoid()) {
-        t_logger.set_metadata_enabled(true);
+    auto parse_log_level = [](const std::string& s) -> hb::log_level_t {
+        if (s.empty()) {
+            return hb::e_log_level_warn;
+        }
+        std::string t = s;
+        for (auto &c: t) c = std::tolower(c);
+        if (t == "panic" || t == "1") {
+            return hb::e_log_level_panic;
+        }
+        if (t == "error" || t == "2") {
+            return hb::e_log_level_error;
+        }
+        if (t == "warn"  || t == "3") {
+            return hb::e_log_level_warn;
+        }
+        if (t == "info"  || t == "4") {
+            return hb::e_log_level_info;
+        }
+        if (t == "debug" || t == "5") {
+            return hb::e_log_level_debug;
+        }
+        return hb::e_log_level_warn;
+    };
+
+    std::string t_log_level = args["--log-level"].Or("");
+    if (! t_log_level.empty()) {
+        t_logger.set_min_level(parse_log_level(t_log_level));
     }
-    if (! args["--no-log-metadata"].IsVoid()) {
-        t_logger.set_metadata_enabled(false);
+    else if (! args["--verbose"].IsVoid()) {
+        t_logger.set_min_level(hb::e_log_level_info);
     }
     
     

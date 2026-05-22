@@ -5,6 +5,7 @@
 #include "sensor_config.hh"
 #include "sensor_table.hh"
 #include "utils.hh"
+#include "error_logger.hh"
 namespace honeybee {
 
 void sensor_config_by_names::set_delimiters(const string& a_input_delimiters, const string& a_output_delimiter)
@@ -15,10 +16,10 @@ void sensor_config_by_names::set_delimiters(const string& a_input_delimiters, co
 
 void sensor_config_by_names::load(sensor_table& a_table, const vector<string>& a_name_list, name_chain a_basename)
 {
-    hINFO(cerr << "Sensor ID matching or creation" << endl);
+    hINFO("Sensor ID matching or creation");
     if (! f_name_space.empty()) {
-        hINFO(cerr << "    Namespace: " << f_name_space << endl);
-        hINFO(cerr << "    Basename: " << a_basename.join() << endl);
+        hINFO("    Namespace: " << f_name_space);
+        hINFO("    Basename: " << a_basename.join());
     }
 
     map<string, string> t_binding;
@@ -33,10 +34,13 @@ void sensor_config_by_names::load(sensor_table& a_table, const vector<string>& a
     }
 
     for (const string& t_name: a_name_list) {
+        // Demo case: repeated warning
+        hWARN("demo warning for binding candidate '" << t_name << "'");
+
         // explicit matching
         auto t_explicit_iter = t_binding.find(t_name);
         if (t_explicit_iter != t_binding.end()) {
-            hINFO(cerr << "    Explicit: " << t_name << " => " << t_explicit_iter->second << endl);
+            hINFO("    Explicit: " << t_name << " => " << t_explicit_iter->second);
             continue;
         }
         
@@ -48,16 +52,16 @@ void sensor_config_by_names::load(sensor_table& a_table, const vector<string>& a
         auto t_sensor_matches = a_table.find_like(t_chain);
         if (t_sensor_matches.size() == 1) {
             t_sensor = a_table[t_sensor_matches.front()];
-            hINFO(cerr << "    Inferred: " << t_name << " => " << t_sensor.get_name().join(f_output_delimiter) << endl);
+            hINFO("    Inferred: " << t_name << " => " << t_sensor.get_name().join(f_output_delimiter));
         }
 
         // non-unique matching, error, skipped
         else if (t_sensor_matches.size() > 1) {
-            hERROR(cerr << "    Mutiple possibilities on binding: " << t_name << ": " << endl);
+            hERROR("    Mutiple possibilities on binding: " << t_name << ": ");
             for (auto& s: t_sensor_matches) {
-                hERROR(cerr << "        " << a_table[s].get_name().join(f_output_delimiter) << endl);
+                hERROR("        " << a_table[s].get_name().join(f_output_delimiter));
             }
-            hERROR(cerr << "      hint: use explicit binding to resolve ambiguity" << endl);
+            hERROR("      hint: use explicit binding to resolve ambiguity");
             continue;
         }
 
@@ -65,7 +69,7 @@ void sensor_config_by_names::load(sensor_table& a_table, const vector<string>& a
         if (! t_sensor) {
             auto t_number = a_table.create_unique_number();
             t_sensor = sensor{t_number, t_chain, t_chain};
-            hINFO(cerr << "    Created: " << t_name << " => " << t_sensor.get_name().join(f_output_delimiter) << endl);
+            hINFO("    Created: " << t_name << " => " << t_sensor.get_name().join(f_output_delimiter));
         }
         if (! f_name_space.empty()) {
             t_sensor.set_option(f_name_space, t_name);

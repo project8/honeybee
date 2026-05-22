@@ -6,6 +6,7 @@
  */
 
 #include "utils.hh"
+#include "error_logger.hh"
 #include "pgsql.hh"
 #include <iostream>
 #include <string>
@@ -33,13 +34,13 @@ int pgsql::query(const string& a_sql, handler a_handler, bool a_header_enabled)
         if (f_uri.substr(0, 13) != "postgresql://") {
             f_uri = "postgresql://" + f_uri;
         }
-        hINFO(cerr << "connecting to DB (" + f_uri + ")..." << endl);
+        hINFO("connecting to DB (" + f_uri + ")...");
         auto connection = PQconnectdb(f_uri.c_str());
         if (PQstatus(connection) == CONNECTION_BAD) {
             throw std::runtime_error(string("DB Connection: ") + PQerrorMessage(connection));
         }
         f_connection = connection;
-        hINFO(cerr << "    DB connected." << endl);
+        hINFO("    DB connected.");
     }
     
     auto* resp = PQexec(f_connection, a_sql.c_str());

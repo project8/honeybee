@@ -12,6 +12,8 @@
 #include "sensor_config_by_ktf.hh"
 #include "sensor_table.hh"
 #include "kebap_calibration.hh"
+#include "utils.hh"
+#include "error_logger.hh"
 
 using namespace std;
 using namespace honeybee;
@@ -33,7 +35,7 @@ void sensor_config_by_ktf::set_variables(const sensor_config_by_ktf::variables& 
 void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
 {
     f_ktf_path = a_filename;
-    cout << "Loading KTF file: " << a_filename << endl;
+    hINFO("Loading KTF file: " << a_filename);
     
     // Read KTF file
     tabree::KTree t_tree;
@@ -48,7 +50,7 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
     // Extract and compile scripts
     string t_scripts = extract_scripts();
     if (!t_scripts.empty()) {
-        cout << "Extracted Kebap scripts (" << t_scripts.length() << " bytes)" << endl;
+        hINFO("Extracted Kebap scripts (" << t_scripts.length() << " bytes)");
         try {
             f_standard_parser = make_shared<kebap::KPStandardParser>();
             std::istringstream script_stream(t_scripts);
@@ -58,7 +60,7 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
             // Executing bare statements immediately after parsing
             f_standard_parser->GetModule()->ExecuteBareStatements(f_standard_parser->GetSymbolTable());
             
-            cout << "Successfully compiled Kebap parser" << endl;
+            hINFO("Successfully compiled Kebap parser");
         }
         catch (kebap::KPException &e) {
             cerr << "ERROR: Failed to parse Kebap scripts: " << e.what() << endl;
@@ -66,20 +68,20 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
             return;
         }
     } else {
-        cout << "No Kebap scripts found in ktf header" << endl;
+        hINFO("No Kebap scripts found in ktf header");
     }
     
     // Recursively load and configure sensors from hierarchical KTF structure
     load_context t_context;
     load_layer(a_table, t_tree["sensor_table"], t_context);
-    cout << "Completed loading ktf file" << endl;
+    hINFO("Completed loading ktf file");
 }
 
 string sensor_config_by_ktf::extract_scripts()
 {
     ifstream t_file(f_ktf_path);
     if (!t_file.is_open()) {
-        cout << "Could not open ktf file for script extraction" << endl;
+        hINFO("Could not open ktf file for script extraction");
         return "";  // File read error, cont without scripts
     }
     
@@ -215,22 +217,22 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree
     
     // Create kebap_calibration if calibration string exists and parser is valid
     if (!t_calibration.empty() && f_standard_parser) {
-        cout << "Attaching calibration to " << t_name_chain.front() 
-             << ": \"" << t_calibration << "\"" << endl;
+        hINFO("Attaching calibration to " << t_name_chain.front() 
+             << ": \"" << t_calibration << "\"");
         try {
             auto t_calib = make_shared<kebap_calibration>(t_sensor, a_table, f_standard_parser.get(), f_ktf_path);
             t_sensor.set_calibration_object(t_calib);
-            cout << "Successfully compiled calibration expression" << endl;
+            hINFO("Successfully compiled calibration expression");
         }
         catch (exception &e) {
             cerr << "WARNING: Could not create calibration for " 
                  << t_name_chain.front() << ": " << e.what() << endl;
         }
     } else if (!t_calibration.empty() && !f_standard_parser) {
-        cout << "Calibration string exists but no Kebap parser available: " 
-             << t_calibration << endl;
+        hINFO("Calibration string exists but no Kebap parser available: " 
+             << t_calibration);
     } else {
-        cout << "No calibration for sensor: " << t_name_chain.front() << endl;
+        hINFO("No calibration for sensor: " << t_name_chain.front());
     }
     
     // Extract and set options

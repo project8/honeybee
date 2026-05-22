@@ -13,28 +13,87 @@
 #include <map>
 #include <iostream>
 #include <cstring>
-
+#include <sstream>
 
 #define __FILENAME__ (std::strrchr(__FILE__, '/') ? std::strrchr(__FILE__, '/')+1 : __FILE__)
-#define hDEBUG(x) ((g_log_level >= e_log_level_debug) && (std::cerr << "##DEBUG: " << __FILENAME__ << ":" << __LINE__ << ": ") && (x))
-#define hINFO(x) ((g_log_level >= e_log_level_info) && (std::cerr << "##INFO: ") && (x))
-#define hWARN(x) ((g_log_level >= e_log_level_warn) && (std::cerr << "##WARN: ") && (x))
-#define hERROR(x) ((g_log_level >= e_log_level_error) && (std::cerr << "##ERROR: ") && (x))
-#define hPANIC(x) ((g_log_level >= e_log_level_panic) && (std::cerr << "##PANIC: ") && (x))
+
+namespace honeybee {
+
+  enum log_level_t {
+    e_log_level_panic = 1,
+    e_log_level_error = 2,
+    e_log_level_warn = 3,
+    e_log_level_info = 4,
+    e_log_level_debug = 5,
+    e_number_of_log_levels
+  };
+
+  extern log_level_t g_log_level;
+
+}
+
+namespace honeybee {
+  int error_logger_get_next_static_id();
+
+  // in this case, make it more general, so have put a level inside of(while making it one) and then based on the elvel do specific things 
+  void error_logger_log_c(log_level_t a_level, const std::string& a_category, const std::string& a_error_type, const std::string& a_site_id, const std::string& a_message);
+  
+}
+
+// #define hDEBUG(x) ((g_log_level >= e_log_level_debug) && (std::cerr << "##DEBUG: " << __FILENAME__ << ":" << __LINE__ << ": ") && (x))
+// #define hINFO(x) ((g_log_level >= e_log_level_info) && (std::cerr << "##INFO: ") && (x))
+
+// 
+
+// for each level, have if statements that check, so you should only run them when certain level, so for info, if level is 2, then run it
+// greater than or less for enum
+
+// look into ndebug 
+
+// Route info/debug through logger metadata flag for unified control. 
+// need to show that you are using it at compile time 
+#ifndef NDEBUG
+#define hDEBUG(x) do { \
+    std::ostringstream _hb_oss; _hb_oss << x; \
+    honeybee::error_logger_log_c(honeybee::e_log_level_debug, __FILENAME__, "", "", _hb_oss.str()); \
+} while(0)
+#else
+#define hDEBUG(x) {}
+#endif
+
+#define hINFO(x) do { \
+    std::ostringstream _hb_oss; _hb_oss << x; \
+    honeybee::error_logger_log_c(honeybee::e_log_level_info, __FILENAME__, "", "", _hb_oss.str()); \
+} while(0)
+
+// Route warnings/errors/.. through the central logger using a stable call-site id.
+#define hWARN(x) do { \
+  std::ostringstream _hb_oss; _hb_oss << x; \
+  static int _hb_warn_id = honeybee::error_logger_get_next_static_id(); \
+  honeybee::error_logger_log_c(honeybee::e_log_level_warn, __FILENAME__, "warn", \
+                              std::string("warn_") + std::to_string(_hb_warn_id), \
+                              _hb_oss.str()); \
+} while(0)
+
+#define hERROR(x) do { \
+  std::ostringstream _hb_oss; _hb_oss << x; \
+  static int _hb_error_id = honeybee::error_logger_get_next_static_id(); \
+  honeybee::error_logger_log_c(honeybee::e_log_level_error, __FILENAME__, "error", \
+                              std::string("error_") + std::to_string(_hb_error_id), \
+                              _hb_oss.str()); \
+} while(0)
+
+#define hPANIC(x) do { \
+  std::ostringstream _hb_oss; _hb_oss << x; \
+  static int _hb_panic_id = honeybee::error_logger_get_next_static_id(); \
+  honeybee::error_logger_log_c(honeybee::e_log_level_panic, __FILENAME__, "panic", \
+                              std::string("panic_") + std::to_string(_hb_panic_id), \
+                              _hb_oss.str()); \
+} while(0)
 
 
 
 namespace honeybee {
-
-    enum log_level_t {
-        e_log_level_panic = 1,
-        e_log_level_error = 2,
-        e_log_level_warn = 3,
-        e_log_level_info = 4,
-        e_log_level_debug = 5,
-        e_number_of_log_levels
-    };
-    extern log_level_t g_log_level;
 
     
     class datetime {

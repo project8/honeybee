@@ -11,6 +11,8 @@
 #include <set>
 #include <algorithm>
 #include <regex>
+#include <limits>
+#include <stdexcept>
 #include "sensor_table.hh"
 #include "sensor_config.hh"
 #include "pgsql.hh"
@@ -23,14 +25,19 @@ using namespace honeybee;
 
 static string sanitize(const string& text, const string& pattern=R"([a-zA-Z0-9_]+)")
 {
+    auto& t_logger = error_logger::instance();
     try {
         regex re(pattern);
         if (! regex_match(text, re)) {
-            throw std::runtime_error(string("sanitization fault (pattern: ") + pattern + "): " + text);
+            string t_message = string("sanitization fault (pattern: ") + pattern + "): " + text;
+            t_logger.error("data_source", "sanitization_fault", t_message);
+            throw std::runtime_error(t_message);
         }
     }
-    catch (std::exception &e) {
-        throw std::runtime_error(string("sanitization fault: ") + e.what() + ": " + text);
+    catch (const std::regex_error& e) {
+        string t_message = string("sanitization fault: ") + e.what() + ": " + text;
+        t_logger.error("data_source", "sanitization_fault", t_message);
+        throw std::runtime_error(t_message);
     }
 
     return text;
@@ -44,15 +51,15 @@ void data_source::bind(sensor_table& a_sensor_table)
 {
     // NOTE: Calibration objects are now created and attached directly when loading KTF files
     // via sensor_config_by_ktf and kebap_calibration.
-    hINFO(cerr << "Calibration Chain (from sensor attached objects):" << endl);
+    hINFO("Calibration Chain (from sensor attached objects):");
     for (int t_sensor_number: a_sensor_table.find_like({{}})) {
         auto& t_sensor = a_sensor_table[t_sensor_number];
         if (t_sensor.get_calibration().empty()) {
             continue;
         }
-        hINFO(cerr
-              << "    " << t_sensor.get_name().join(".") << " : "
-              << t_sensor.get_calibration() << endl
+        hINFO(
+              "    " << t_sensor.get_name().join(".") << " : "
+              << t_sensor.get_calibration()
         );
         
         // Store calibration object in f_calibration_table for orchestration
@@ -102,6 +109,7 @@ int data_source::find_input(int a_sensor)
 void data_source::apply_calibration(int a_sensor, series& a_series)
 {
     // Recursive orchestration: applies calibrations from input sensor up through the dependency chain
+    auto& t_logger = error_logger::instance();
     auto iter = f_calibration_table.find(a_sensor);
     if (iter == f_calibration_table.end()) {
         return;  // Base sensor - no calibration
@@ -119,9 +127,11 @@ void data_source::apply_calibration(int a_sensor, series& a_series)
         }
     }
     catch (exception& e) {
-        throw runtime_error(string("Sensor ID ") + to_string(a_sensor) + ": " + e.what());
+        string t_message = string("Sensor ID ") + to_string(a_sensor) + ": " + e.what();
+        t_logger.error("data_source", "calibration_apply_error", t_message);
+        throw runtime_error(t_message);
     }
-    hINFO(cerr << "Calibration: " << t_calib->get_description() << endl);
+    hINFO("Calibration: " << t_calib->get_description());
 }
 
 
@@ -143,13 +153,14 @@ vector<series> data_source::fetch(const vector<int>& a_sensor_list, double a_fro
 dripline_pgsql::dripline_pgsql(string a_uri, name_chain a_basename, const string& a_input_delimiters, const string& a_output_delimiter)
 : f_db_uri(a_uri), f_basename(a_basename.get_chain()), f_input_delimiters(a_input_delimiters), f_output_delimiter(a_output_delimiter)
 {
+    auto& t_logger = error_logger::instance();
     f_pgsql.set_db(f_db_uri);
 
     f_has_idmap = false; {
         vector<string> t_tables = f_pgsql.get_table_list();
         for (auto& t: t_tables) {
             if (t == "endpoint_id_map") {
-                hINFO(cerr << "Found Dripline ID-Map" << endl);
+                hINFO("Found Dripline ID-Map");
                 f_has_idmap = true;
                 break;
             }
@@ -166,9 +177,14 @@ dripline_pgsql::dripline_pgsql(string a_uri, name_chain a_basename, const string
         }
     }
     if (f_sensorname_column.empty()) {
+        t_logger.error(
+            "db",
+            "missing_sensorname_column",
+            "unable to identify sensor-name column in Dripline Table"
+        );
         throw std::runtime_error("unable to identify sensor-name column in Dripline Table");
     }
-    hINFO(cerr << "Dripline Sensor-Name Column: " << f_sensorname_column << endl);
+    hINFO("Dripline Sensor-Name Column: " << f_sensorname_column);
 }
 
 vector<string> dripline_pgsql::get_data_names()
@@ -177,14 +193,14 @@ vector<string> dripline_pgsql::get_data_names()
         return f_data_names;
     }
         
-    hINFO(cerr << "getting Dripline end-point names..." << endl);
+    hINFO("getting Dripline end-point names...");
     string t_sql = "select distinct " + f_sensorname_column;
     t_sql += (f_has_idmap ? " from endpoint_id_map" : " from numeric_data");
     auto t_handler = [&](int a_row, int a_col, const char* a_value) {
         f_data_names.emplace_back(a_value);
     };
     f_pgsql.query(t_sql, t_handler);
-    hINFO(cerr << "    " << f_data_names.size() << " end-points found." << endl);
+    hINFO("    " << f_data_names.size() << " end-points found.");
 
     return f_data_names;
 }
@@ -193,9 +209,9 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
 {
     // 1: get data names
     vector<string> t_dripline_names = this->get_data_names();
-    hINFO(cerr << "Dripline Endpoints: " << endl);
+    hINFO("Dripline Endpoints: ");
     for (auto& name: t_dripline_names) {
-        hINFO(cerr << "    " << name << endl);
+        hINFO("    " << name);
     }
 
     // 2: construct sensor entries from Dripline endpoints
@@ -206,7 +222,7 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
     t_config.load(a_sensor_table, t_dripline_names, f_basename);
 
     // 3: make a Dripline endpoint table
-    hINFO(cerr << "Dripline Endpoint Binding: " << endl);
+    hINFO("Dripline Endpoint Binding: ");
     set<string> t_endpoint_list(t_dripline_names.begin(), t_dripline_names.end());
     for (int t_number: a_sensor_table.find_like({{}})) { // --> getting all sensors
         const sensor& t_sensor = a_sensor_table[t_number];
@@ -215,7 +231,7 @@ void dripline_pgsql::bind_inputs(sensor_table& a_sensor_table)
 
         if (t_endpoint_list.count(t_endpoint) > 0) {
             f_endpoint_n_field_table[t_number] = {t_endpoint, t_field}; //---> HERE, STORES THE ENDPOINT MAPPING, like 131 --> {name, field pref(calibrated or raw)}
-            hINFO(cerr << "    " << t_endpoint << " => " << t_sensor.get_name().join(f_output_delimiter) << endl);
+            hINFO("    " << t_endpoint << " => " << t_sensor.get_name().join(f_output_delimiter));
         }
     }
 }
@@ -261,13 +277,9 @@ vector<series> dripline_pgsql::fetch(const vector<int>& a_sensor_list, double a_
     // having a class to do all this pre-processing error logging, and use that in these situation , a global instance. 
     bool valid_col = find(t_valid_columns.begin(), t_valid_columns.end(), value_column) != t_valid_columns.end();
     if (!valid_col) { 
-        t_logger.warn(
-            "data_source",
-            "invalid_default_column",
-            string("invalid default data column '") + value_column + "'; returning NaN series"
-        );
-
         for (auto t_sensor: a_sensor_list) {
+            // Demo case: same warning 
+            hWARN("invalid default data column '" << value_column << "' for sensor '" << t_sensor << "'; returning NaN series");
             t_series_list.emplace_back(a_from, a_to);
             t_series_list.back().emplace_back(a_from, numeric_limits<double>::quiet_NaN());
         }
@@ -438,8 +450,8 @@ void dripline_pgsql::fetch_column(vector<series>& a_series_list, const map<strin
             + "  timestamp asc"
         );
 
-        hINFO(cerr << "SQL: " << endl);
-        hINFO(cerr << "    " << t_sql << endl);
+        hINFO("SQL: ");
+        hINFO("    " << t_sql);
 
         double time;
         map<string, vector<unsigned>>::const_iterator t_channel_iter;

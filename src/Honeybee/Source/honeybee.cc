@@ -10,6 +10,7 @@
 #include <set>
 #include <tabree/KTreeFile.h>
 #include "honeybee.hh"
+#include "error_logger.hh"
 #include "sensor_config_by_ktf.hh"
 
 using namespace std;
@@ -97,7 +98,7 @@ void honeybee_app::construct()
             tabree::KTreeFile(f_config_file_path).Read(t_config);
         }
         catch (exception &e) {
-            hERROR(cerr << e.what());
+            hERROR(e.what());
             return;
         }
     }
@@ -106,16 +107,16 @@ void honeybee_app::construct()
     }
 
     if (! f_config_file_path.empty()) {
-        hINFO(cerr << "loading " << f_config_file_path << endl);
+        hINFO("loading " << f_config_file_path);
         auto t_loader = make_shared<sensor_config_by_ktf>();
         t_loader->set_variables(f_variables);
         t_loader->load(*f_sensor_table, f_config_file_path);
         f_loaders[f_config_file_path] = t_loader;
-        hINFO(cerr << f_sensor_table->find_like({{}}).size() << " sensors defined" << endl);
+        hINFO(f_sensor_table->find_like({{}}).size() << " sensors defined");
     }
 
     if (t_config["data_source"]["dripline_psql"]["uri"].IsVoid()) {
-        hINFO(cerr << "No data source defined");
+        hINFO("No data source defined");
     }
 
     if (f_input_delimiters.empty()) {
@@ -147,10 +148,10 @@ void honeybee_app::construct()
     string t_db_uri = t_config["data_source"]["dripline_psql"]["uri"];
     string t_basename = t_config["data_source"]["dripline_psql"]["basename"];
     if (t_db_uri.empty()) {
-        hERROR(cerr << "No Dripline Datasource found" << endl);
+        hERROR("No Dripline Datasource found");
     }
     else {
-        hINFO(cerr << "Dripline Datasource: " << t_db_uri << endl);
+        hINFO("Dripline Datasource: " << t_db_uri);
         f_data_source = make_shared<dripline_pgsql>(
             t_db_uri, name_chain{t_basename, f_input_delimiters}, f_input_delimiters, f_output_delimiter
         );
@@ -193,7 +194,7 @@ series_bundle honeybee_app::read(const vector<string>& a_sensor_list, double a_f
     for (auto& t_name: a_sensor_list) {
         auto t_matched_sensors = f_sensor_table->find_like(name_chain(t_name, f_input_delimiters));
         if (t_matched_sensors.empty()) {
-            hINFO(cerr << "undefined sensor name: " << t_name << endl);
+            hINFO("undefined sensor name: " << t_name);
             t_sensor_number_list.push_back(0);
             t_sensor_name_list.push_back(t_name);
             continue;
@@ -210,8 +211,8 @@ series_bundle honeybee_app::read(const vector<string>& a_sensor_list, double a_f
         }
     }
 
-    hINFO(cerr << "getting data ");
-    hINFO(cerr << "(" << datetime(a_from).as_string() << " to " << datetime(a_to).as_string() << ")..." << flush);
+    hINFO("getting data ");
+    hINFO("(" << datetime(a_from).as_string() << " to " << datetime(a_to).as_string() << ")...");
     datetime start = datetime::now();
     
     vector<series> t_series_list;
@@ -226,12 +227,12 @@ series_bundle honeybee_app::read(const vector<string>& a_sensor_list, double a_f
         );
     }
     catch (exception& e) {
-        hERROR(cerr << "Error reading data: " << e.what() << endl);
+        hERROR("Error reading data: " << e.what());
         return series_bundle();
     }
     
     datetime stop = datetime::now();
-    hINFO(cerr << "done. (" << (stop-start) << " s)" << endl);
+    hINFO("done. (" << (stop-start) << " s)");
 
     
     // Resampling might have be done on the server-side, might not.
@@ -251,12 +252,12 @@ void honeybee_app::find_default_config()
     if (path == NULL) {
         return;
     }
-    hINFO(cerr << "HONEYBEE_CONFIG_PATH: " << path << endl);
+    hINFO("HONEYBEE_CONFIG_PATH: " << path);
 
     vector<string> file_list; {
         DIR *dir;
         if ((dir = opendir(path)) == NULL) {
-            hERROR(cerr << "unable to open dir: " << path << endl);
+            hERROR("unable to open dir: " << path);
             return;
         }
         struct dirent *entry;
@@ -271,7 +272,7 @@ void honeybee_app::find_default_config()
     for (string file: file_list) {
         if (file.substr(file.size()-4) == ".ktf") {
             this->add_config_file(string(path) + "/" + file);
-            hINFO(cerr << "Adding config file: " << string(path) + "/" + file << endl);
+            hINFO("Adding config file: " << string(path) + "/" + file);
         }
     }
 }

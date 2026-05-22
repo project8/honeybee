@@ -29,14 +29,14 @@ namespace honeybee {
         void set_message_mode(message_mode_t a_mode) { f_message_mode = a_mode; }
         // message_mode_t get_message_mode() const { return f_message_mode; }
 
-        // this is for the metadata before showing the actual data 
-        void set_metadata_enabled(bool a_enabled) { f_metadata_enabled = a_enabled; }
-        bool is_metadata_enabled() const { return f_metadata_enabled; }
+        void set_min_level(log_level_t a_level) { f_min_level = a_level; }
+        log_level_t get_min_level() const { return f_min_level; }
 
         void clear();
 
         void log(log_level_t a_level, const string& a_category, const string& a_error_id, const string& a_message);
         // wrappers for log at various levels 
+        void panic(const string& a_category, const string& a_error_id, const string& a_message);
         void error(const string& a_category, const string& a_error_id, const string& a_message);
         void warn(const string& a_category, const string& a_error_id, const string& a_message);
         void info(const string& a_category, const string& a_error_id, const string& a_message);
@@ -61,6 +61,7 @@ namespace honeybee {
             log_level_t level;  //      id: invalid_default_column, last_msg: ..., count: 4}
             string category;
             string error_id;
+            string first_message; // first message seen for this error_id
             string last_message;  // most recent message text for that error_id
             unsigned count;
         };
@@ -82,7 +83,7 @@ namespace honeybee {
 
       protected:
         message_mode_t f_message_mode;
-        bool f_metadata_enabled;
+        log_level_t f_min_level;
         map<string, message_record> f_records; // fast looking, updating count, make_key helps 
         vector<string> f_order; // keys in FCFS order for summary 
     };
