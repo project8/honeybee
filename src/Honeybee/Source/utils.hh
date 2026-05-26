@@ -35,23 +35,11 @@ namespace honeybee {
 namespace honeybee {
   int error_logger_get_next_static_id();
 
-  // in this case, make it more general, so have put a level inside of(while making it one) and then based on the elvel do specific things 
+  // generalized for all, a_level specfication determines what the function does
   void error_logger_log_c(log_level_t a_level, const std::string& a_category, const std::string& a_error_type, const std::string& a_site_id, const std::string& a_message);
   
 }
 
-// #define hDEBUG(x) ((g_log_level >= e_log_level_debug) && (std::cerr << "##DEBUG: " << __FILENAME__ << ":" << __LINE__ << ": ") && (x))
-// #define hINFO(x) ((g_log_level >= e_log_level_info) && (std::cerr << "##INFO: ") && (x))
-
-// 
-
-// for each level, have if statements that check, so you should only run them when certain level, so for info, if level is 2, then run it
-// greater than or less for enum
-
-// look into ndebug 
-
-// Route info/debug through logger metadata flag for unified control. 
-// need to show that you are using it at compile time 
 #ifndef NDEBUG
 #define hDEBUG(x) do { \
     std::ostringstream _hb_oss; _hb_oss << x; \

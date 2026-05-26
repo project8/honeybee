@@ -199,28 +199,6 @@ void error_logger::create_summary(ostream& a_os) const
     }
 }
 
-// logs a titled metadata block with multiple items
-// void error_logger::metadata(const string& a_title, const vector<string>& a_items)
-// {
-//     if (! f_metadata_enabled || ! should_print(e_log_level_info)) {
-//         return;
-//     }
-
-//     emit_line(cerr, e_log_level_info, "metadata", a_title, "");
-//     for (const auto& t_item: a_items) {
-//         emit_line(cerr, e_log_level_info, "metadata", "", string("    ") + t_item);
-//     }
-// }
-
-// logs a single key-value metadata entry
-// void error_logger::metadata_kv(const string& a_key, const string& a_value)
-// {
-//     if (! f_metadata_enabled) {
-//         return;
-//     }
-//     info("metadata", a_key, a_value);
-// }
-
 // formats and writes a single log line to stderr
 void error_logger::emit_line(ostream& a_os, log_level_t a_level, const string& a_category, const string& a_error_id, const string& a_message) const
 {
