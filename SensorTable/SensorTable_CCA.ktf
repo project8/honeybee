@@ -6,6 +6,11 @@
 #    uri: p8_db_user:dripline@localhost:5432/p8_sc_db
 #    basename: CCA
 
+#  calibration_source:
+#   {either}
+#    uri: csv
+#    url: postgres
+
 # sensor_table:
 #   setup:
 #     id: { name: CCA, label: Cavity CRES Apparatus }
