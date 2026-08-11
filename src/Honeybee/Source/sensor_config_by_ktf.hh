@@ -12,6 +12,7 @@
 #include <tabree/KVariant.h>
 #include "sensor_config.hh"
 #include "calibration_accessor.hh"
+#include "db_calibration.hh"
 
 namespace kebap {
     class KPStandardParser;
@@ -38,9 +39,7 @@ namespace honeybee {
         void load(sensor_table& a_table, const string& a_filename) override;
 
         void set_cal_source(const std::string& t_uri);
-        shared_ptr<calibration_accessor> create_cal_accessor(const std::string& t_uri);
-        shared_ptr<calibration> create_db_calibration(sensor& t_sensor, sensor_table& t_sensor_table,
-                                                      const std::string& t_entity_key);
+        shared_ptr<calibration> create_calibration(sensor& t_sensor, sensor_table& t_sensor_table, const std::string& t_entity_key);
 
 
         
@@ -56,6 +55,12 @@ namespace honeybee {
         void load_layer(sensor_table& a_table, const tabree::KTree& a_node, load_context& a_context);
         void add_sensor(sensor_table& a_table, const tabree::KTree& a_node,
                        const load_context& a_context);
+        
+        shared_ptr<calibration_accessor> create_cal_accessor(const std::string& t_uri);
+        shared_ptr<calibration> create_db_calibration(sensor& t_sensor, sensor_table& t_sensor_table,
+                                                      const std::string& t_entity_key);
+        shared_ptr<calibration> create_kebap_calibration(sensor& t_sensor, sensor_table& t_sensor_table,
+                                                      int t_line_number);
     };
 }
 
