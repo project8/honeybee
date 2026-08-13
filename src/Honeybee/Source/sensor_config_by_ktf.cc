@@ -136,6 +136,12 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
         cerr << "ERROR: " << e.what() << endl;
         return;
     }
+
+    string t_calibration_db_uri = t_tree["calibration_source"]["uri"].Or("");
+    if (! t_calibration_db_uri.empty()) {
+        hINFO("Using calibration source URI from KTF: " << t_calibration_db_uri);
+        set_cal_source(t_calibration_db_uri);
+    }
     
     // Extract and compile scripts
     string t_scripts = extract_scripts();

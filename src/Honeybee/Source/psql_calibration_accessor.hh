@@ -8,7 +8,6 @@
 #include "calibration_accessor.hh"
 #include "pgsql.hh"
 #include <string>
-#include <memory>
 
 namespace honeybee {
 
@@ -18,7 +17,7 @@ namespace honeybee {
             explicit psql_calibration_accessor(string connection_string);
 
             string get_lambda( const string& entity_key, double query_from, double query_to) 
-                                const override;
+                                override;
         private:
             string build_sql(const string& entity_key, double query_from, double query_to) const;
             pgsql f_pgsql;

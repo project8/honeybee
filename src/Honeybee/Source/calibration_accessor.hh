@@ -14,7 +14,7 @@ namespace honeybee {
       virtual ~calibration_accessor() = default;
 
       virtual std::string get_lambda( const std::string& entity_key, double query_from,
-                                double query_to) const = 0;
+                                double query_to) = 0;
   };
 } // namespace honeybee
 
