@@ -12,8 +12,6 @@
 #include <tabree/KTreeFile.h>
 #include "sensor_config_by_ktf.hh"
 #include "sensor_table.hh"
-#include "kebap_calibration.hh"
-#include "db_calibration.hh"
 #include "utils.hh"
 #include "error_logger.hh"
 #include "psql_calibration_accessor.hh"
@@ -22,7 +20,7 @@ using namespace std;
 using namespace honeybee;
 
 sensor_config_by_ktf::sensor_config_by_ktf()
-    : f_standard_parser(nullptr), f_cal_accessor(nullptr)
+    : f_standard_parser(nullptr), f_calibration_factory(nullptr), f_accessor(nullptr)
 {
 }
 
@@ -38,88 +36,33 @@ void sensor_config_by_ktf::set_variables(const sensor_config_by_ktf::variables& 
 void sensor_config_by_ktf::set_cal_source(const std::string& t_uri)
 {
     f_calibration_source_uri = t_uri;
-    // Force recreation say if uri change 
-    f_cal_accessor = nullptr;
+    if (!t_uri.empty()) {
+        f_accessor = create_accessor(t_uri);
+    }
 }
 
 shared_ptr<calibration> sensor_config_by_ktf::create_calibration(
     sensor& t_sensor,
     sensor_table& t_sensor_table,
-    const std::string& t_entity_key)
+    const std::string& t_entity_key,
+    int t_line_number)
 {
-    if (!t_sensor.get_calibration().empty()) {
-        hINFO("Creating inline Kebap calibration for " << t_entity_key
-              << ": \"" << t_sensor.get_calibration() << "\"");
-        return create_kebap_calibration(t_sensor, t_sensor_table, 0);
-    }
-
-    if (!f_calibration_source_uri.empty()) {
-        hINFO("Creating DB-backed calibration for " << t_entity_key
-              << " from " << f_calibration_source_uri);
-        return create_db_calibration(t_sensor, t_sensor_table, t_entity_key);
-    }
-
-    return nullptr;
-}
-
-shared_ptr<calibration_accessor> sensor_config_by_ktf::create_cal_accessor(const std::string& t_uri)
-{
-    if (t_uri.empty()) {
+    // Factory must be initialized by load()
+    if (!f_calibration_factory) {
         return nullptr;
     }
 
-    hINFO("Creating calibration accessor from URI: " << t_uri);
-
-    if (t_uri.rfind("postgresql://", 0) == 0 || t_uri.rfind("postgres://", 0) == 0) {
-        return make_shared<psql_calibration_accessor>(t_uri);
-    }
-
-    throw invalid_argument("unsupported calibration source URI: " + t_uri);
-    // want to later update to logger type feedback 
-}
-
-shared_ptr<calibration> sensor_config_by_ktf::create_db_calibration(
-    sensor& t_sensor,
-    sensor_table& t_sensor_table,
-    const std::string& t_entity_key)
-{
-    if (!f_cal_accessor) {
-        f_cal_accessor = create_cal_accessor(f_calibration_source_uri);
-    }
-
-    if (!f_cal_accessor) { // update loggger type throw
-        throw runtime_error("calibration accessor is not configured");
-    }
-
-    hINFO("Creating db_calibration for " << t_entity_key);
-
-    return make_shared<db_calibration>(
+    // Build context from current state
+    calibration_context ctx = {
         t_sensor,
         t_sensor_table,
-        f_standard_parser.get(),
-        f_ktf_path,
-        0,
-        f_cal_accessor,
-        t_entity_key);
-}
+        t_entity_key,
+        f_calibration_source_uri,
+        f_accessor,  
+        t_line_number
+    };
 
-shared_ptr<calibration> sensor_config_by_ktf::create_kebap_calibration(
-    sensor& t_sensor,
-    sensor_table& t_sensor_table,
-    int t_line_number)
-{
-    if (!f_standard_parser) {
-        throw runtime_error("kebap parser is not available");
-    }
-
-    hINFO("Creating kebap_calibration for " << t_sensor.get_name().join("."));
-
-    return make_shared<kebap_calibration>(
-        t_sensor,
-        t_sensor_table,
-        f_standard_parser.get(),
-        f_ktf_path,
-        t_line_number);
+    return f_calibration_factory->create_calibration(ctx);
 }
 
 void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
@@ -167,10 +110,29 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
         hINFO("No Kebap scripts found in ktf header");
     }
     
+    // Create calibration factory with parser and ktf path
+    f_calibration_factory = make_shared<calibration_factory>(f_standard_parser, f_ktf_path);
+    
     // Recursively load and configure sensors from hierarchical KTF structure
     load_context t_context;
     load_layer(a_table, t_tree["sensor_table"], t_context);
     hINFO("Completed loading ktf file");
+}
+
+shared_ptr<calibration_accessor> sensor_config_by_ktf::create_accessor(const string& uri)
+{
+    if (uri.empty()) {
+        return nullptr;
+    }
+
+    hINFO("Creating calibration accessor from URI: " << uri);
+
+    // Detect PostgreSQL URI schemes
+    if (uri.rfind("postgresql://", 0) == 0 || uri.rfind("postgres://", 0) == 0) {
+        return make_shared<psql_calibration_accessor>(uri);
+    }
+
+    throw invalid_argument("unsupported calibration source URI: " + uri);
 }
 
 string sensor_config_by_ktf::extract_scripts()
@@ -312,7 +274,7 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree
     t_sensor.set_calibration(t_calibration);
     
     try {
-        auto t_calib = create_calibration(t_sensor, a_table, t_name_chain.front());
+        auto t_calib = create_calibration(t_sensor, a_table, t_name_chain.front(), 0);
         if (t_calib) {
             t_sensor.set_calibration_object(t_calib);
             hINFO("Attached calibration object to " << t_name_chain.front());

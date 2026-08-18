@@ -1,6 +1,7 @@
 add_library(HoneybeeLib STATIC
   honeybee.cc
   calibration.cc
+  calibration_factory.cc
   db_calibration.cc
   data_source.cc
   pgsql.cc
@@ -18,6 +19,7 @@ add_library(HoneybeeLib STATIC
 set(MyPublicHeaders
   honeybee.hh
   calibration.hh
+  calibration_factory.hh
   calibration_accessor.hh
   db_calibration.hh
   data_source.hh

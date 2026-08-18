@@ -11,8 +11,7 @@
 #include <memory>
 #include <tabree/KVariant.h>
 #include "sensor_config.hh"
-#include "calibration_accessor.hh"
-#include "db_calibration.hh"
+#include "calibration_factory.hh"
 
 namespace kebap {
     class KPStandardParser;
@@ -39,16 +38,17 @@ namespace honeybee {
         void load(sensor_table& a_table, const string& a_filename) override;
 
         void set_cal_source(const std::string& t_uri);
-        shared_ptr<calibration> create_calibration(sensor& t_sensor, sensor_table& t_sensor_table, const std::string& t_entity_key);
+        shared_ptr<calibration> create_calibration(sensor& t_sensor, sensor_table& t_sensor_table, 
+                                                   const std::string& t_entity_key, int t_line_number = 0);
 
 
         
       private:
         shared_ptr<kebap::KPStandardParser> f_standard_parser;
         string f_ktf_path;
-        // Runtime variables passed from caller for guard condition evaluation (e.g., device state checks)
         variables f_variables;
-        shared_ptr<calibration_accessor> f_cal_accessor;
+        shared_ptr<calibration_factory> f_calibration_factory;
+        shared_ptr<calibration_accessor> f_accessor;
         string f_calibration_source_uri;
         
         string extract_scripts();
@@ -56,11 +56,7 @@ namespace honeybee {
         void add_sensor(sensor_table& a_table, const tabree::KTree& a_node,
                        const load_context& a_context);
         
-        shared_ptr<calibration_accessor> create_cal_accessor(const std::string& t_uri);
-        shared_ptr<calibration> create_db_calibration(sensor& t_sensor, sensor_table& t_sensor_table,
-                                                      const std::string& t_entity_key);
-        shared_ptr<calibration> create_kebap_calibration(sensor& t_sensor, sensor_table& t_sensor_table,
-                                                      int t_line_number);
+        shared_ptr<calibration_accessor> create_accessor(const string& uri);
     };
 }
 

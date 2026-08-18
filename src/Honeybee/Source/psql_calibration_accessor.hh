@@ -25,14 +25,3 @@ namespace honeybee {
 }
 
 #endif
-
-/*
-
-class psql_calibration_accessor {
-        - pgsql f_pgsql
-        - psql_accessor(string db_uri)
-        - build_runtime_calibration(...)
-        - build_sql(string entity_key, double query_from, double query_to) string
-    }
-
-*/ 
