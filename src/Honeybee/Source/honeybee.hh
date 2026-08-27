@@ -32,6 +32,7 @@ namespace honeybee {
         virtual ~honeybee_app() {}
         void add_config_file(const std::string& filepath);
         void add_dripline_db(const std::string& db_uri);
+        void add_calibration_uri(const std::string& uri);
         void add_variable(const std::string& key, const tabree::KVariant& value);
         void set_delimiter(const std::string& input_delimiters, const std::string& output_delimiter="");
         void set_value_column_default(const std::string& value_column);
@@ -46,6 +47,7 @@ namespace honeybee {
       protected:
         std::string f_config_file_path;
         std::string f_dripline_db_uri;
+        std::string f_calibration_uri;
         std::string f_default_delimiters, f_input_delimiters, f_output_delimiter;
         std::string f_value_column_default;
       protected:

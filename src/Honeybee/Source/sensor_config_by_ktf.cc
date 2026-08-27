@@ -20,7 +20,7 @@ using namespace std;
 using namespace honeybee;
 
 sensor_config_by_ktf::sensor_config_by_ktf()
-    : f_standard_parser(nullptr), f_calibration_factory(nullptr), f_accessor(nullptr)
+    : f_standard_parser(nullptr), f_calibration_factory(nullptr)
 {
 }
 
@@ -33,39 +33,14 @@ void sensor_config_by_ktf::set_variables(const sensor_config_by_ktf::variables& 
     f_variables.insert(f_variables.end(), a_variables.begin(), a_variables.end());
 }
 
-void sensor_config_by_ktf::set_cal_source(const std::string& t_uri)
-{
-    f_calibration_source_uri = t_uri;
-    if (!t_uri.empty()) {
-        f_accessor = create_accessor(t_uri);
-    }
-}
-
-shared_ptr<calibration> sensor_config_by_ktf::create_calibration(
-    sensor& t_sensor,
-    sensor_table& t_sensor_table,
-    const std::string& t_entity_key,
-    int t_line_number)
-{
-    // Factory must be initialized by load()
-    if (!f_calibration_factory) {
-        return nullptr;
-    }
-
-    // Build context from current state
-    calibration_context ctx = {
-        t_sensor,
-        t_sensor_table,
-        t_entity_key,
-        f_calibration_source_uri,
-        f_accessor,  
-        t_line_number
-    };
-
-    return f_calibration_factory->create_calibration(ctx);
-}
-
 void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
+{
+    load_with(a_table, a_filename, nullptr);
+}
+
+void sensor_config_by_ktf::load_with(sensor_table& a_table,
+                                     const string& a_filename,
+                                     const shared_ptr<calibration_accessor>& a_accessor)
 {
     f_ktf_path = a_filename;
     hINFO("Loading KTF file: " << a_filename);
@@ -80,12 +55,6 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
         return;
     }
 
-    string t_calibration_db_uri = t_tree["calibration_source"]["uri"].Or("");
-    if (! t_calibration_db_uri.empty()) {
-        hINFO("Using calibration source URI from KTF: " << t_calibration_db_uri);
-        set_cal_source(t_calibration_db_uri);
-    }
-    
     // Extract and compile scripts
     string t_scripts = extract_scripts();
     if (!t_scripts.empty()) {
@@ -110,29 +79,13 @@ void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
         hINFO("No Kebap scripts found in ktf header");
     }
     
-    // Create calibration factory with parser and ktf path
-    f_calibration_factory = make_shared<calibration_factory>(f_standard_parser, f_ktf_path);
+    f_calibration_factory = make_shared<calibration_factory>(
+        f_standard_parser, f_ktf_path, a_accessor);
     
     // Recursively load and configure sensors from hierarchical KTF structure
     load_context t_context;
     load_layer(a_table, t_tree["sensor_table"], t_context);
     hINFO("Completed loading ktf file");
-}
-
-shared_ptr<calibration_accessor> sensor_config_by_ktf::create_accessor(const string& uri)
-{
-    if (uri.empty()) {
-        return nullptr;
-    }
-
-    hINFO("Creating calibration accessor from URI: " << uri);
-
-    // Detect PostgreSQL URI schemes
-    if (uri.rfind("postgresql://", 0) == 0 || uri.rfind("postgres://", 0) == 0) {
-        return make_shared<psql_calibration_accessor>(uri);
-    }
-
-    throw invalid_argument("unsupported calibration source URI: " + uri);
 }
 
 string sensor_config_by_ktf::extract_scripts()
@@ -174,7 +127,28 @@ string sensor_config_by_ktf::extract_scripts()
     return t_scripts;
 }
 
-void sensor_config_by_ktf::load_layer(sensor_table& a_table, const tabree::KTree& a_node, load_context& a_context)
+calibration_config sensor_config_by_ktf::extract_calibration_config(const tabree::KTree& a_node)
+{
+    calibration_config t_config;
+    
+    if (!a_node["default_calibration"].IsVoid()) {
+        t_config.type = "default_calibration";
+        t_config.params["value"] = a_node["default_calibration"].As<string>();
+        return t_config;
+    }
+    
+    if (!a_node["db_calibration"].IsVoid()) {
+        t_config.type = "db_calibration";
+        t_config.params["entity_key"] = a_node["db_calibration"]["entity_key"].As<string>();
+        return t_config;
+    }
+    
+    return t_config;
+}
+
+void sensor_config_by_ktf::load_layer(sensor_table& a_table,
+                                     const tabree::KTree& a_node,
+                                     load_context& a_context)
 {
     // Helper for array index formatting
     auto append_index = [](const string& text, int length, unsigned index)->string {
@@ -260,8 +234,9 @@ void sensor_config_by_ktf::load_layer(sensor_table& a_table, const tabree::KTree
     }
 }
 
-void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree& a_node, 
-                                      const load_context& a_context)
+void sensor_config_by_ktf::add_sensor(sensor_table& a_table,
+                                     const tabree::KTree& a_node,
+                                     const load_context& a_context)
 {
     int t_number = sensor_table::create_unique_number();
     vector<string> t_name_chain(a_context.f_name.begin(), a_context.f_name.end());
@@ -269,15 +244,24 @@ void sensor_config_by_ktf::add_sensor(sensor_table& a_table, const tabree::KTree
     
     sensor t_sensor(t_number, t_name_chain, t_label_chain);
     
-    // Set calibration string
-    string t_calibration = a_node["default_calibration"].Or("");
-    t_sensor.set_calibration(t_calibration);
-    
     try {
-        auto t_calib = create_calibration(t_sensor, a_table, t_name_chain.front(), 0);
-        if (t_calib) {
-            t_sensor.set_calibration_object(t_calib);
-            hINFO("Attached calibration object to " << t_name_chain.front());
+        auto t_config = extract_calibration_config(a_node);
+        
+        if (!t_config.type.empty() && f_calibration_factory) {
+            auto t_calib = f_calibration_factory->create_calibration(
+                t_config,
+                t_sensor,
+                a_table,
+                0
+            );
+            
+            if (t_calib) {
+                t_sensor.set_calibration_object(t_calib);
+                hINFO("Attached calibration object to " << t_name_chain.front());
+            }
+            else {
+                hINFO("No calibration created for sensor: " << t_name_chain.front());
+            }
         }
         else {
             hINFO("No calibration for sensor: " << t_name_chain.front());

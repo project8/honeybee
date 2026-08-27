@@ -12,6 +12,8 @@
 #include "honeybee.hh"
 #include "error_logger.hh"
 #include "sensor_config_by_ktf.hh"
+#include "system_config.hh"
+#include "psql_calibration_accessor.hh"
 
 using namespace std;
 using namespace honeybee;
@@ -41,6 +43,11 @@ void honeybee_app::add_config_file(const string& filepath)
 void honeybee_app::add_dripline_db(const string& db_uri)
 {
     f_dripline_db_uri = db_uri;
+}
+
+void honeybee_app::add_calibration_uri(const string& uri)
+{
+    f_calibration_uri = uri;
 }
 
 void honeybee_app::add_variable(const string& key, const tabree::KVariant& value)
@@ -106,11 +113,29 @@ void honeybee_app::construct()
         t_config["data_source"]["dripline_psql"]["uri"] = f_dripline_db_uri;
     }
 
+    // accesor creation steps 
+    system_config t_system_config(t_config);
+    string t_calibration_uri = f_calibration_uri;
+    if (t_calibration_uri.empty()) {
+        const char* t_env_uri = getenv("HONEYBEE_CALIBRATION_URI");
+        if (t_env_uri) {
+            t_calibration_uri = t_env_uri;
+        }
+    }
+    if (t_calibration_uri.empty()) {
+        t_calibration_uri = t_system_config.calibration_uri();
+    }
+
+    shared_ptr<calibration_accessor> t_calibration_accessor;
+    if (! t_calibration_uri.empty()) {
+        t_calibration_accessor = make_shared<psql_calibration_accessor>(t_calibration_uri);
+    }
+
     if (! f_config_file_path.empty()) {
         hINFO("loading " << f_config_file_path);
         auto t_loader = make_shared<sensor_config_by_ktf>();
         t_loader->set_variables(f_variables);
-        t_loader->load(*f_sensor_table, f_config_file_path);
+        t_loader->load_with(*f_sensor_table, f_config_file_path, t_calibration_accessor);
         f_loaders[f_config_file_path] = t_loader;
         hINFO(f_sensor_table->find_like({{}}).size() << " sensors defined");
     }
