@@ -24,6 +24,7 @@ int main(int argc, char** argv)
         std::cerr << "Options:" << std::endl;
         std::cerr << "  --config=FILE            config file (sensor table etc)" << std::endl;
         std::cerr << "  --dripline-db=DB_URI     dripline database" << std::endl;
+        std::cerr << "  --calibration-uri=URI    calibration database" << std::endl;
         std::cerr << "  --fields                 list of sensor data fields to display"<< std::endl;
         std::cerr << "  --var-KEY=VALUE          set parameter values (used in config files)"<< std::endl;
         std::cerr << "  --delimiter=VALUE        set channel name delimiter"<< std::endl;
@@ -46,6 +47,7 @@ int main(int argc, char** argv)
     
     std::string t_config_file = args["--config"].Or("");
     std::string t_dripline_db = args["--dripline-db"].Or("");
+    std::string t_calibration_uri = args["--calibration-uri"].Or("");
     std::string t_delimiter = args["--delimiter"].Or("");
     std::string t_delimiter_input = args["--delimiter-input"].Or(t_delimiter);
     std::string t_delimiter_output = args["--delimiter-output"].Or(t_delimiter.substr(0,1));
@@ -122,6 +124,7 @@ int main(int argc, char** argv)
     hb::honeybee_app t_honeybee_app;
     t_honeybee_app.add_config_file(t_config_file);
     t_honeybee_app.add_dripline_db(t_dripline_db);
+    t_honeybee_app.add_calibration_uri(t_calibration_uri);
     t_honeybee_app.set_delimiter(t_delimiter_input, t_delimiter_output);
     for (auto& variable: t_variables) {
         t_honeybee_app.add_variable(variable.first, variable.second);

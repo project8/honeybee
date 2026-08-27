@@ -25,6 +25,7 @@ int main(int argc, char** argv)
         std::cerr << "Other Options:" << std::endl;
         std::cerr << "  --config=FILE            config file (sensor table etc)" << std::endl;
         std::cerr << "  --dripline-db=DB_URI     dripline database" << std::endl;
+        std::cerr << "  --calibration-uri=URI    calibration database" << std::endl;
         std::cerr << "  --series                 output time-series of each sensor"<< std::endl;
         std::cerr << "  --resample=SEC,REDUCER   resampling interval and reducer" << std::endl;
         std::cerr << "  --summary=REDUCER+       output n,mean,std,sem,min,max,first,last"<< std::endl;
@@ -46,6 +47,7 @@ int main(int argc, char** argv)
     
     std::string t_config_file = args["--config"].Or("");
     std::string t_dripline_db = args["--dripline-db"].Or("");
+    std::string t_calibration_uri = args["--calibration-uri"].Or("");
     std::string t_delimiter = args["--delimiter"].Or("");
     std::string t_delimiter_input = args["--delimiter-input"].Or(t_delimiter);
     std::string t_delimiter_output = args["--delimiter-output"].Or(t_delimiter.substr(0,1));
@@ -141,6 +143,7 @@ int main(int argc, char** argv)
     hb::honeybee_app t_honeybee_app;
     t_honeybee_app.add_config_file(t_config_file);
     t_honeybee_app.add_dripline_db(t_dripline_db);
+    t_honeybee_app.add_calibration_uri(t_calibration_uri);
     t_honeybee_app.set_delimiter(t_delimiter_input, t_delimiter_output);
     if (! t_value_column.empty()) {
         t_honeybee_app.set_value_column_default(t_value_column);
