@@ -54,15 +54,40 @@ static string build_lambda(const string& t_lambda_template,
 }
 
 psql_calibration_accessor::psql_calibration_accessor(string connection_string)
-    : f_pgsql(std::move(connection_string))
+    : f_pgsql(std::move(connection_string)), f_table_name("calibration_projection")
 {
+    f_table_name = parse_table_name(connection_string);
+}
+
+string psql_calibration_accessor::parse_table_name(const string& connection_string) const
+{
+    if (connection_string.empty()) {
+        throw runtime_error("invalid calibration URI: empty connection string");
+    }
+
+    string t_uri = connection_string;
+    while (!t_uri.empty() && t_uri.back() == '/') {
+        t_uri.pop_back();
+    }
+
+    auto t_last_slash = t_uri.find_last_of('/');
+    if (t_last_slash == string::npos || t_last_slash + 1 >= t_uri.size()) {
+        throw runtime_error("invalid calibration URI: expected final path segment to be a table name");
+    }
+
+    string t_table = t_uri.substr(t_last_slash + 1);
+    if (t_table.empty() || t_table.find('/') != string::npos) {
+        throw runtime_error("invalid calibration URI: expected final path segment to be a table name");
+    }
+
+    return t_table;
 }
 
 string psql_calibration_accessor::build_sql(const string& entity_key, double query_from, double query_to) const
 {
     string t_sql = (string("")
         + "SELECT input_source, additional_input_sources, lambda "
-        + "FROM calibration_projection "
+        + "FROM " + f_table_name + " "
         + "WHERE entity_key = '" + entity_key + "' "
         + "AND " + to_string(query_from) + " >= valid_from "
         + "AND " + to_string(query_from) + " <= valid_to "
