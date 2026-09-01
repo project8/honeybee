@@ -14,6 +14,8 @@ namespace honeybee {
         explicit system_config(const tabree::KTree& a_config);
 
         std::string calibration_uri() const;
+        std::string data_source_uri() const;
+        std::string data_source_basename() const;
 
       private:
         tabree::KTree f_config;
@@ -21,3 +23,4 @@ namespace honeybee {
 }
 
 #endif
+

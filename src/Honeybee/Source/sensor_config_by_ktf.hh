@@ -30,15 +30,12 @@ namespace honeybee {
       public:
         using variables = vector<pair<string, tabree::KVariant>>;
         
-        sensor_config_by_ktf();
+        sensor_config_by_ktf(const shared_ptr<calibration_factory>& a_factory);
         virtual ~sensor_config_by_ktf();
         
         void set_variables(const variables& a_variables);
         const variables& get_variables() const { return f_variables; }
         void load(sensor_table& a_table, const string& a_filename) override;
-        void load_with(sensor_table& a_table,
-                 const string& a_filename,
-                 const shared_ptr<calibration_accessor>& a_accessor);
 
       private:
         shared_ptr<kebap::KPStandardParser> f_standard_parser;

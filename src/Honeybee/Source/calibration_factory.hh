@@ -30,10 +30,12 @@ namespace honeybee {
      */
     class calibration_factory {
     public:
-        calibration_factory(std::shared_ptr<kebap::KPStandardParser> a_parser,
-                           const std::string& a_ktf_path,
-                           const std::shared_ptr<calibration_accessor>& a_accessor);
+        explicit calibration_factory(
+            const std::shared_ptr<calibration_accessor>& a_accessor);
         ~calibration_factory() = default;
+
+        void set_ktf_context(std::shared_ptr<kebap::KPStandardParser> a_parser,
+                        const std::string& a_ktf_path);
 
         std::shared_ptr<calibration> create_calibration(
             const calibration_config& a_config,

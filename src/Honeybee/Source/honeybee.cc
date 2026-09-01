@@ -14,6 +14,7 @@
 #include "sensor_config_by_ktf.hh"
 #include "system_config.hh"
 #include "psql_calibration_accessor.hh"
+#include "calibration_factory.hh"
 
 using namespace std;
 using namespace honeybee;
@@ -131,16 +132,20 @@ void honeybee_app::construct()
         t_calibration_accessor = make_shared<psql_calibration_accessor>(t_calibration_uri);
     }
 
+    auto t_calibration_factory = make_shared<calibration_factory>(
+        t_calibration_accessor);
+
     if (! f_config_file_path.empty()) {
         hINFO("loading " << f_config_file_path);
-        auto t_loader = make_shared<sensor_config_by_ktf>();
+        auto t_loader = make_shared<sensor_config_by_ktf>(t_calibration_factory);
         t_loader->set_variables(f_variables);
-        t_loader->load_with(*f_sensor_table, f_config_file_path, t_calibration_accessor);
+        t_loader->load(*f_sensor_table, f_config_file_path);
         f_loaders[f_config_file_path] = t_loader;
         hINFO(f_sensor_table->find_like({{}}).size() << " sensors defined");
     }
 
-    if (t_config["data_source"]["dripline_psql"]["uri"].IsVoid()) {
+    const string t_db_uri = t_system_config.data_source_uri();
+    if (t_db_uri.empty()) {
         hINFO("No data source defined");
     }
 
@@ -170,8 +175,7 @@ void honeybee_app::construct()
         }
     }
         
-    string t_db_uri = t_config["data_source"]["dripline_psql"]["uri"];
-    string t_basename = t_config["data_source"]["dripline_psql"]["basename"];
+    const string t_basename = t_system_config.data_source_basename();
     if (t_db_uri.empty()) {
         hERROR("No Dripline Datasource found");
     }

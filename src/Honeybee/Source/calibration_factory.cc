@@ -16,11 +16,17 @@ using namespace std;
 
 namespace honeybee {
 
-calibration_factory::calibration_factory(shared_ptr<kebap::KPStandardParser> a_parser,
-                                         const string& a_ktf_path,
-                                         const shared_ptr<calibration_accessor>& a_accessor)
-    : f_parser(a_parser), f_ktf_path(a_ktf_path), f_accessor(a_accessor)
+calibration_factory::calibration_factory(
+    const shared_ptr<calibration_accessor>& a_accessor)
+    : f_accessor(a_accessor)
 {
+}
+
+void calibration_factory::set_ktf_context(shared_ptr<kebap::KPStandardParser> a_parser,
+                                      const string& a_ktf_path)
+{
+    f_parser = a_parser;
+    f_ktf_path = a_ktf_path;
 }
 
 shared_ptr<calibration> calibration_factory::create_calibration(

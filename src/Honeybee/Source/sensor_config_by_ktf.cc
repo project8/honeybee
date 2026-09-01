@@ -19,8 +19,9 @@
 using namespace std;
 using namespace honeybee;
 
-sensor_config_by_ktf::sensor_config_by_ktf()
-    : f_standard_parser(nullptr), f_calibration_factory(nullptr)
+sensor_config_by_ktf::sensor_config_by_ktf(
+    const shared_ptr<calibration_factory>& a_factory)
+    : f_standard_parser(nullptr), f_calibration_factory(a_factory)
 {
 }
 
@@ -34,13 +35,6 @@ void sensor_config_by_ktf::set_variables(const sensor_config_by_ktf::variables& 
 }
 
 void sensor_config_by_ktf::load(sensor_table& a_table, const string& a_filename)
-{
-    load_with(a_table, a_filename, nullptr);
-}
-
-void sensor_config_by_ktf::load_with(sensor_table& a_table,
-                                     const string& a_filename,
-                                     const shared_ptr<calibration_accessor>& a_accessor)
 {
     f_ktf_path = a_filename;
     hINFO("Loading KTF file: " << a_filename);
@@ -79,8 +73,10 @@ void sensor_config_by_ktf::load_with(sensor_table& a_table,
         hINFO("No Kebap scripts found in ktf header");
     }
     
-    f_calibration_factory = make_shared<calibration_factory>(
-        f_standard_parser, f_ktf_path, a_accessor);
+    if (!f_calibration_factory) {
+        throw runtime_error("Calibration factory is not available");
+    }
+    f_calibration_factory->set_ktf_context(f_standard_parser, f_ktf_path);
     
     // Recursively load and configure sensors from hierarchical KTF structure
     load_context t_context;
