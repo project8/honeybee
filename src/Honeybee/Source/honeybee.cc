@@ -144,8 +144,7 @@ void honeybee_app::construct()
         hINFO(f_sensor_table->find_like({{}}).size() << " sensors defined");
     }
 
-    const string t_db_uri = t_system_config.data_source_uri();
-    if (t_db_uri.empty()) {
+    if (t_config["data_source"]["dripline_psql"]["uri"].IsVoid()) {
         hINFO("No data source defined");
     }
 
@@ -175,7 +174,8 @@ void honeybee_app::construct()
         }
     }
         
-    const string t_basename = t_system_config.data_source_basename();
+    string t_db_uri = t_config["data_source"]["dripline_psql"]["uri"];
+    string t_basename = t_config["data_source"]["dripline_psql"]["basename"];
     if (t_db_uri.empty()) {
         hERROR("No Dripline Datasource found");
     }

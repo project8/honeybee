@@ -10,7 +10,6 @@
 #include <map>
 #include <set>
 #include <algorithm>
-#include <regex>
 #include <limits>
 #include <stdexcept>
 #include "sensor_table.hh"
@@ -21,30 +20,6 @@
 
 using namespace std;
 using namespace honeybee;
-
-
-static string sanitize(const string& text, const string& pattern=R"([a-zA-Z0-9_]+)")
-{
-    auto& t_logger = error_logger::instance();
-    try {
-        regex re(pattern);
-        if (! regex_match(text, re)) {
-            string t_message = string("sanitization fault (pattern: ") + pattern + "): " + text;
-            t_logger.error("data_source", "sanitization_fault", t_message);
-            throw std::runtime_error(t_message);
-        }
-    }
-    catch (const std::regex_error& e) {
-        string t_message = string("sanitization fault: ") + e.what() + ": " + text;
-        t_logger.error("data_source", "sanitization_fault", t_message);
-        throw std::runtime_error(t_message);
-    }
-
-    return text;
-}
-
-
-
 
 
 void data_source::bind(sensor_table& a_sensor_table)
